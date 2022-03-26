@@ -1,0 +1,13 @@
+version: '3.9'
+services:
+  db:
+    container_name: splinter_db
+    hostname: splinter_db
+    image: postgres:12.10
+    restart: always
+    env_file:
+      - database/db.env
+    volumes:
+      - type: bind
+        source: ./database/data
+        target: /var/lib/postgresql/data
