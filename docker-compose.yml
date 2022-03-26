@@ -11,3 +11,9 @@ services:
       - type: bind
         source: ./database/data
         target: /var/lib/postgresql/data
+  engine:
+    container_name: splinter_engine
+    hostname: splinter_engine
+    build: engine/
+    depends_on:
+      - db
