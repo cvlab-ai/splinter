@@ -1,0 +1,1 @@
+from generator import scratch_mark_generator
