@@ -4,5 +4,5 @@ numpy
 tensorflow
 matplotlib
 jupyterlab
-Pillow
 ipykernel
+openvino-dev==2022.1
