@@ -17,3 +17,7 @@ services:
     build: engine/
     depends_on:
       - db
+  web:
+    container_name: splinter_web
+    hostname: splinter_web
+    build: web/
