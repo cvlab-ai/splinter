@@ -1,16 +1,17 @@
 from . import GeneratorConfig
+from .text_generator import TextGenerator
+from .rule_generator import RuleGenerator
 from .logger import logger
-from .generator_config import AnswerLayout, AnswerSeparator, AnswerToken
+from .generator_config import AnswerLayout, QuestionLength, AnswerLength, AnswerSeparator, AnswerToken
+from .exam_document import ExamDocument
 
 
-class RuleGenerator:
-    def __init__(self, config: GeneratorConfig):
-        self.config = config
 
 
 ############ QUESTION GENERATION #############
+import random
+
 import pylatex as ptex
-import lorem
 from .utils import int_to_roman
 
 
@@ -21,25 +22,22 @@ class QuestionGenerator:
     def generate(self):
         questions = []
         for i in range(self.config.number_of_questions):
-            questions.append(self.__generate_single_question(self.config.answers_layout[i],
-                                                             self.config.number_of_answers[i],
-                                                             self.config.answers_token,
-                                                             self.config.answers_separator))
+            questions.append(self.__generate_single_question(self.config.questions_length[i],
+                                                             self.config.answers_layout[i],
+                                                             self.config.answers_length[i],
+                                                             self.config.number_of_answers[i]))
         return questions
 
-    @staticmethod
-    def __generate_single_question(answer_layout: AnswerLayout, number_of_answers: int, answer_token: AnswerToken, answer_sep: AnswerSeparator):
-        section = ptex.Section(f"{lorem.sentence()}")
-        # question_content = ptex.Subsection("")
-        # question_content.append(lorem.sentence())
-        # logger.debug(f"Generated question: {question_content}")
+    def __generate_single_question(self, question_length: QuestionLength, answer_layout: AnswerLayout, answer_length: AnswerLength, number_of_answers: int):
+        question_text = TextGenerator.generate_question_text(random.randint(1, question_length))
+        section = ptex.Section(f"{question_text}")
+        answers = ptex.Description(options=ptex.NoEscape(f"font={{\\fontsize{{{self.config.font_size}}}{{{int(self.config.font_size*1.2)}}}\selectfont}}"))
+        logger.debug(f"Generated Question: {question_text}")
 
-        answers = ptex.Description()
-        logger.debug(f"Token: {answer_token}")
-
-        for token in QuestionGenerator.__token_generator(answer_token, number_of_answers):
-            answers.add_item(f"{token}{answer_sep.value}",f"{lorem.sentence()}")
-            logger.debug(f"Generated answer: {token}{answer_sep.value} {lorem.sentence()}")
+        for token in QuestionGenerator.__token_generator(self.config.answers_token, number_of_answers):
+            answer_text = TextGenerator.generate_text(random.randint(1, answer_length))
+            answers.add_item(f"{token}{self.config.answers_separator.value}", ptex.NoEscape(f"{{\\fontsize{{{self.config.font_size}}}{{{int(self.config.font_size*1.2)}}}\selectfont {answer_text}}}"))
+            logger.debug(f"Generated answer: {token}{self.config.answers_separator.value} {answer_text}")
 
         section.append(answers)
         return section
@@ -64,24 +62,28 @@ class ExamGenerator:
 
     def generate(self):
         logger.info("Generating exam...")
-        # doc = ptex.Document('basic', font_size=self.config.font_size)
-        doc = ptex.Document()
-        doc.documentclass = ptex.Command(
-            "documentclass",
-            options=[f"{self.config.font_size}pt"],
-            arguments=["article"],
-        )
+        doc = ExamDocument(self.config)
+
+        rule_generator = RuleGenerator(self.config)
+        doc.append(rule_generator.generate())
 
         question_generator = QuestionGenerator(self.config)
         for question in question_generator.generate():
+            doc.append(ptex.NoEscape('{\\nobreak'))
             doc.append(question)
+            doc.append(ptex.NoEscape('}'))
 
-        # doc.generate_pdf("exam", clean_tex=False)
         doc.generate_tex()
+        doc.generate_pdf("exam", clean_tex=False)
 
     def generate_multiple(self, count: int):
         exams = []
         for _ in range(count):
             exams.append(self.generate())
-
         return exams
+
+    # @staticmethod
+    # def _set_section_font(doc: ptex.Document, font_size: int):
+    #     logger.debug(f"Setting section title font to {font_size}pt")
+    #     doc.packages.append(ptex.Package('sectsty'))
+    #     doc.preamble.append(ptex.Command("sectionfont", ptex.NoEscape(f"\\fontsize{{{font_size}}}{{15}}\selectfont")))
