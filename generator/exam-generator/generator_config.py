@@ -34,7 +34,7 @@ class MarkType(IntEnum):
         return True
 
 
-class RuleStructures(IntEnum):
+class RuleStructure(IntEnum):
     DESCRIPTION = 0
     INDEX = auto()
     EXAM_DURATION = auto()
@@ -61,10 +61,16 @@ class AnswerLayout(IntEnum):
     # D) ANSWER E) ANSWER
 
 
-class AnswerLength(IntEnum):
-    SHORT = 5
-    MEDIUM = 10
+class QuestionLength(IntEnum):
+    SHORT = 10
+    MEDIUM = 30
     LONG = 50
+
+
+class AnswerLength(IntEnum):
+    SHORT = 4
+    MEDIUM = 15
+    LONG = 30
 
 
 class AnswerToken(Enum):
@@ -92,17 +98,25 @@ class AnswerSeparator(Enum):
 class GeneratorConfig:
     # Document style
     font: Font = Font.TERMES
-    font_size: int = 11
+    font_size: int = 10
+    top_margin: float = 1.0 # cm
+    left_margin: float = 2.0 # cm
 
     # Rule section
+    rule_structures: tp.List[RuleStructure] = field(default_factory=lambda: list(RuleStructure)) # get every member of RuleStructure as int
+    rule_section_title: str = "Instrukcje"
     rule_description: str = "Example description"
-    rule_structure: tp.List[RuleStructures] = field(default_factory=lambda: list(RuleStructures)) # get every member of RuleStructures as int
+    rule_exam_duration: int = 45
+    rule_max_points: int = 20
+    rule_exam_date: str = "2020.04.10"# Change to datetime to randomize it
 
     # Question sections
     number_of_questions: int = 6
+    questions_length: tp.List[QuestionLength] = field(default_factory=lambda: [QuestionLength.MEDIUM] * (GeneratorConfig.number_of_questions))
+
+    number_of_answers: tp.List[int] = field(default_factory=lambda: [4] * (GeneratorConfig.number_of_questions))
     answers_layout: tp.List[AnswerLayout] = field(default_factory=lambda: [AnswerLayout.ONE_COLUMN] * (GeneratorConfig.number_of_questions))
     answers_length: tp.List[AnswerLength] = field(default_factory=lambda: [AnswerLength.SHORT] * (GeneratorConfig.number_of_questions))
-    number_of_answers: tp.List[int] = field(default_factory=lambda: [4] * (GeneratorConfig.number_of_questions))
     answers_token: AnswerToken = AnswerToken.BIG_LETTERS
     answers_separator: AnswerSeparator = AnswerSeparator.CLOSE_PARENTHESIS
 
@@ -119,12 +133,14 @@ class GeneratorConfig:
             font=random.choice(list(Font)),
             font_size=random.randint(*FONT_SIZE_RANGE),
 
-            rule_structure=random.sample(list(RuleStructures), len(list(RuleStructures))),
+            rule_structures=random.sample(list(RuleStructure), len(list(RuleStructure))),
 
             number_of_questions=number_of_questions,
+            questions_length=[random.choice(list(QuestionLength)) for _ in range(number_of_questions)],
+
+            number_of_answers=[random.randint(*NUMBER_OF_ANSWERS_RANGE) for _ in range(number_of_questions)],
             answers_layout=[random.choice(list(AnswerLayout)) for _ in range(number_of_questions)],
             answers_length=[random.choice(list(AnswerLength)) for _ in range(number_of_questions)],
-            number_of_answers=[random.randint(*NUMBER_OF_ANSWERS_RANGE) for _ in range(number_of_questions)],
             answers_token=random.choice(list(AnswerToken)),
             answers_separator=random.choice(list(AnswerSeparator)),
 

@@ -2,7 +2,7 @@ from . import ExamGenerator, GeneratorConfig
 
 
 def main():
-    exam_generator = ExamGenerator(GeneratorConfig())
+    exam_generator = ExamGenerator(GeneratorConfig.random())
     exam_generator.generate()
 
 
