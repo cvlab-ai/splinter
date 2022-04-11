@@ -3,16 +3,18 @@ from .logger import logger
 from .generator_config import AnswerLayout, AnswerSeparator, AnswerToken
 
 
-class RuleGenerator():
+class RuleGenerator:
     def __init__(self, config: GeneratorConfig):
         self.config = config
+
 
 ############ QUESTION GENERATION #############
 import pylatex as ptex
 import lorem
 from .utils import int_to_roman
 
-class QuestionGenerator():
+
+class QuestionGenerator:
     def __init__(self, config: GeneratorConfig):
         self.config = config
 
@@ -33,11 +35,11 @@ class QuestionGenerator():
         # logger.debug(f"Generated question: {question_content}")
 
         answers = ptex.Description()
+        logger.debug(f"Token: {answer_token}")
 
         for token in QuestionGenerator.__token_generator(answer_token, number_of_answers):
             answers.add_item(f"{token}{answer_sep.value}",f"{lorem.sentence()}")
             logger.debug(f"Generated answer: {token}{answer_sep.value} {lorem.sentence()}")
-
 
         section.append(answers)
         return section
@@ -50,14 +52,13 @@ class QuestionGenerator():
                 yield chr(ord(start_token) + i)
             if answer_token == AnswerToken.NUMBERS:
                 yield str(int(start_token) + i)
-            if answer_token == AnswerToken.NUMBERS:
+            if answer_token == AnswerToken.ROMAN_NUMBERS:
                 yield int_to_roman(int(start_token) + i)
             if answer_token in [AnswerToken.DOTS, AnswerToken.DASH]:
-                yield answer_token
+                yield answer_token.value
 
 
-
-class ExamGenerator():
+class ExamGenerator:
     def __init__(self, config: GeneratorConfig):
         self.config = config
 
@@ -72,14 +73,11 @@ class ExamGenerator():
         )
 
         question_generator = QuestionGenerator(self.config)
-        questions = question_generator.generate()
         for question in question_generator.generate():
             doc.append(question)
 
-        doc.generate_pdf("exam", clean_tex=False)
-        # doc.generate_tex()
-
-
+        # doc.generate_pdf("exam", clean_tex=False)
+        doc.generate_tex()
 
     def generate_multiple(self, count: int):
         exams = []
