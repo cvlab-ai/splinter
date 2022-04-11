@@ -14,4 +14,5 @@ class Logger(logging.Logger):
         handler.setFormatter(formatter)
         return handler
 
+
 logger = Logger(__package__)
