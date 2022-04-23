@@ -109,6 +109,8 @@ class GeneratorConfig:
     rule_exam_duration: int = 45
     rule_max_points: int = 20
     rule_exam_date: str = "2020.04.10"# Change to datetime to randomize it
+    rules_interline: int = 5
+    rule_index_box_size = (80,15)
 
     # Question sections
     number_of_questions: int = 6
@@ -119,6 +121,7 @@ class GeneratorConfig:
     answers_length: tp.List[AnswerLength] = field(default_factory=lambda: [AnswerLength.SHORT] * (GeneratorConfig.number_of_questions))
     answers_token: AnswerToken = AnswerToken.BIG_LETTERS
     answers_separator: AnswerSeparator = AnswerSeparator.CLOSE_PARENTHESIS
+    answers_interline: int = 5
 
     # Others
     check_mark_type: MarkType = MarkType.CIRCLE

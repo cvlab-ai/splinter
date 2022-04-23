@@ -1,6 +1,8 @@
 import pylatex as ptex
 from .logger import logger
 from .generator_config import GeneratorConfig
+from .answers import Answers
+from .rules import Rules
 
 class ExamDocument(ptex.Document):
     def __init__(self, config: GeneratorConfig):
@@ -16,7 +18,9 @@ class ExamDocument(ptex.Document):
         )
         self.set_section_font(self.config.font_size)
         self.packages.append(ptex.Package("enumitem"))
-        # self.packages.append(ptex.Package("fontsize", options=ptex.NoEscape(f"fontsize={self.config.font_size}pt")))
+        self.packages.append(ptex.Package("float"))
+        self.append(Answers.create_env_variable(self.config))
+        self.append(Rules.create_env_variable(self.config))
 
     def set_section_font(self, font_size: int):
         logger.debug(f"Setting section title font to {font_size}pt")
