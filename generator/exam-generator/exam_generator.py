@@ -4,7 +4,7 @@ from .rule_generator import RuleGenerator
 from .logger import logger
 from .generator_config import AnswerLayout, QuestionLength, AnswerLength, AnswerSeparator, AnswerToken
 from .exam_document import ExamDocument
-
+from .answers import Answers
 
 
 
@@ -30,13 +30,14 @@ class QuestionGenerator:
 
     def __generate_single_question(self, question_length: QuestionLength, answer_layout: AnswerLayout, answer_length: AnswerLength, number_of_answers: int):
         question_text = TextGenerator.generate_question_text(random.randint(1, question_length))
-        section = ptex.Section(f"{question_text}")
-        answers = ptex.Description(options=ptex.NoEscape(f"font={{\\fontsize{{{self.config.font_size}}}{{{int(self.config.font_size*1.2)}}}\selectfont}}"))
         logger.debug(f"Generated Question: {question_text}")
+
+        section = ptex.Section(f"{question_text}")
+        answers = Answers()
 
         for token in QuestionGenerator.__token_generator(self.config.answers_token, number_of_answers):
             answer_text = TextGenerator.generate_text(random.randint(1, answer_length))
-            answers.add_item(f"{token}{self.config.answers_separator.value}", ptex.NoEscape(f"{{\\fontsize{{{self.config.font_size}}}{{{int(self.config.font_size*1.2)}}}\selectfont {answer_text}}}"))
+            answers.add_item(f"{token}{self.config.answers_separator.value}", answer_text)
             logger.debug(f"Generated answer: {token}{self.config.answers_separator.value} {answer_text}")
 
         section.append(answers)
@@ -73,7 +74,7 @@ class ExamGenerator:
             doc.append(question)
             doc.append(ptex.NoEscape('}'))
 
-        doc.generate_tex()
+        doc.generate_tex("exam")
         doc.generate_pdf("exam", clean_tex=False)
 
     def generate_multiple(self, count: int):
@@ -81,9 +82,3 @@ class ExamGenerator:
         for _ in range(count):
             exams.append(self.generate())
         return exams
-
-    # @staticmethod
-    # def _set_section_font(doc: ptex.Document, font_size: int):
-    #     logger.debug(f"Setting section title font to {font_size}pt")
-    #     doc.packages.append(ptex.Package('sectsty'))
-    #     doc.preamble.append(ptex.Command("sectionfont", ptex.NoEscape(f"\\fontsize{{{font_size}}}{{15}}\selectfont")))

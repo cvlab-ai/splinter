@@ -2,7 +2,7 @@ import typing as tp
 import pylatex as ptex
 from .generator_config import GeneratorConfig, RuleStructure
 from .logger import logger
-
+from .rules import Rules
 
 class RuleGenerator:
     def __init__(self, config: GeneratorConfig):
@@ -10,37 +10,36 @@ class RuleGenerator:
 
     def generate(self):
         strutures_functions = RuleGenerator._map_structures_functions()
+        rules = Rules()
         section = ptex.Section(f"{self.config.rule_section_title}")
         for rule_structure in self.config.rule_structures:
             structure_function = strutures_functions.get(rule_structure, RuleGenerator.__no_function_waring)
-            section.append(structure_function(self))
-            section.append(ptex.NoEscape("\\newline "))
-        return section
+            rules.add_item("",structure_function(self))
+        return rules
 
     def _generate_description(self) -> str:
-        return ptex.NoEscape(f"{{\\fontsize{{{self.config.font_size}}}{{{int(self.config.font_size*1.2)}}}\selectfont {{{self.config.rule_description}}}}}")
+        return self.config.rule_description
 
     ########### TODO Add correct function content
     def _generate_index(self) -> str:
         content = "Indeks: "
-        return ptex.NoEscape(f"{{\\fontsize{{{self.config.font_size}}}{{{int(self.config.font_size*1.2)}}}\selectfont {{{content}}}}}")
+        return ptex.NoEscape(fr"{content}\framebox{self.config.rule_index_box_size}{{}}")
 
     def _generate_exam_duration(self) -> str:
         content = f"Examin trwa {self.config.rule_exam_duration} minut"
-        return ptex.NoEscape(f"{{\\fontsize{{{self.config.font_size}}}{{{int(self.config.font_size*1.2)}}}\selectfont {{{content}}}}}")
+        return content
 
     def _generate_max_points(self) -> str:
         content = f"Za test można zdobyć maksymalnie {self.config.rule_max_points} punktów"
-        return ptex.NoEscape(f"{{\\fontsize{{{self.config.font_size}}}{{{int(self.config.font_size*1.2)}}}\selectfont {{{content}}}}}")
+        return content
 
     def _generate_date(self) -> str:
         content = f"Data: {self.config.rule_exam_date}"
-        return ptex.NoEscape(f"{{\\fontsize{{{self.config.font_size}}}{{{int(self.config.font_size*1.2)}}}\selectfont {{{content}}}}}")
+        return content
 
     def _generate_mark_demo(self) -> str:
         content = "TODO Mark demo"
-        return ptex.NoEscape(f"{{\\fontsize{{{self.config.font_size}}}{{{int(self.config.font_size*1.2)}}}\selectfont {{{content}}}}}")
-    #############
+        return content
 
     def __no_function_waring(self, *args, **kwargs):
         logger.warning("No function in created map")
