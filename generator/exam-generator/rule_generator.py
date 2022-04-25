@@ -4,6 +4,7 @@ from .generator_config import GeneratorConfig, RuleStructure
 from .logger import logger
 from .rules import Rules
 
+
 class RuleGenerator:
     def __init__(self, config: GeneratorConfig):
         self.config = config
@@ -38,8 +39,10 @@ class RuleGenerator:
         return content
 
     def _generate_mark_demo(self) -> str:
-        content = "TODO Mark demo"
-        return content
+        content = "Sposób zaznaczania: "
+        zaznaczanie = ptex.NoEscape(fr"Sposób zaznaczania: ")
+        anulowanie = ptex.NoEscape(fr"Sposób anulowania: ")
+        return zaznaczanie + anulowanie
 
     def __no_function_waring(self, *args, **kwargs):
         logger.warning("No function in created map")

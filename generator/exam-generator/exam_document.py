@@ -18,7 +18,7 @@ class ExamDocument(ptex.Document):
         )
         self.set_section_font(self.config.font_size)
         self.packages.append(ptex.Package("enumitem"))
-        self.packages.append(ptex.Package("float"))
+        self.packages.append(ptex.Package("graphicx"))
         self.append(Answers.create_env_variable(self.config))
         self.append(Rules.create_env_variable(self.config))
 

@@ -70,7 +70,10 @@ class ExamGenerator:
 
         question_generator = QuestionGenerator(self.config)
         for question in question_generator.generate():
-            doc.append(ptex.NoEscape('{\\nobreak'))
+            # doc.append(ptex.NoEscape('{\\nobreak'))
+            doc.append(ptex.NoEscape('{'))
+            doc.append(ptex.Command('setlength',arguments=[ptex.Command('parskip'), '0pt']))
+            doc.append(ptex.Command('nobreak'))
             doc.append(question)
             doc.append(ptex.NoEscape('}'))
 
