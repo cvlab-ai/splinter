@@ -59,9 +59,9 @@ def generate_key_sequence(
         no_mark + positive_answers + negations == answers_amount
     ), "Invalid mark count"
     answers_array = (
-        exam_marks["mark"] * positive_answers
-        + exam_marks["negation"] * negations
-        + exam_marks["no mark"] * no_mark
+        [exam_marks["mark"]] * positive_answers
+        + [exam_marks["negation"]] * negations
+        + [exam_marks["no mark"]] * no_mark
     )
     shuffle(answers_array)
     return answers_array
@@ -132,6 +132,6 @@ def tabulate_answers(exam: List[List[str]]) -> List[List[str]]:
 
 
 # Example of use
-# exam = generate_exam_helper(10, [randint(3, 6) for _ in range(10)])
+# exam = generate_exam_helper([randint(3, 6) for _ in range(10)])
 # exam = tabulate_answers(exam)
 # save_to_file("test.txt", exam)
