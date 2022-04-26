@@ -14,8 +14,10 @@ class RuleGenerator:
         rules = Rules()
         section = ptex.Section(f"{self.config.rule_section_title}")
         for rule_structure in self.config.rule_structures:
-            structure_function = strutures_functions.get(rule_structure, RuleGenerator.__no_function_waring)
-            rules.add_item("",structure_function(self))
+            structure_function = strutures_functions.get(
+                rule_structure, RuleGenerator.__no_function_waring
+            )
+            rules.add_item("", structure_function(self))
         return rules
 
     def _generate_description(self) -> str:
@@ -24,14 +26,18 @@ class RuleGenerator:
     ########### TODO Add correct function content
     def _generate_index(self) -> str:
         content = "Indeks: "
-        return ptex.NoEscape(fr"{content}\framebox{self.config.rule_index_box_size}{{}}")
+        return ptex.NoEscape(
+            rf"{content}\framebox{self.config.rule_index_box_size}{{}}"
+        )
 
     def _generate_exam_duration(self) -> str:
         content = f"Examin trwa {self.config.rule_exam_duration} minut"
         return content
 
     def _generate_max_points(self) -> str:
-        content = f"Za test można zdobyć maksymalnie {self.config.rule_max_points} punktów"
+        content = (
+            f"Za test można zdobyć maksymalnie {self.config.rule_max_points} punktów"
+        )
         return content
 
     def _generate_date(self) -> str:
@@ -55,5 +61,5 @@ class RuleGenerator:
             RuleStructure.EXAM_DURATION: cls._generate_exam_duration,
             RuleStructure.MAX_POINTS: cls._generate_max_points,
             RuleStructure.DATE: cls._generate_date,
-            RuleStructure.MARK_DEMO: cls._generate_mark_demo
+            RuleStructure.MARK_DEMO: cls._generate_mark_demo,
         }

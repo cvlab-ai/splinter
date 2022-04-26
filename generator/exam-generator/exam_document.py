@@ -4,6 +4,7 @@ from .generator_config import GeneratorConfig
 from .answers import Answers
 from .rules import Rules
 
+
 class ExamDocument(ptex.Document):
     def __init__(self, config: GeneratorConfig):
         self.config = config
@@ -24,11 +25,18 @@ class ExamDocument(ptex.Document):
 
     def set_section_font(self, font_size: int):
         logger.debug(f"Setting section title font to {font_size}pt")
-        self.packages.append(ptex.Package('sectsty'))
-        self.preamble.append(ptex.Command("sectionfont", ptex.NoEscape(f"\\normalfont\\fontsize{{{font_size}pt}}{{10}}\\bfseries")))
+        self.packages.append(ptex.Package("sectsty"))
+        self.preamble.append(
+            ptex.Command(
+                "sectionfont",
+                ptex.NoEscape(
+                    f"\\normalfont\\fontsize{{{font_size}pt}}{{10}}\\bfseries"
+                ),
+            )
+        )
 
     def get_geometry_options(self):
         return {
             "tmargin": f"{self.config.top_margin}cm",
-            "lmargin": f"{self.config.left_margin}cm"
+            "lmargin": f"{self.config.left_margin}cm",
         }
