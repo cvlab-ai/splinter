@@ -131,7 +131,15 @@ def tabulate_answers(exam: List[List[str]]) -> List[List[str]]:
     return tabulate(exam, headers=headers, tablefmt="github")
 
 
-# Example of use
-# exam = generate_exam_helper([randint(3, 6) for _ in range(10)])
-# exam = tabulate_answers(exam)
-# save_to_file("test.txt", exam)
+def generate_exam_instruction(amount_of_answers: List[int], path: str) -> bool:
+    """Run pipeline to create answers for particular exam
+
+    :param amount_of_answers: Contains amount of answers per questions
+    :type amount_of_answers: List[int]
+    :param path: Path for file to be saved to
+    :type path: str
+    :return: Status on file save
+    :rtype: bool
+    """
+    exam = generate_exam_helper(amount_of_answers)
+    return bool(save_to_file(path, tabulate_answers(exam)))
