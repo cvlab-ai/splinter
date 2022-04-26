@@ -86,7 +86,7 @@ class ExamGenerator:
     def __init__(self, config: GeneratorConfig):
         self.config = config
 
-    def generate(self):
+    def generate(self, filename: str):
         logger.info("Generating exam...")
         doc = ExamDocument(self.config)
 
@@ -98,14 +98,14 @@ class ExamGenerator:
             # doc.append(ptex.NoEscape('{\\nobreak'))
             doc.append(ptex.NoEscape("{"))
             doc.append(
-                ptex.Command("setlength", arguments=[ptex.Command("parskip"), "0pt"])
+                ptex.Command("setlength", arguments=[ptex.Command("parskip"), f"{self.config.answer_interline}pt"])
             )
             doc.append(ptex.Command("nobreak"))
             doc.append(question)
             doc.append(ptex.NoEscape("}"))
 
-        doc.generate_tex("exam")
-        doc.generate_pdf("exam", clean_tex=False)
+        doc.generate_pdf(filename, clean_tex=True)
+
 
     def generate_multiple(self, count: int):
         exams = []

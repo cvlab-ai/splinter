@@ -6,7 +6,7 @@ exam_marks = {"mark": "mark", "negation": "negation", "no mark": "no mark"}
 
 
 def generate_key_sequence(
-    answers_amount: int, mark_odd: float = 0.8, negated_odd: float = 0.25
+    answers_amount: int, mark_odd: float = 0.5, negated_odd: float = 0.125
 ) -> List[str]:
     """Generates sequence of answers in three types for single question
     Marked - requires to be marked with symbol
@@ -34,7 +34,7 @@ def generate_key_sequence(
         :rtype: List[float]
         """
         # [1, 2, 3, ... n]
-        # [1, 0.8, 0.64 ... 0.8 ** n] -> 
+        # [1, 0.8, 0.64 ... 0.8 ** n] ->
         weights = []
         for odds_index in range(amount):
             weights.append(odds**odds_index)

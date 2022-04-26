@@ -1,17 +1,19 @@
 from __future__ import annotations
 
+import json
 import random
 import typing as tp
-from dataclasses import dataclass, field
+import uuid
+from dataclasses import dataclass, field, asdict
 from enum import Enum, IntEnum, auto
 
 from .config import *
 
 
 class Font(Enum):
-    MODERN = "modern"
+    MODERN = "lmodern"
     KPFONTS = "kpfonts"
-    GFSDIDOT = "gfsdidot"
+    GFSDIDOT = "gfsartemisia"
     UTOPIA = "fourier"
     VENTURIS = "venturis"
     LIBERTINE = "libertine"
@@ -105,6 +107,8 @@ class GeneratorConfig:
     font_size: int = 10
     top_margin: float = 1.0  # cm
     left_margin: float = 2.0  # cm
+    answer_interline: int = 0
+    question_interline: int = 5
 
     # Rule section
     rule_structures: tp.List[RuleStructure] = field(
@@ -120,6 +124,7 @@ class GeneratorConfig:
 
     # Question sections
     number_of_questions: int = 6
+
     questions_length: tp.List[QuestionLength] = field(
         default_factory=lambda: [QuestionLength.MEDIUM]
         * (GeneratorConfig.number_of_questions)
@@ -128,21 +133,25 @@ class GeneratorConfig:
     number_of_answers: tp.List[int] = field(
         default_factory=lambda: [4] * (GeneratorConfig.number_of_questions)
     )
+
     answers_layout: tp.List[AnswerLayout] = field(
         default_factory=lambda: [AnswerLayout.ONE_COLUMN]
         * (GeneratorConfig.number_of_questions)
     )
+
     answers_length: tp.List[AnswerLength] = field(
         default_factory=lambda: [AnswerLength.SHORT]
         * (GeneratorConfig.number_of_questions)
     )
+
     answers_token: AnswerToken = AnswerToken.BIG_LETTERS
     answers_separator: AnswerSeparator = AnswerSeparator.CLOSE_PARENTHESIS
-    answers_interline: int = 5
-
-    # Others
     check_mark_type: MarkType = MarkType.CIRCLE
     uncheck_mark_type: MarkType = MarkType.CROSS
+
+    # Others
+    exam_id: str = field(default_factory=lambda: int(uuid.uuid4()))
+
 
     @staticmethod
     def random():
@@ -152,6 +161,11 @@ class GeneratorConfig:
         return GeneratorConfig(
             font=random.choice(list(Font)),
             font_size=random.randint(*FONT_SIZE_RANGE),
+            top_margin=round(random.uniform(*TOP_MARGIN_RANGE), 1),
+            left_margin=round(random.uniform(*LEFT_MARGIN_RANGE), 1),
+            answer_interline=random.randint(*ANSWER_INTERLINE_RANGE),
+            question_interline=random.randint(*QUESTION_INTERLINE_RANGE),
+
             rule_structures=random.sample(
                 list(RuleStructure), len(list(RuleStructure))
             ),
@@ -183,3 +197,7 @@ class GeneratorConfig:
             return check_mark_type, uncheck_mark_type
         else:
             return GeneratorConfig.__random_marks()
+
+    def export(self, filename: str):
+        with open(filename, 'w') as f:
+            json.dump(asdict(self), f, default=str, indent=4)

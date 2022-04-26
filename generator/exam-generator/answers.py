@@ -21,7 +21,7 @@ class Answers(ptex.lists.Description):
                 dedent(
                     rf"""
                     \begin{{itemize}}
-                        \setlength{{\itemsep}}{{{config.answers_interline}pt}}
+                        \setlength{{\itemsep}}{{{config.answer_interline}pt}}
                         \fontsize{{{int(config.font_size)}}}{{{int(config.font_size*1.2)}}}
                         \selectfont"""
                 ),
