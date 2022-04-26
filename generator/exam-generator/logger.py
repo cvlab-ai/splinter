@@ -10,7 +10,7 @@ class Logger(logging.Logger):
     @staticmethod
     def _create_handler():
         handler = logging.StreamHandler()
-        formatter = logging.Formatter('%(asctime)s:%(levelname)-7s: %(message)s')
+        formatter = logging.Formatter("%(asctime)s:%(levelname)-7s: %(message)s")
         handler.setFormatter(formatter)
         return handler
 
