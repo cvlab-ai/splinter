@@ -33,6 +33,8 @@ def generate_key_sequence(
         :return: Contains weights normalized to 1
         :rtype: List[float]
         """
+        # [1, 2, 3, ... n]
+        # [1, 0.8, 0.64 ... 0.8 ** n] -> 
         weights = []
         for odds_index in range(amount):
             weights.append(odds**odds_index)
