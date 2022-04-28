@@ -7,6 +7,7 @@ import uuid
 from dataclasses import dataclass, field, asdict
 from enum import Enum, IntEnum, auto
 
+from .utils import random_date
 from .config import *
 
 
@@ -20,12 +21,11 @@ class Font(Enum):
     TERMES = "tgtermes"
 
 
-class MarkType(IntEnum):
-    CIRCLE = 0
-    CROSS = auto()
-    DOODLE = auto()
-    UNDERSCORE = auto()
-    # TODO outline whole question
+class MarkType(str, Enum):
+    CIRCLE = "Zakreśl"
+    CROSS = "Przekreśl krzyżykiem"
+    DOODLE = "Zamaż"
+    UNDERSCORE = "Podkreśl"
 
     @staticmethod
     def is_valid(check_mark: MarkType, uncheck_mark: MarkType) -> bool:
@@ -41,11 +41,10 @@ class MarkType(IntEnum):
 
 
 class RuleStructure(IntEnum):
-    DESCRIPTION = 0
+    DATE = 0
     INDEX = auto()
+    DESCRIPTION = auto()
     EXAM_DURATION = auto()
-    MAX_POINTS = auto()
-    DATE = auto()
     MARK_DEMO = auto()
 
 
@@ -110,38 +109,26 @@ class GeneratorConfig:
     answer_interline: int = 0
     question_interline: int = 5
 
-    # Rule section
-    rule_structures: tp.List[RuleStructure] = field(
-        default_factory=lambda: list(RuleStructure)
-    )  # get every member of RuleStructure as int
-    rule_section_title: str = "Instrukcje"
-    rule_description: str = "Example description"
-    rule_exam_duration: int = 45
-    rule_max_points: int = 20
-    rule_exam_date: str = "2020.04.10"  # Change to datetime to randomize it
-    rules_interline: int = 5
-    rule_index_box_size = (80, 15)
-
     # Question sections
     number_of_questions: int = 6
 
     questions_length: tp.List[QuestionLength] = field(
         default_factory=lambda: [QuestionLength.MEDIUM]
-        * (GeneratorConfig.number_of_questions)
+        * GeneratorConfig.number_of_questions
     )
 
     number_of_answers: tp.List[int] = field(
-        default_factory=lambda: [4] * (GeneratorConfig.number_of_questions)
+        default_factory=lambda: [4] * GeneratorConfig.number_of_questions
     )
 
     answers_layout: tp.List[AnswerLayout] = field(
         default_factory=lambda: [AnswerLayout.ONE_COLUMN]
-        * (GeneratorConfig.number_of_questions)
+        * GeneratorConfig.number_of_questions
     )
 
     answers_length: tp.List[AnswerLength] = field(
         default_factory=lambda: [AnswerLength.SHORT]
-        * (GeneratorConfig.number_of_questions)
+        * GeneratorConfig.number_of_questions
     )
 
     answers_token: AnswerToken = AnswerToken.BIG_LETTERS
@@ -149,9 +136,21 @@ class GeneratorConfig:
     check_mark_type: MarkType = MarkType.CIRCLE
     uncheck_mark_type: MarkType = MarkType.CROSS
 
+    # Rule section
+    rule_structures: tp.List[RuleStructure] = field(
+        default_factory=lambda: list(RuleStructure)
+    )  # get every member of RuleStructure as int
+    rule_section_title: str = "Egzamin z przedmiotu \"Systemy z uczeniem maszynowym\""
+    rule_title_font_size = 5
+
+    rule_exam_duration: int = 45
+    rule_max_points_per_question: int = 4
+    rule_exam_date: str = "20.05.2022"
+    rules_interline: int = 5
+    rule_index_box_size = (80, 15)
+
     # Others
     exam_id: str = field(default_factory=lambda: int(uuid.uuid4()))
-
 
     @staticmethod
     def random():
@@ -169,6 +168,8 @@ class GeneratorConfig:
             rule_structures=random.sample(
                 list(RuleStructure), len(list(RuleStructure))
             ),
+            rule_exam_date=random_date(EXAM_DATE_RANGE[0], EXAM_DATE_RANGE[1], random.random()),
+
             number_of_questions=number_of_questions,
             questions_length=[
                 random.choice(list(QuestionLength)) for _ in range(number_of_questions)
