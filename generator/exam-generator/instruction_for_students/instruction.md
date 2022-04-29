@@ -26,7 +26,7 @@ Przykładowy wiersz pojedynczego pytania:
 
 ## Zasady poprawnej realizacji egzaminu
 
-1. Ściśle przestrzegaj klucza odpowiedzi. Wpisz numer indeksu zgodny z tym na początku pliku z odpowiedziami.
+1. Ściśle przestrzegaj klucza odpowiedzi. Wpisz własny numer indeksu na pierwszej stronie egzaminu w wyznaczonym polu.
 2. Jeżeli popełnisz błąd przy zaznaczaniu lub anulowaniu, zarówno w przypadku niewłaściwej metody zaznaczania lub zaznaczysz (anulujesz) niewłaściwe pytanie, zrób nowe ksero tej kartki.
 3. Zachowaj kolejność kartek dla każdego egzaminu przy kserowaniu.
 4. Drukuj kartki w czerni i bieli.

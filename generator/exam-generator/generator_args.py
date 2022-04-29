@@ -18,7 +18,15 @@ class GeneratorArgs(argparse.ArgumentParser):
             type=int,
             required=False,
             default=1,
-            help="Number of exams to generate",
+            help="Number of exams to generate in one set",
+        )
+        self.add_argument(
+            "-s",
+            "--sets",
+            type=int,
+            required=False,
+            default=1,
+            help="Number of sets for students to generate",
         )
         self.add_argument(
             "-z",

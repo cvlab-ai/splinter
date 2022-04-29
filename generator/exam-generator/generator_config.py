@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import random
 import typing as tp
-import uuid
+import shortuuid
 from dataclasses import dataclass, field, asdict
 from enum import Enum, IntEnum, auto
 
@@ -96,7 +96,8 @@ class AnswerSeparator(Enum):
     COLON = ":"
     SPACE = " "
 
-
+suuid = shortuuid.ShortUUID()
+suuid.set_alphabet("1234567890")
 @dataclass
 class GeneratorConfig:
     # Document style
@@ -148,7 +149,7 @@ class GeneratorConfig:
     rule_index_box_size = (80, 15)
 
     # Others
-    exam_id: str = field(default_factory=lambda: int(uuid.uuid4()))
+    exam_id: str = field(default_factory=lambda: suuid.random(length=8))
 
     @staticmethod
     def random():
