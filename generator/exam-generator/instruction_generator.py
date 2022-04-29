@@ -132,8 +132,6 @@ def tabulate_answers(exam: List[List[str]]) -> List[List[str]]:
     headers = [" "] + [f"Answer {idx + 1}" for idx in range(len(exam))]
     return tabulate(exam, headers=headers, tablefmt="github")
 
-def generate_index(index_range: List[int]=[100000, 999999]):
-    return randint(index_range[0], index_range[1])
 
 def generate_exam_instruction(amount_of_answers: List[int], path: str) -> bool:
     """Run pipeline to create answers for particular exam
@@ -146,6 +144,5 @@ def generate_exam_instruction(amount_of_answers: List[int], path: str) -> bool:
     :rtype: bool
     """
     exam = generate_exam_helper(amount_of_answers)
-    exam_tab = f'Index: {generate_index()}\n\n'
-    exam_tab += tabulate_answers(exam)
+    exam_tab = tabulate_answers(exam)
     return bool(save_to_file(path, exam_tab))
