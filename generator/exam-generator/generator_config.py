@@ -89,14 +89,12 @@ class AnswerToken(Enum):
 
 
 class AnswerSeparator(Enum):
-    DOT = "."  # .
-    CLOSE_PARENTHESIS = ")"  # )
-    PIPE = "|"  # |
-    COLON = ":"  # :
-    SEMICOLON = ";"  # ;
-    SPACE = " "  # [[:space:]]
-    SLASH = "/"  # /
-    BACKSLASH = "\\"  # \
+    DOT = "."
+    CLOSE_PARENTHESIS = ")"
+    CLOSE_BRACKET = "]"
+    PIPE = "|"
+    COLON = ":"
+    SPACE = " "
 
 
 @dataclass
@@ -156,6 +154,7 @@ class GeneratorConfig:
     def random():
         number_of_questions = random.randint(*NUMBER_OF_QUESTIONS_RANGE)
         check_mark_type, uncheck_mark_type = GeneratorConfig.__random_marks()
+        token, separator = GeneratorConfig.__random_token_separator()
 
         return GeneratorConfig(
             font=random.choice(list(Font)),
@@ -184,8 +183,8 @@ class GeneratorConfig:
             answers_length=[
                 random.choice(list(AnswerLength)) for _ in range(number_of_questions)
             ],
-            answers_token=random.choice(list(AnswerToken)),
-            answers_separator=random.choice(list(AnswerSeparator)),
+            answers_token=token,
+            answers_separator=separator,
             check_mark_type=check_mark_type,
             uncheck_mark_type=uncheck_mark_type,
         )
@@ -198,6 +197,21 @@ class GeneratorConfig:
             return check_mark_type, uncheck_mark_type
         else:
             return GeneratorConfig.__random_marks()
+
+    @staticmethod
+    def __random_token_separator() -> tp.Tuple[AnswerToken, AnswerSeparator]:
+        token = random.choice(list(AnswerToken))
+        separator = random.choice(list(AnswerSeparator))
+        if GeneratorConfig.__check_token_separator_validity(token, separator):
+            return token, separator
+        else:
+            return GeneratorConfig.__random_token_separator()
+
+    @staticmethod
+    def __check_token_separator_validity(token: AnswerToken, separator: AnswerSeparator) -> bool:
+        if token in [AnswerToken.DOTS, AnswerToken.DASH] and (separator != AnswerSeparator.SPACE):
+            return False
+        return True
 
     def export(self, filename: str):
         with open(filename, 'w') as f:
