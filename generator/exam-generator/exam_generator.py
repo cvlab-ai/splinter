@@ -62,8 +62,10 @@ class QuestionGenerator:
             logger.debug(
                 f"Generated answer: {token}{self.config.answers_separator.value} {answer_text}"
             )
-
+        # wrap ansers in mnipage to prevent answers from being split across pages
+        section.append(ptex.Command("begin", arguments=["minipage", ptex.Command("linewidth")]))
         section.append(answers)
+        section.append(ptex.Command("end", arguments=["minipage"]))
         return section
 
     @staticmethod
@@ -100,7 +102,7 @@ class ExamGenerator:
             doc.append(
                 ptex.Command("setlength", arguments=[ptex.Command("parskip"), f"{self.config.answer_interline}pt"])
             )
-            doc.append(ptex.Command("nobreak"))
+            doc.append(ptex.Command("nopagebreak",options=4))
             doc.append(question)
             doc.append(ptex.NoEscape("}"))
 
