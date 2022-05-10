@@ -30,8 +30,11 @@ Przykładowy wiersz pojedynczego pytania:
 2. Jeżeli popełnisz błąd przy zaznaczaniu lub anulowaniu, zarówno w przypadku niewłaściwej metody zaznaczania lub zaznaczysz (anulujesz) niewłaściwe pytanie, zrób nowe ksero tej kartki.
 3. Zachowaj kolejność kartek dla każdego egzaminu przy kserowaniu.
 4. Drukuj kartki w czerni i bieli.
-5. Po skończeniu wszystkich egzaminów:
-    * Zeskanuj (za pomocą skanera) wszystkie kartki utrzymując kolejność wewnątrz każdego egzaminu.
+5. Po skończeniu wszystkich egzaminów wykonaj jedną z akcji:
+    * Zeskanuj (za pomocą skanera) wszystkie kartki utrzymując kolejność wewnątrz każdego egzaminu, a następnie wgraj skany na Google Drive.
+
+    LUB
+
     * Zanieś prace do gabinetu prowadzącego (EA 521) we wcześniej ustalonych godzinach.
 6. Nie pisz po pracy poniżej UUID. Jeżeli przypadkiem zamazany został UUID lub w jakikolwiek sposób zanieczyszczony został obszar UUID i poniżej, zrób nowe ksero kartki której to dotyczy.
 
@@ -41,3 +44,13 @@ Jeżeli wykonane prace będą zeskanowane przy pomocy własnych zasobów:
 1. Zeskanuj (za pomocą skanera) wszystkie kartki utrzymując kolejność wewnątrz każdego egzaminu.
 2. Zapisz wszystkie prace w formacie `pdf`. Możesz pozostawić przy tym puste kartki. Nazwij plik `numer_indeksu.pdf`.
 3. Dokonaj kompresji do formatu `zip`. Archiwum zip nazwij `numer_indeksu.zip`. Nie zabezpieczaj archiwum hasłem.
+
+## Ważne informacje
+
+* Każdy egzamin posiada własne zasady zaznaczania i negacja odpowiedzi. (Jest to przedstawione na początku pliku egzaminu)
+
+* Negacja służy anulowaniu odpowiedzi, oznacza to że odpowiedź musi byc najpierw zanaczona a następnie zanegowana. Samo wprowadzenie znaku negacji nie jest poprawne.
+
+* Zaznaczanie i negacja odpowiedzi dotyczy samego tokenu. Token jest identyfikatorem odpowiedzi znajdującym się przed treścią odpowiedzi.
+
+![](2022-05-10-10-04-13.png)
