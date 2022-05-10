@@ -31,7 +31,9 @@ Example of single question in `<exam_id>.txt` file
 4. Print each exam in black and white.
 5. After filling all exams you have to either:
     * Scan all the exams using your scanner. Please keep the order on exam pages
+
     OR
+
     * Bring filled exams (keeping the order in exam pages) to the teacher's room (EA 521) at a pre-arranged time
 6. Don't write anything below or on UUID. If there is anything scratched on UUID, please print a blank copy of the exam page to which it applies.
 
@@ -41,3 +43,13 @@ This applies ONLY if you are going to scan exams using your resources
 1. Scan all exams (using scanner, not phone camera with application) in remaining order inside exams.
 2. Save all exams in a single file in `.pdf` format. Feel free to keep blank pages in between exams. Name the file `index_no.pdf`.
 3. Compress pdf file to `.zip` archive. Please name it `index_no.zip`. Don't set any password to this archive.
+
+## Important Notes
+
+* Each exam has its method of marking and negation of answers (it is described at the beginning of the exam)
+
+* Negation is meant to cancel mark, therefor answer has to be marked first, and then canceled. Drawing only a "negation mark" isn't enough.
+
+* Marking (and negation) for the answer is related to token. The token is the part of the answer appearing right before the answer content.
+
+![](2022-05-10-10-04-13.png)
