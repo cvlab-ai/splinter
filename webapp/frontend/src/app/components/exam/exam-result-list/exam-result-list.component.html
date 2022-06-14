@@ -1,0 +1,17 @@
+<div class="container text-center mt-5">
+  <h2>{{examName}}</h2>
+  <hr>
+  <ul class="list-group">
+    <a *ngFor="let exam of examResults" href="#" class="mt-2 mb-2">
+      <li class="list-group-item rounded d-flex justify-content-between align-items-center list-group-item-action ">
+        <b>Student: {{exam.student}}</b>
+        <div *ngIf="exam.score > (exam.maxScore/2)">
+          <span class="badge bg-success rounded-pill">Wynik: {{exam.score}} / {{exam.maxScore}}</span>
+        </div>
+        <div *ngIf="exam.score <= (exam.maxScore/2)">
+          <span class="badge bg-danger rounded-pill">Wynik: {{exam.score}} / {{exam.maxScore}}</span>
+        </div>
+      </li>
+    </a>
+  </ul>
+</div>
