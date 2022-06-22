@@ -9,6 +9,9 @@ class Mark(Enum):
 
 
 class Answer:
+
+    gt_map = {Mark.NO_MARK: "0", Mark.MARK: "1", Mark.NEGATION: "2"}
+
     def __init__(self, marks: List[str]):
         self.marks = []
         for mark in marks:
@@ -18,3 +21,9 @@ class Answer:
                 self.marks.append(Mark.NO_MARK)
             elif mark == "negation":
                 self.marks.append(Mark.NEGATION)
+
+    def to_ground_truth(self):
+        gt = []
+        for mark in self.marks:
+            gt.append(self.gt_map[mark])
+        return gt

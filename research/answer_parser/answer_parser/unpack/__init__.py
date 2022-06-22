@@ -51,7 +51,7 @@ def unpack_answers(
     :type archive_re: str, optional
     """
     answer_dir=dest + "/" + ANSWER_INTERNAL_DIR
-    if os.path.isdir(answer_dir) and os.listdir(path=dest + "/" + ANSWER_INTERNAL_DIR):
+    if os.path.isdir(answer_dir) and os.listdir(path=answer_dir):
         logger.warning(
             "Answers directory already exists. Remove it to unpack new answers."
         )
