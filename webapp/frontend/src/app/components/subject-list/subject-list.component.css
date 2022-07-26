@@ -1,0 +1,13 @@
+a {
+  text-decoration: none;
+  transition: transform 250ms;
+}
+
+a:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 0 11px rgba(33,33,33,.2);
+}
+
+div {
+  width: 23%;
+}

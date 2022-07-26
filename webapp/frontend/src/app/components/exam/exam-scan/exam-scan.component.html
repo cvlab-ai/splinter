@@ -1,0 +1,61 @@
+<div class="container text-center w-25 mt-5">
+  <div class="mb-3">
+    <label for="select" class="form-label"><h2>Przedmiot</h2></label>
+    <div *ngIf="!addNewSubject">
+      <select id="select" class="form-select">
+        <option *ngFor="let subject of subjects" (click)="subjectChosen(subject.id)">{{subject.name}}</option>
+      </select>
+
+      <button class="btn btn-sm btn-primary btn-block mt-3" (click)="addSubject()">Dodaj Przedmiot</button>
+    </div>
+    <div *ngIf="addNewSubject">
+      <button class="btn btn-sm btn-danger btn-block mt-3" (click)="hideAddSubject()">Anuluj dodawanie przedmiotu
+      </button>
+      <div class="mb-3 mt-3">
+        <label for="subjectName" class="form-label">Nazwa przedmiotu</label>
+        <input #subjectName id="subjectName" type="text" class="form-control" placeholder="Nazwa przedmiotu" (change)="setSubjectName(subjectName.value)">
+      </div>
+
+      <div class="mb-3">
+        <label for="textForSubject" class="form-label">Opis przedmiotu</label>
+        <textarea #subjectDesc class="form-control" id="textForSubject" rows="3" (change)="setSubjectDsc(subjectDesc.value)"></textarea>
+      </div>
+    </div>
+  </div>
+  <hr>
+  <div class="mb-3">
+    <div class="mb-3">
+      <label for="selectExam" class="form-label"><h2>Egzamin</h2></label>
+      <div *ngIf="!addNewExam">
+        <select id="selectExam" class="form-select">
+          <option *ngFor="let exam of exams" (click)="examChosen(exam.id)">{{exam.name}}</option>
+        </select>
+
+        <button class="btn btn-sm btn-primary btn-block mt-3" (click)="addExam()">Dodaj egzamin</button>
+      </div>
+      <div *ngIf="addNewExam">
+        <button class="btn btn-sm btn-danger btn-block mt-3" (click)="hideAddExam()">Anuluj dodawanie egzaminu</button>
+      </div>
+
+      <div *ngIf="addNewExam">
+        <div class="mb-3 mt-3">
+          <label for="examName" class="form-label">Nazwa egzaminu</label>
+          <input #examName id="examName" type="text" class="form-control" placeholder="Nazwa Egzaminu" (change)="setExamName(examName.value)">
+        </div>
+
+        <div class="mb-3">
+          <label for="exampleFormControlTextarea1" class="form-label">Opis egzaminu</label>
+          <textarea  #examDescription class="form-control" id="exampleFormControlTextarea1" rows="3" (change)="setExamDesc(examDescription.value)"></textarea>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+  <hr>
+  <div class="mb-3">
+    <label for="formFileMultiple" class="form-label">Wybierz plik ze skanami prac:</label>
+    <input class="form-control" type="file" id="formFileMultiple" accept="application/pdf" (change)="setFile($event)"/>
+  </div>
+  <button class="btn btn-sm btn-primary btn-block mt-3" type="submit" (click)="onSubmit()">Sprawdź prace</button>
+</div>
