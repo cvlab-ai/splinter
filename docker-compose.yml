@@ -7,13 +7,17 @@ services:
     restart: always
     env_file:
       - database/db.env
-    volumes:
-      - type: bind
-        source: ./database/data
-        target: /var/lib/postgresql/data
-  engine:
-    container_name: splinter_engine
-    hostname: splinter_engine
-    build: engine/
+  backend:
+    container_name: splinter_backend
+    hostname: splinter_backend
+    build: webapp/backend/
     depends_on:
-      - db
+      - "db"
+    ports:
+      - "8080:8080"
+  frontend:
+    container_name: splinter_frontend
+    hostname: splinter_frontend
+    build: webapp/frontend/
+    ports:
+      - "8000:8000"
