@@ -7,7 +7,7 @@ import pl.splinter.backend.entity.ExamResult;
 
 import java.util.List;
 
-@CrossOrigin("http://localhost:4200")
+@CrossOrigin("http://splinter_frontend:4200")
 public interface ExamResultRepository extends JpaRepository<ExamResult, Long> {
     List<ExamResult> findByExamId(@RequestParam("id")Long id);
 }
