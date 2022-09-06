@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.splinter.backend.service.ScanData;
 import pl.splinter.backend.service.ScanService;
 
-@CrossOrigin("http://localhost:4200")
+@CrossOrigin("http://splinter_frontend:4200")
 @RestController
 @RequestMapping("/api/scan")
 public class ScanController {
