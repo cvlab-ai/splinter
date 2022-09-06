@@ -7,7 +7,7 @@ import pl.splinter.backend.entity.Subject;
 
 import java.util.List;
 
-@CrossOrigin("http://localhost:4200")
+@CrossOrigin("http://splinter_frontend:4200")
 public interface SubjectRepository extends JpaRepository<Subject, Long> {
     List<Subject> findByUserUsername(@RequestParam("username")String username);
 }
