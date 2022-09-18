@@ -54,7 +54,7 @@ class ExamSolver:
     def _detect_box_shape(self, vertical_contours: np.ndarray):
         vertical_deltas = [v1[0][0] - v2[0][0] for v1, v2 in zip(vertical_contours[:-1], vertical_contours[1:])]
         vertical_median = np.median(vertical_deltas) * 0.7
-        self.box_shape = int(vertical_median), int(vertical_median)
+        self.box_shape = np.array([vertical_median, vertical_median], dtype=np.uint8)
 
     def get_answer_card(self):
         return cv2.cvtColor(self.answer_card, cv2.COLOR_GRAY2RGB)

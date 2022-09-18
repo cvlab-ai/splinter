@@ -10,8 +10,8 @@ class KerasDataGenerator(keras.utils.Sequence):
     def __init__(
         self,
         card_generator: MarkedAnswerCardGenerator,
-        dim: tuple = (260, 90),
-        n_channels: int = 1,
+        dim: tuple = (90, 260),
+        n_channels: int = 3,
         n_answers: int = 4,
         batch_size: int = 40,
         data_in_epoch: int = 200,
@@ -48,3 +48,9 @@ class KerasDataGenerator(keras.utils.Sequence):
                 ],
             ) = next(self.row_generator)
         return X, y
+
+
+if __name__ == '__main__':
+    ma_gen = MarkedAnswerCardGenerator('research/data/exams/image--000.jpg')
+    keras_gen = KerasDataGenerator(ma_gen)
+    batch = keras_gen[0]

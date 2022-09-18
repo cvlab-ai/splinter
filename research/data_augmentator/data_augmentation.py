@@ -1,5 +1,6 @@
 import typing as tp
 
+import cv2
 import numpy as np
 
 
@@ -8,13 +9,16 @@ class DataAugmentation:
         self.__img = img
         self.augmented = img.copy()
 
-    def gaussian_noise(self, mean=0, sigma=0.03):
-        noise = np.random.normal(mean, sigma, img.shape)
-        mask_overflow_upper = img+noise >= 1.0
-        mask_overflow_lower = img+noise < 0
-        noise[mask_overflow_upper] = 1.0
-        noise[mask_overflow_lower] = 0
-        self.augmented += noise
+    def gaussian_noise(self, mean=0, sigma=0.1):
+        noise = np.random.normal(mean, sigma, self.augmented.shape[:2])
+        noise = (noise * 255).astype(np.int32)
+        noise = cv2.merge([noise] * 3)
+        _augmented_int32 = noise + self.augmented
+        mask_overflow_upper = self.augmented + noise >= 255
+        mask_overflow_lower = self.augmented + noise < 0
+        _augmented_int32[mask_overflow_upper] = 255
+        _augmented_int32[mask_overflow_lower] = 0
+        self.augmented = _augmented_int32.astype(np.uint8)
         return self.augmented
     
     def distort(self, orientation='horizontal', func=np.sin, x_scale=0.05, y_scale=5):
