@@ -1,3 +1,5 @@
+import typing as tp
+
 import cv2
 import numpy as np
 
@@ -34,9 +36,22 @@ class ExamSolver:
         horizontal_contours = detect_lines(thresh, (40, 1))
         vertical_contours = detect_lines(thresh, (1, 30))
         self._detect_box_shape(vertical_contours)
-        self.box_positions = detect_boxes_middles(horizontal_contours, vertical_contours)
+        self.box_positions = self._group_box_positions(horizontal_contours, vertical_contours)
 
-    def _detect_box_shape(self, vertical_contours):
+    def _group_box_positions(self, horizontal_contours: np.ndarray, vertical_contours: np.ndarray):
+        grouped_box_positions = []
+        grouped_vertical_contours = self._group_by(vertical_contours, lambda x: x[0][0], 2)
+        for column_vertical in grouped_vertical_contours:
+            box_positions = detect_boxes_middles(horizontal_contours, column_vertical)
+            grouped_boxes_in_row = self._group_by(box_positions, lambda x: x[1], int(len(box_positions) / 4))
+            grouped_box_positions.extend(grouped_boxes_in_row)
+        return np.array(grouped_box_positions)
+        
+    @staticmethod
+    def _group_by(data: np.ndarray, sort_func: tp.Callable, number_of_groups: int):
+        return np.array_split(sorted(data, key=sort_func), number_of_groups)
+
+    def _detect_box_shape(self, vertical_contours: np.ndarray):
         vertical_deltas = [v1[0][0] - v2[0][0] for v1, v2 in zip(vertical_contours[:-1], vertical_contours[1:])]
         vertical_median = np.median(vertical_deltas) * 0.7
         self.box_shape = int(vertical_median), int(vertical_median)

@@ -5,4 +5,4 @@ tensorflow
 matplotlib
 jupyterlab
 ipykernel
-openvino-dev==2022.1
+black
