@@ -8,6 +8,8 @@ sys.path.append("../generator")
 
 def read_image(path: str) -> np.ndarray:
     image = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+    # TODO find other way to get better quality
+    image[image < 195] = 0
     return cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
 
