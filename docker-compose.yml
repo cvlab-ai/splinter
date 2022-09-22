@@ -21,3 +21,14 @@ services:
     build: webapp/frontend/
     ports:
       - "8000:8000"
+  exam_storage:
+    container_name: splinter_exam_storage
+    hostname: splinter_exam_storage
+    build: exam_storage/
+    restart: always
+    ports:
+      - "8888:80"
+    volumes:
+      - type: bind
+        source: ./exam_storage/volumes/www/data
+        target: /www/data
