@@ -8,6 +8,8 @@ sys.path.append("../generator")
 
 def read_image(path: str) -> np.ndarray:
     image = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+    # TODO find other way to get better quality
+    image[image < 195] = 0
     return cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
 
@@ -117,6 +119,6 @@ def detect_boxes_middles(horizontal_lines: List[np.ndarray], vertical_lines: Lis
             v_line_1_shifted = v_line_1.copy()
             v_line_1_shifted[:, 0] = v_line_1[:, 0] - shift
             if intersect(v_line_1_shifted, h_line_2) and intersect(v_line_2, h_line_2):
-                result.append(np.array([np.mean([v_line_1[0, 0], v_line_2[0, 0]], dtype=np.int),
+                result.extend(np.array([np.mean([v_line_1[0, 0], v_line_2[0, 0]], dtype=np.int),
                                         np.mean([h_line_1[0, 1], h_line_2[0, 1]], dtype=np.int)]).reshape((1, 2)))
     return result
