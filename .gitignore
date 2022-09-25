@@ -132,3 +132,6 @@ dmypy.json
 .pdf
 .tex
 .idea
+
+# h5 Models
+*.h5
