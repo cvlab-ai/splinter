@@ -1,0 +1,7 @@
+dataclass_wizard==0.22.1
+Flask==2.2.2
+numpy==1.23.1
+openvino==2022.2.0
+openvino_dev==2022.2.0
+tensorflow==2.9.1
+gunicorn==20.1.0

@@ -111,9 +111,9 @@ class MarkedAnswerCardGenerator:
 
 if __name__ == "__main__":
     marked_answer_card_generator = MarkedAnswerCardGenerator("research/data/exams/image--000.jpg", (90, 90))
-    row_generator = marked_answer_card_generator.box_generator(augmentation=False)
-    for i, (box_path, labels) in enumerate(row_generator):
-        print(labels)
+    row_generator = marked_answer_card_generator.row_generator()
+    for i, (row, label) in enumerate(row_generator):
+        print(row)
         # plt.imshow(img)
         # plt.show()
         if i == 10:
