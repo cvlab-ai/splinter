@@ -1,8 +1,6 @@
-from dataclasses import dataclass
-from dataclass_wizard import JSONWizard
+from .extended_base_model import ExtendedBaseModel
 
 
-@dataclass
-class CheckExamDTO(JSONWizard):
+class CheckExamDTO(ExtendedBaseModel):
     exam_path: str
     exam_name: str

@@ -1,6 +1,14 @@
-from flask import Flask
+import logging
 
-from src.routes import routes
+from fastapi import FastAPI, Request
 
-app = Flask(__name__)
-app.register_blueprint(routes)
+from src.routes import router
+
+app = FastAPI()
+app.include_router(router)
+
+
+@app.middleware('http')
+def request_middleware(request: Request, call_next):
+    logging.info(f'--- New request approach: {request.method} {request.json}')
+    return call_next(request)
