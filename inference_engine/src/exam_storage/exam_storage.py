@@ -11,7 +11,6 @@ from src.config import Config
 
 
 class ExamStorage:
-    URL = "http://localhost:8888"
 
     @staticmethod
     def get_exams_names(exam_path: str):
@@ -20,7 +19,7 @@ class ExamStorage:
 
     @staticmethod
     def get_answer_key_image(exam_path: str):
-        return ExamStorage.get_exam_image(exam_path, 'answer_key.jpeg')
+        return ExamStorage.get_exam_image(exam_path, f'{Config.exam_storage.answer_key_filename}.jpeg')
 
     @staticmethod
     def get_exam_image(exam_path: str, exam_name: str):
@@ -30,7 +29,7 @@ class ExamStorage:
 
     @staticmethod
     def set_answer_key_json(exam_path: str, json_value: tp.Dict):
-        ExamStorage.set_exam_answer_json(exam_path, 'answer_key.json', json_value)
+        ExamStorage.set_exam_answer_json(exam_path, f'{Config.exam_storage.answer_key_filename}.json', json_value)
 
     @staticmethod
     def set_exam_answer_json(exam_path: str, exam_name: str, json_value: tp.Dict):
@@ -44,7 +43,7 @@ class ExamStorage:
 
     @staticmethod
     def _send_request(method: str, path: str, data: tp.Any = None) -> requests.Response:
-        url = f'{ExamStorage.URL}{path}'
+        url = f'{Config.exam_storage.full_url}{path}'
         response = requests.request(method, url, data=data)
         if not response.ok:
             logging.error(f"Can't connect to exam storage server (method={method}, path={path})")
