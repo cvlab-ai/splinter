@@ -1,4 +1,4 @@
-from inference_engine.src.inferenece_runner.inference_model import InferenceModel
+from inference_engine.src.inferenece_runner import InferenceModel
 from research.marked_answer_card_generator import MarkedAnswerCardGenerator
 import numpy as np
 

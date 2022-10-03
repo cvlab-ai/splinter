@@ -7,7 +7,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from research.mark_generator import MarkGenerator, Mark
-from research.exam_solver import ExamSolver
+from exam_solver import ExamSolver
 from research.data_augmentator import DataAugmentation
 
 
