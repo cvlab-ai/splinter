@@ -1,7 +1,7 @@
 from pydantic_yaml import YamlModel
 from .exam_storage_config import ExamStorageConfig
 
-DEFAULT_CONFIG_FILEPATH = 'config.yaml'
+DEFAULT_CONFIG_FILEPATH = "config.yaml"
 
 
 class _Config(YamlModel):
