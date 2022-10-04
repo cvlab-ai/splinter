@@ -6,7 +6,7 @@ from .controller import Controller
 router = APIRouter()
 
 
-@router.get('/')
+@router.get("/")
 def test():
     return "TEST"
 
