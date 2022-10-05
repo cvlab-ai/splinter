@@ -25,7 +25,7 @@ use navbar\NavBar;
 require("../classes/NavBar.php");
 echo NavBar::showNavBar("scan");
 
-$host = "host = localhost";
+$host = "host = splinter_db";
 $port = "port = 5432";
 $dbname = "dbname = splinter";
 $credentials = "user = postgres password=1234";

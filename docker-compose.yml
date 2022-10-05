@@ -3,7 +3,7 @@ services:
   db:
     container_name: splinter_db
     hostname: splinter_db
-    image: postgres:12.10
+    build: database
     restart: always
     env_file:
       - database/db.env

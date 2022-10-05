@@ -32,7 +32,7 @@ echo NavBar::showNavBar("");
     <!--TODO mała rozdzielczość-->
     <ul class="list-group">
         <?php
-        $host = "host = localhost";
+        $host = "host = splinter_db";
         $port = "port = 5432";
         $dbname = "dbname = splinter";
         $credentials = "user = postgres password=1234";
