@@ -15,3 +15,10 @@ docker-compose up -d --build
 ## Access to web UI
 
 After starting the system, the web application is available under: http://localhost:8000/
+
+## Initialize database
+
+```bash
+docker exec -it splinter_db /bin/bash
+root@splinter_db:/home/splinter# psql -U postgres -d splinter -f db.init
+```

@@ -27,7 +27,7 @@ echo NavBar::showNavBar("");
 <?php
 
 
-$host = "host = localhost";
+$host = "host = splinter_db";
 $port = "port = 5432";
 $dbname = "dbname = splinter";
 $credentials = "user = postgres password=1234";
