@@ -2,3 +2,7 @@ exam_storage:
   url: http://localhost
   port: 8888
   answer_key_filename: answer_key
+
+paths:
+  answer_model_path: data/model/saved_model.xml
+  index_model_path: data/model/handwritten-english-recognition-0001.xml

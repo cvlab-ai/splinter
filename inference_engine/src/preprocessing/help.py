@@ -3,6 +3,24 @@ import cv2
 from typing import List, Tuple
 
 
+def to_grayscale(image: np.ndarray) -> np.ndarray:
+    if image.shape[-1] == 3:
+        return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    return image
+
+
+def to_binary(image: np.ndarray, threshold) -> np.ndarray:
+    image[image <= threshold] = 0
+    image[image > threshold] = 255
+    return image
+
+
+def to_portrait(image: np.ndarray) -> np.ndarray:
+    if image.shape[0] < image.shape[1]:
+        return cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    return image
+
+
 def detect_contours(image: np.ndarray, threshold: int = 80) -> np.ndarray:
     new_image = image.copy()
     lower_black = np.array([0])
