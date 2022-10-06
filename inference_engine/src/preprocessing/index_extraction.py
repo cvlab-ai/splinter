@@ -21,7 +21,7 @@ class IndexExtraction:
 
     @staticmethod
     def recover(img: np.ndarray):
-        kernel1 = np.ones((3, 3), np.uint8)
+        kernel1 = np.ones((5, 5), np.uint8)
         return cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel1)
 
     @staticmethod

@@ -1,7 +1,9 @@
+import numpy as np
+
 from src.config import Config
 from .storage import Storage
 from .preprocessing import Preprocessing
-from .model import Model, IndexModel
+from .model import AnswerModel, IndexModel
 from .dto import CheckExamsDTO, CheckExamDTO, GenerateExamKeyDTO
 
 
@@ -23,6 +25,15 @@ class Controller:
     def _mark_detection(file_path: str, file_name: str):
         image = Storage.get_exam_image(file_path, file_name)
         answer_input, index_input = Preprocessing().process(image)
-        answer_result = Model(Config.paths.answer_model_path).inference(answer_input)
+        answer_result = AnswerModel(Config.paths.answer_model_path).inference(answer_input)
         index_result = IndexModel(Config.paths.index_model_path).inference(index_input)
-        return answer_result
+        json_result = Controller._create_output_json(answer_result, index_result)
+        output_file = file_name.split('.')[0]
+        Storage.set_exam_answer_json(file_path, output_file, json_result)
+
+    @staticmethod
+    def _create_output_json(answers: np.ndarray, index: str):
+        return {
+            "index": index,
+            "answers": {i + 1: [int(answer) for answer in row] for i, row in enumerate(answers)}
+        }

@@ -1,13 +1,8 @@
 import numpy as np
 import cv2
-
+import re
 
 from .model import Model
-
-
-import matplotlib
-matplotlib.use('TkAgg')
-import matplotlib.pyplot as plt
 
 
 class IndexModel(Model):
@@ -20,10 +15,9 @@ class IndexModel(Model):
         ratio = i_h / h
         _input = cv2.resize(_input, (int(ratio * w), i_h), interpolation=cv2.INTER_AREA)[None]
         _input = np.pad(_input, ((0, 0), (0, 0), (0, i_w - int(ratio * w))), mode='edge')[None]
-        predictions = super(IndexModel, self).inference(_input)
-        return self.decode(predictions)
+        return super(IndexModel, self).inference(_input)
 
-    def decode(self, predictions):
+    def _decode(self, predictions):
         # Select max probability (greedy decoding) then decode index to character
         preds_index = np.argmax(predictions, 2)  # WBD - > WB
         preds_index = preds_index.transpose(1, 0)  # WB -> BW
@@ -36,5 +30,4 @@ class IndexModel(Model):
                 char_list.append(self.letters[preds_index_reshape[i]])
                 odds_list.append(max(predictions[preds_index_reshape[i]][0]))
         text = ''.join(char_list)
-        print(text)
-        return text
+        return re.sub("[^0-9]", "", text)  # Remove all non-numeric characters
