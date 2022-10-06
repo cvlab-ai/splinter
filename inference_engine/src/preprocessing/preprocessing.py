@@ -1,24 +1,25 @@
-import matplotlib.pyplot as plt
-import numpy as np
-import cv2
 import typing as tp
 
+import numpy as np
+
+from .index_extraction import IndexExtraction
 from .help import *
 
 
-class ExamPreprocessing:
-    def __init__(self, threshold: int = 195, expected_shape: tuple = (290, 60)):
-        self.threshold = threshold
+class Preprocessing:
+    def __init__(self, binary_threshold: int = 185, expected_shape: tuple = (290, 60)):
+        self.binary_threshold = binary_threshold
         self.expected_shape = expected_shape
 
     def process(self, image: np.ndarray) -> tp.Tuple[np.ndarray, np.ndarray]:
         operated_image = self.prepare_image(image)
-        answer_card, index_piece = self.separate_answer_from_top(operated_image)
+        answer_card, personal_info = self.separate_answer_from_top(operated_image)
+        index_img = IndexExtraction(personal_info).extract()
         box_positions = self._detect_box_positions(answer_card)
-        cropped_rows = self.shift_box_positions(answer_card, box_positions)
-        return cropped_rows, index_piece
+        cropped_rows = self.crop_rows(answer_card, box_positions)
+        return cropped_rows, index_img
 
-    def shift_box_positions(self, answer_card: np.ndarray, box_positions: np.ndarray):
+    def crop_rows(self, answer_card: np.ndarray, box_positions: np.ndarray):
         def shift_each_box(box):
             x1 = box[0][0] - x_shift
             x2 = box[-1][0] + x_shift
@@ -29,7 +30,7 @@ class ExamPreprocessing:
         def crop_image(box):
             y1, y2, x1, x2 = box
             _img = cv2.resize(answer_card[y1:y2, x1:x2], self.expected_shape)
-            return cv2.merge([_img] * 3)  # For some reason
+            return cv2.merge([_img] * 3)  # For some reason model has three channel input for grayscale images
 
         x_shift = (box_positions[0][-1][0] - box_positions[0][0][0]) // ((box_positions.shape[1] - 1) * 2)
         y_shift = (box_positions[1][0][1] - box_positions[0][0][1]) // 2
@@ -42,26 +43,9 @@ class ExamPreprocessing:
 
     def prepare_image(self, image: np.ndarray) -> np.ndarray:
         image = image.copy()
-        image = self.to_grayscale(image)
-        image = self.to_binary(image)
-        image = self.to_portrait(image)
-        return image
-
-    @staticmethod
-    def to_grayscale(image: np.ndarray) -> np.ndarray:
-        if image.shape[-1] == 3:
-            return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        return image
-
-    def to_binary(self, image: np.ndarray) -> np.ndarray:
-        image[image <= self.threshold] = 0
-        image[image > self.threshold] = 255
-        return image
-
-    @staticmethod
-    def to_portrait(image: np.ndarray) -> np.ndarray:
-        if image.shape[0] < image.shape[1]:
-            return cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
+        image = to_grayscale(image)
+        image = to_binary(image, self.binary_threshold)
+        image = to_portrait(image)
         return image
 
     def _detect_box_positions(self, answer_card):

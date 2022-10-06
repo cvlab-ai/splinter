@@ -1,6 +1,7 @@
 from src.config import Config
-from .exam_storage import ExamStorage
-from .inferenece_runner import InferenceModel
+from .storage import Storage
+from .preprocessing import Preprocessing
+from .model import Model, IndexModel
 from .dto import CheckExamsDTO, CheckExamDTO, GenerateExamKeyDTO
 
 
@@ -11,7 +12,7 @@ class Controller:
 
     @staticmethod
     def check_exams(request: CheckExamsDTO):
-        for exam_name in ExamStorage.get_exams_names(request.exam_path):
+        for exam_name in Storage.get_exams_names(request.exam_path):
             Controller._mark_detection(request.exam_path, exam_name)
 
     @staticmethod
@@ -20,7 +21,8 @@ class Controller:
 
     @staticmethod
     def _mark_detection(file_path: str, file_name: str):
-        image = ExamStorage.get_exam_image(file_path, file_name)
-        inference_model = InferenceModel()
-        result = inference_model.run_inference(image)
-        return result
+        image = Storage.get_exam_image(file_path, file_name)
+        answer_input, index_input = Preprocessing().process(image)
+        answer_result = Model(Config.paths.answer_model_path).inference(answer_input)
+        index_result = IndexModel(Config.paths.index_model_path).inference(index_input)
+        return answer_result
