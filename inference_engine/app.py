@@ -4,6 +4,8 @@ from fastapi import FastAPI, Request
 
 from src.routes import router
 
+logging.basicConfig(level=logging.INFO)
+
 app = FastAPI()
 app.include_router(router)
 
