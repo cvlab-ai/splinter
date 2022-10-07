@@ -6,6 +6,7 @@
     <base href="/">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="../css/style.css">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
@@ -36,7 +37,7 @@ if (!$db) {
 if (isset($_POST["submit-btn"])) {
     $subject_id = $_POST['subject'];
 } else {
-    $subject_id = 1;
+    $subject_id = $_SESSION['subject'];
 }
 $email = $_SESSION['email'];
 $query = "SELECT id FROM public.user WHERE public.user.email = '$email'";

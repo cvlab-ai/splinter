@@ -21,7 +21,7 @@ session_start();
         crossorigin="anonymous"></script>
 <?php
 use navbar\NavBar;
-require ("../classes/NavBar.php");
+require ("../../../classes/NavBar.php");
 echo NavBar::showNavBar("");
 ?>
 
@@ -42,33 +42,23 @@ echo NavBar::showNavBar("");
             echo "Error : Unable to open database\n";
         }
 
-        $email = $_SESSION['email'];
-        $query = "SELECT id FROM public.user WHERE public.user.email = '$email'";
+        $fileId = $_GET['fileId'];
+        $examId = $_GET['id'];
+        $resultFile = $_GET['result'];
+        if ($resultFile === "true") {
+            $query = "DELETE FROM exam_result_files WHERE id = $fileId";
+        } else {
+            $query = "DELETE FROM exam_files WHERE id = $fileId";
+        }
+
         $ret = pg_query($db, $query);
         if (!$ret) {
             echo pg_last_error($db);
             exit;
         }
-        $userId = 0;
-        while ($row = pg_fetch_row($ret)) {
-            $userId = $row[0];
-        }
-        $sql = "SELECT * from EXAM WHERE user_id = $userId OR position('$email' in owners) > 0";
-
-        $ret = pg_query($db, $sql);
-        if (!$ret) {
-            echo pg_last_error($db);
-            exit;
-        }
-        // TODO Data zapisania
-        // TODO odnośnik href
-        while ($row = pg_fetch_row($ret)) {
-            echo "<a style='text-decoration: none;' href='/scanned-work/exam-details/exam-details.php?id=$row[0]' class='mt-2 mb-2'>
-                 <li class='list-group-item d-flex rounded justify-content-between align-items-center list-group-item-action'>" . $row[1] .
-                "<span class='badge bg-secondary rounded-pill'>Data Egzaminu: $row[6]</span></li></a>";
-        }
 
         pg_close($db);
+        header("Refresh:0; url=../exam-details-files.php?id=$examId");
         ?>
     </ul>
 </div>

@@ -9,6 +9,7 @@ session_start();
     <base href="/">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="../../css/style.css">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
@@ -64,9 +65,9 @@ $email = $_SESSION['email'];
         // TODO Data zapisania
         // TODO odnośnik href
         while ($row = pg_fetch_row($ret)) {
-            echo "<a href='/scanned-work/exam-details/exam-details.php?id=$row[0]' class='mt-2 mb-2'>
+            echo "<a style='text-decoration: none;' href='/scanned-work/exam-details/exam-details.php?id=$row[0]' class='mt-2 mb-2'>
                  <li class='list-group-item d-flex rounded justify-content-between align-items-center list-group-item-action'>" . $row[1] .
-                "<span class='badge bg-secondary rounded-pill'>Data: </span></li></a>";
+                "<span class='badge bg-secondary rounded-pill'>Data: $row[6]</span></li></a>";
         }
 
         pg_close($db);
