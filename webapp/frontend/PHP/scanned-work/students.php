@@ -6,6 +6,7 @@
     <base href="/">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="../css/style.css">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
@@ -57,7 +58,7 @@ if (!$ret) {
 // TODO odnośnik href
 echo "<div class='container text-center mt-5'><h2>Lista studentów</h2><ul class='list-group'>";
 while ($row = pg_fetch_row($ret)) {
-    echo "<a href='/scanned-work/exam-details/student-exams.php?student=$row[0]' class='mt-2 mb-2'>
+    echo "<a href='/scanned-work/exam-details/student-exams.php?student=$row[0]' class='mt-2 mb-2' style='text-decoration: none;'>
             <li class='list-group-item rounded d-flex justify-content-between align-items-center list-group-item-action'>
                 <b>Student: $row[0]</b>
                 <span class='badge bg-success rounded-pill'>Liczba Prac: $row[1]</span>

@@ -6,6 +6,7 @@
     <base href="/">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="../../css/style.css">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
@@ -53,8 +54,8 @@ if (isset($_POST['submit-subject']) && !empty($_POST['submit-subject'])) {
         echo pg_last_error($db);
         exit;
     }
-    // TODO redirect
-    echo "DODANO";
+
+    header("Refresh:0; url=/scan-work/select-subject.php");
 }
 
 
@@ -73,6 +74,7 @@ pg_close($db);
             <label for="subject-desc" class="form-label"><h2>Opis Przedmiotu</h2></label>
             <textarea name="subject-desc" id="subject-desc" placeholder="Opis Przedmiotu"
                       class="form-control"></textarea>
+
             <input type="submit" class="btn btn-sm btn-primary btn-block mt-3" value="Dodaj Przedmiot"
                    name="submit-subject">
         </form>
