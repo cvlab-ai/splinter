@@ -9,6 +9,7 @@ session_start();
     <base href="/">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="../css/style.css">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
@@ -37,7 +38,7 @@ if (!$db) {
 if (isset($_POST["submit-btn"])) {
     $subject_id = $_POST['subject'];
     $exam_id = $_POST['exam'];
-    $files = $_POST['files'];
+    //$files = $_POST['files'];
     for ($i = 0; $i < count($_FILES['files']['name']); $i++) {
         $file_name = $_FILES['files']['name'][$i];
         $file_size =$_FILES['files']['size'][$i];
@@ -48,14 +49,39 @@ if (isset($_POST["submit-btn"])) {
 
         move_uploaded_file($file_tmp,$file_name);
         $email = $_SESSION['email'];
-        $filePath = "scanned-files/$email/$file_name";
-        $fileDirectory = "scanned-files/$email/";
+        $filePath = "scanned-files/$email/$exam_id/$file_name";
+        $fileDirectory = "scanned-files/$email/$exam_id";
         if (!file_exists($fileDirectory)) {
             mkdir($fileDirectory, 0777, true);
         }
         rename($file_name, $filePath);
 
-        $query = "INSERT INTO exam_files (file_name, file_path, exam_id) VALUES ('$file_name','$filePath', $exam_id)";
+        $query = "INSERT INTO exam_files (file_name, file_path, exam_id, students_work) VALUES ('$file_name','$filePath', $exam_id, true)";
+        $res = pg_query($db, $query);
+        if (!$res) {
+            echo pg_last_error($db);
+            exit;
+        }
+    }
+
+    for ($i = 0; $i < count($_FILES['result']['name']); $i++) {
+        $file_name = $_FILES['result']['name'][$i];
+        $file_size =$_FILES['result']['size'][$i];
+        $file_tmp =$_FILES['result']['tmp_name'][$i];
+        $file_type=$_FILES['result']['type'][$i];
+        $array = explode('.', $_FILES['result']['name'][$i]);
+        $file_ext=strtolower(end($array));
+
+        move_uploaded_file($file_tmp,$file_name);
+        $email = $_SESSION['email'];
+        $filePath = "scanned-files/$email/$exam_id/result/$file_name";
+        $fileDirectory = "scanned-files/$email/$exam_id/result";
+        if (!file_exists($fileDirectory)) {
+            mkdir($fileDirectory, 0777, true);
+        }
+        rename($file_name, $filePath);
+
+        $query = "INSERT INTO exam_result_files (file_name, file_path, exam_id) VALUES ('$file_name','$filePath', $exam_id)";
         $res = pg_query($db, $query);
         if (!$res) {
             echo pg_last_error($db);
@@ -65,7 +91,7 @@ if (isset($_POST["submit-btn"])) {
 
 }
 pg_close($db);
-
+header("Refresh:0; url=/scanned-work/exams.php");
 ?>
 
 
