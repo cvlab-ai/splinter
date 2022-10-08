@@ -2,6 +2,7 @@ exam_storage:
   url: http://localhost
   port: 8888
   answer_key_filename: answer_key
+  img_extension: jpg
 
 inference:
   answer_threshold: 0.5
