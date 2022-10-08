@@ -12,21 +12,27 @@ from src.config import Config
 class Storage:
     @staticmethod
     def get_exams_names(exam_path: str) -> tp.List[str]:
-        response = Storage._send_request("GET", f'{exam_path}/')
+        path = Storage._create_full_path(exam_path, '')
+        response = Storage._send_request("GET", path)
         return [file_data["name"] for file_data in response.json() if file_data["type"] == "file"
                 and file_data["name"].endswith(Config.exam_storage.img_extension)]
 
     @staticmethod
-    def get_exam_image(exam_path: str, exam_name: str) -> np.ndarray:
-        response = Storage._send_request("GET", Storage._create_full_path(exam_path, exam_name))
+    def get_exam_image(exam_path: str, exam_name: str, ) -> np.ndarray:
+        path = Storage._create_full_path(exam_path, exam_name)
+        response = Storage._send_request("GET", path)
         pil_image = Image.open(io.BytesIO(response.content))
         return np.asarray(pil_image)
 
     @staticmethod
     def set_exam_answer_json(exam_path: str, exam_name: str, json_value: tp.Dict):
-        exam_name = (f"{exam_name}.json" if not exam_name.endswith(".json") else exam_name)
-        full_path = Storage._create_full_path(exam_path, exam_name)
-        Storage._send_request("PUT", full_path, json.dumps(json_value).encode())
+        filename = Storage.change_extension(exam_name, 'json')
+        path = Storage._create_full_path(exam_path, filename)
+        Storage._send_request("PUT", path, json.dumps(json_value).encode())
+
+    @staticmethod
+    def change_extension(filename: str, extension: str):
+        return f"{filename.split('.')[0]}.{extension}"
 
     @staticmethod
     def _create_full_path(exam_path: str, exam_name: str):
