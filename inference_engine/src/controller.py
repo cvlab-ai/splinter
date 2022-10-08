@@ -13,7 +13,7 @@ from .dto import CheckExamsDTO, CheckExamDTO, GenerateExamKeyDTO
 class Controller:
     @staticmethod
     def check_exam(request: CheckExamDTO):
-        return Controller._mark_detection(request.exam_path, request.exam_name)
+        Controller._mark_detection(request.exam_path, request.exam_name)
 
     @staticmethod
     def check_exams(request: CheckExamsDTO):
@@ -22,7 +22,8 @@ class Controller:
 
     @staticmethod
     def generate_exam_key(request: GenerateExamKeyDTO):
-        return Controller._mark_detection(request.exam_path, Config.exam_storage.answer_key_filename)
+        Controller._mark_detection(request.exam_path, f'{Config.exam_storage.answer_key_filename}.'
+                                                      f'{Config.exam_storage.img_extension}')
 
     @staticmethod
     def _mark_detection(file_path: str, file_name: str):

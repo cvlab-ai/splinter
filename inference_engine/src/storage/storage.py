@@ -12,22 +12,15 @@ from src.config import Config
 class Storage:
     @staticmethod
     def get_exams_names(exam_path: str) -> tp.List[str]:
-        response = Storage._send_request("GET", exam_path)
-        return [file_data["name"] for file_data in response.json() if file_data["type"] == "file"]
-
-    @staticmethod
-    def get_answer_key_image(exam_path: str) -> np.ndarray:
-        return Storage.get_exam_image(exam_path, f"{Config.exam_storage.answer_key_filename}.jpeg")
+        response = Storage._send_request("GET", f'{exam_path}/')
+        return [file_data["name"] for file_data in response.json() if file_data["type"] == "file"
+                and file_data["name"].endswith(Config.exam_storage.img_extension)]
 
     @staticmethod
     def get_exam_image(exam_path: str, exam_name: str) -> np.ndarray:
         response = Storage._send_request("GET", Storage._create_full_path(exam_path, exam_name))
         pil_image = Image.open(io.BytesIO(response.content))
         return np.asarray(pil_image)
-
-    @staticmethod
-    def set_answer_key_json(exam_path: str, json_value: tp.Dict):
-        Storage.set_exam_answer_json(exam_path, f"{Config.exam_storage.answer_key_filename}.json", json_value)
 
     @staticmethod
     def set_exam_answer_json(exam_path: str, exam_name: str, json_value: tp.Dict):

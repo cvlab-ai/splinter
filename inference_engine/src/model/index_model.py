@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 import cv2
 import re
@@ -9,13 +11,17 @@ class IndexModel(Model):
     letters = '~ !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_abcdefghijklmnopqrstuvwxyz{|}~£'
 
     def inference(self, _input: np.array):
-        h, w = _input.shape
-        i_b, i_c, i_h, i_w = self.input_layer.partial_shape
-        i_h, i_w = i_h.get_length(), i_w.get_length()
-        ratio = i_h / h
-        _input = cv2.resize(_input, (int(ratio * w), i_h), interpolation=cv2.INTER_AREA)[None]
-        _input = np.pad(_input, ((0, 0), (0, 0), (0, i_w - int(ratio * w))), mode='edge')[None]
-        return super(IndexModel, self).inference(_input)
+        try:
+            h, w = _input.shape
+            i_b, i_c, i_h, i_w = self.input_layer.partial_shape
+            i_h, i_w = i_h.get_length(), i_w.get_length()
+            ratio = i_h / h
+            _input = cv2.resize(_input, (int(ratio * w), i_h), interpolation=cv2.INTER_AREA)[None]
+            _input = np.pad(_input, ((0, 0), (0, 0), (0, i_w - int(ratio * w))), mode='edge')[None]
+            return super(IndexModel, self).inference(_input)
+        except (ValueError, IndexError):
+            logging.error("Cannot read index properly")
+            return ""
 
     def _decode(self, predictions):
         # Select max probability (greedy decoding) then decode index to character
