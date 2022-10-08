@@ -48,13 +48,20 @@ if (isset($_POST["submit-btn"])) {
         $file_ext=strtolower(end($array));
 
         move_uploaded_file($file_tmp,$file_name);
-        $email = $_SESSION['email'];
-        $filePath = "scanned-files/$email/$exam_id/$file_name";
-        $fileDirectory = "scanned-files/$email/$exam_id";
-        if (!file_exists($fileDirectory)) {
-            mkdir($fileDirectory, 0777, true);
-        }
-        rename($file_name, $filePath);
+        $filePath = $subject_id . "/" .$exam_id . "/exams/" . basename($file_name);
+        // Upload file to exam storage
+        $c = curl_init();
+        curl_setopt($c, CURLOPT_URL, "http://splinter_exam_storage/" . $filePath);
+        curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($c, CURLOPT_PUT, true);
+        curl_setopt($c, CURLOPT_INFILESIZE, filesize($file_name));
+        curl_setopt($c, CURLOPT_BINARYTRANSFER, TRUE);
+        $fp = fopen($file_name, "r");
+        curl_setopt($c, CURLOPT_INFILE, $fp);
+        curl_exec($c);
+        curl_close($c);
+        fclose($fp);
+        unlink($file_name);
 
         $query = "INSERT INTO exam_files (file_name, file_path, exam_id, students_work) VALUES ('$file_name','$filePath', $exam_id, true)";
         $res = pg_query($db, $query);

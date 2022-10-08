@@ -68,10 +68,10 @@ pg_close($db);
         <form method="post" action="/scan-work/scan.php" enctype="multipart/form-data">
             <?php echo "<input hidden name='subject' value='$subject_id'> <input hidden name='exam' value='$exam_id'>" ?>
             <label for="files" class="form-label">Wybierz plik ze skanami prac:</label>
-            <input class="form-control" accept="application/pdf" type="file" id="files" name="files[]" multiple><br><br>
+            <input class="form-control" accept="image/jpg" type="file" id="files" name="files[]" multiple><br><br>
             <hr>
             <label for="result" class="form-label">Wybierz plik z odpowiedziami:</label>
-            <input class="form-control" accept="application/pdf" type="file" id="result" name="result[]" multiple><br><br>
+            <input class="form-control" accept="image/jpg" type="file" id="result" name="result[]" multiple><br><br>
             <input class="btn btn-sm btn-primary btn-block mt-3" type="submit" value="Sprawdź Prace" name="submit-btn">
         </form>
     </div>
