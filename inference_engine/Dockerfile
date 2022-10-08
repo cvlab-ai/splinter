@@ -1,7 +1,10 @@
-FROM python:3.10
-COPY requirements.txt requirements.txt
-RUN pip3 install --upgrade pip
-RUN pip3 install -r requirements.txt
+FROM python:3.9
+
+RUN apt-get update && apt-get install -y python3-opencv
+# RUN pip install opencv-python
+
 WORKDIR /app
 COPY . .
-CMD ['uvicorn', 'app.app:app', '--host', '0.0.0.0', '--port', '8000']
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir --upgrade -r requirements.txt
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]

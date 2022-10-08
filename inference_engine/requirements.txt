@@ -5,5 +5,6 @@ numpy==1.23.1
 openvino==2022.2.0
 openvino_dev==2022.2.0
 pydantic==1.10.2
+pydantic_yaml==0.8.1
 tensorflow==2.9.1
 uvicorn==0.18.3

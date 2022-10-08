@@ -32,3 +32,9 @@ services:
       - type: bind
         source: ./exam_storage/volumes/www/data
         target: /www/data
+  inference_engine:
+    container_name: splinter_inference_engine
+    hostname: splinter_inference_engine
+    build: inference_engine/
+    ports:
+      - "8880:8000"
