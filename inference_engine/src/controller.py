@@ -13,20 +13,28 @@ from .dto import CheckExamsDTO, CheckExamDTO, GenerateExamKeyDTO
 class Controller:
     @staticmethod
     def check_exam(request: CheckExamDTO):
-        Controller._mark_detection(request.exam_path, request.exam_name)
+        input_dir = Controller._add_io_path(request.exam_path, Config.exam_storage.default_input_dirname)
+        output_dir = Controller._add_io_path(request.exam_path, Config.exam_storage.default_output_dirname)
+        Controller._mark_detection(input_dir, request.exam_name, output_dir)
 
     @staticmethod
     def check_exams(request: CheckExamsDTO):
-        for exam_name in Storage.get_exams_names(request.exam_path):
-            Controller._mark_detection(request.exam_path, exam_name)
+        input_dir = Controller._add_io_path(request.exam_path, Config.exam_storage.default_input_dirname)
+        output_dir = Controller._add_io_path(request.exam_path, Config.exam_storage.default_output_dirname)
+        for exam_name in Storage.get_exams_names(input_dir):
+            Controller._mark_detection(input_dir, exam_name, output_dir)
 
     @staticmethod
     def generate_exam_key(request: GenerateExamKeyDTO):
-        Controller._mark_detection(request.exam_path, f'{Config.exam_storage.answer_key_filename}.'
-                                                      f'{Config.exam_storage.img_extension}')
+        Controller._mark_detection(request.exam_path, f'{Config.exam_storage.full_answer_image_filename}',
+                                   request.exam_path)
 
     @staticmethod
-    def _mark_detection(file_path: str, file_name: str):
+    def _add_io_path(exam_path: str, io_path: str):
+        return f"{exam_path}/{io_path}/"
+
+    @staticmethod
+    def _mark_detection(file_path: str, file_name: str, output_path: str):
         image = Storage.get_exam_image(file_path, file_name)
         answer_input, index_input = Preprocessing().process(image)
         index_result = IndexModel(Config.paths.index_model_path).inference(index_input)
@@ -34,8 +42,7 @@ class Controller:
         answer_result = AnswerModel(Config.paths.answer_model_path).inference(answer_input)
         logging.info(f"Detected answers: {Controller._get_readable_answers(answer_result)}")
         json_result = Controller._create_output_json(answer_result, index_result)
-        output_file = file_name.split('.')[0]
-        Storage.set_exam_answer_json(file_path, output_file, json_result)
+        Storage.set_exam_answer_json(output_path, file_name, json_result)
 
     @staticmethod
     def _create_output_json(answers: np.ndarray, index: str):

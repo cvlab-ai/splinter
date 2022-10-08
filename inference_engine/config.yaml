@@ -3,6 +3,8 @@ exam_storage:
   port: 8888
   answer_key_filename: answer_key
   img_extension: jpg
+  default_input_dirname: exams
+  default_output_dirname: answers
 
 inference:
   answer_threshold: 0.5
