@@ -21,7 +21,7 @@ session_start();
         crossorigin="anonymous"></script>
 <?php
 use navbar\NavBar;
-require ("../../../classes/NavBar.php");
+require("../classes/NavBar.php");
 echo NavBar::showNavBar("");
 ?>
 
@@ -46,8 +46,37 @@ echo NavBar::showNavBar("");
         $examId = $_GET['id'];
         $resultFile = $_GET['result'];
         if ($resultFile === "true") {
+            $query = "SELECT file_path FROM exam_result_files WHERE id = $fileId";
+            $ret = pg_query($db, $query);
+            if (!$ret) {
+                echo pg_last_error($db);
+                exit;
+            }
+            $row = pg_fetch_row($ret);
+            if (!unlink($row[0])) {
+                echo ("$row[0] cannot be deleted due to an error");
+            }
+            else {
+                echo ("$row[0] has been deleted");
+            }
+
             $query = "DELETE FROM exam_result_files WHERE id = $fileId";
         } else {
+            $query = "SELECT file_path FROM exam_files WHERE id = $fileId";
+            $ret = pg_query($db, $query);
+            if (!$ret) {
+                echo pg_last_error($db);
+                exit;
+            }
+            $row = pg_fetch_row($ret);
+            echo $row[0];
+            if (!unlink($row[0])) {
+                echo ("$row[0] cannot be deleted due to an error");
+            }
+            else {
+                echo ("$row[0] has been deleted");
+            }
+
             $query = "DELETE FROM exam_files WHERE id = $fileId";
         }
 
@@ -58,7 +87,7 @@ echo NavBar::showNavBar("");
         }
 
         pg_close($db);
-        header("Refresh:0; url=../exam-details-files.php?id=$examId");
+        header("Refresh:0; url=/scanned-work/exam-details/exam-details-files.php?id=$examId");
         ?>
     </ul>
 </div>

@@ -11,15 +11,15 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <script type="text/javascript">
-        function popupWindow(examId, fileId, isResultFile) {
+        function popupWindow(fileId, examId, isResultFile) {
             console.log(isResultFile)
             var answer = window.confirm("Usunąć plik?");
             if (answer) {
                 alert("Usunięto!")
                 if (isResultFile) {
-                    window.location.replace("/scanned-work/exam-details/edit-exam/delete-exam.php?id=" + examId + "&fileId=" + fileId+"&result=true")
+                    window.location.replace("/scan-work/delete-exam.php?id=" + examId + "&fileId=" + fileId+"&result=true")
                 } else {
-                    window.location.replace("/scanned-work/exam-details/edit-exam/delete-exam.php?id=" + examId + "&fileId=" + fileId+"&result=false")
+                    window.location.replace("/scan-work/delete-exam.php?id=" + examId + "&fileId=" + fileId+"&result=false")
                 }
 
             }
