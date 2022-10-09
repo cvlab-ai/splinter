@@ -1,6 +1,6 @@
 exam_storage:
-  url: http://localhost
-  port: 8888
+  url: http://splinter_exam_storage
+  port: 80
   answer_key_filename: answer_key
   img_extension: jpg
   default_input_dirname: exams
