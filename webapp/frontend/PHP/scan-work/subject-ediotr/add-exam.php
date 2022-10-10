@@ -54,7 +54,8 @@ if (isset($_POST['submit-subject']) && !empty($_POST['submit-subject'])) {
         $userId = $row[0];
     }
     $bigOwners = "$email;";
-    if (count($owners) < 2) {
+
+    if ($owners !== "") {
         $bigOwners .= "$owners;";
     } else {
         foreach (explode(";",$owners) as &$owner) {

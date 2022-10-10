@@ -56,7 +56,7 @@ echo NavBar::showNavBar("");
             echo pg_last_error($db);
             exit;
         }
-
+        // TODO remove curl
         pg_close($db);
         header("Refresh:0; url=../exam-details-files.php?id=$examId");
         ?>
