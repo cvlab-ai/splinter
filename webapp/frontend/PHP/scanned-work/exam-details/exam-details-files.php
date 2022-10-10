@@ -74,7 +74,8 @@ echo NavBar::showNavBar("");
             <?php
             while ($row = pg_fetch_row($ret)) {
                 $params = $row[0] . "," . $exam_id.",false";
-                echo "<div><a class='btn btn-lg btn-primary btn-block m-3' href='/scan-work/$row[2]'>$row[1]</a><a class='btn btn-lg btn-danger btn-block m-1' onclick='popupWindow($params)'>Usuń Plik</a></div><hr>";
+                //echo "<div><a class='btn btn-lg btn-primary btn-block m-3' href='/scan-work/$row[2]'>$row[1]</a><a class='btn btn-lg btn-danger btn-block m-1' onclick='popupWindow($params)'>Usuń Plik</a></div><hr>";
+                echo "<div><a class='btn btn-lg btn-primary btn-block m-3' href='/scanned-work/exam-details/show-jpg.php?id=$row[0]&result=false'>$row[1]</a><a class='btn btn-lg btn-danger btn-block m-1' onclick='popupWindow($params)'>Usuń Plik</a></div><hr>";
             }
 
             $sql = "SELECT * from exam_result_files WHERE exam_id = $exam_id";
@@ -87,7 +88,8 @@ echo NavBar::showNavBar("");
 
             while ($row = pg_fetch_row($ret)) {
                 $params = $row[0] . "," . $exam_id.",true";
-                echo "<div><a class='btn btn-lg btn-primary btn-block m-3' href='/scan-work/$row[2]'>$row[1]</a><a class='btn btn-lg btn-danger btn-block m-1' onclick='popupWindow($params)'>Usuń Plik</a></div><hr>";
+                //echo "<div><a class='btn btn-lg btn-primary btn-block m-3' href='/scan-work/$row[2]'>$row[1]</a><a class='btn btn-lg btn-danger btn-block m-1' onclick='popupWindow($params)'>Usuń Plik</a></div><hr>";
+                echo "<div><a class='btn btn-lg btn-primary btn-block m-3' href='/scanned-work/exam-details/show-jpg.php?id=$row[0]&result=true'>$row[1]</a><a class='btn btn-lg btn-danger btn-block m-1' onclick='popupWindow($params)'>Usuń Plik</a></div><hr>";
             }
             pg_close($db);
             ?>
