@@ -36,7 +36,7 @@ class Controller:
     @staticmethod
     def _mark_detection(file_path: str, file_name: str, output_path: str):
         image = Storage.get_exam_image(file_path, file_name)
-        answer_input, index_input = Preprocessing().process(image)
+        answer_input, index_input = Preprocessing(image).process()
         index_result = IndexModel(Config.paths.index_model_path).inference(index_input)
         logging.info(f"Detected index: {index_result}")
         answer_result = AnswerModel(Config.paths.answer_model_path).inference(answer_input)

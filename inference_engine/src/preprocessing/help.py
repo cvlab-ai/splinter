@@ -1,10 +1,21 @@
+import typing as tp
+from random import choice
+from collections import defaultdict
+
 import numpy as np
 import cv2
 from typing import List, Tuple
 
+import matplotlib
+matplotlib.use('TkAgg')
+from matplotlib import pyplot as plt
+
+from matplotlib.patches import Rectangle
+import matplotlib.colors as mcolors
+
 
 def to_grayscale(image: np.ndarray) -> np.ndarray:
-    if image.shape[-1] == 3:
+    if image.shape[-1] > 1:
         return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     return image
 
@@ -26,38 +37,27 @@ def detect_contours(image: np.ndarray, threshold: int = 80) -> np.ndarray:
     lower_black = np.array([0])
     upper_black = np.array([threshold])
     mask = cv2.inRange(new_image, lowerb=lower_black, upperb=upper_black)
-    black_cnt = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[
-        -2
-    ]
+    black_cnt = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[-2]
     return black_cnt
 
 
-def group_by_size(
-    contours: np.ndarray, similarity_prop: float = 1.1
-) -> List[List[int]]:
-    grouped = [[]]
-    cont_idx, group_idx = 0, 0
-
+def group_by_size(contours: np.ndarray, similarity_prop: float = 1.1) -> tp.Dict[float, tp.List[int]]:
+    groups = defaultdict(list)
     contours = drop_insignificant(contours)
-    contours = sorted(contours, key=cv2.contourArea, reverse=True)
 
-    while cont_idx < len(contours):
-        if (
-            len(grouped[group_idx]) == 0
-            or cv2.contourArea(grouped[group_idx][0])
-            / cv2.contourArea(contours[cont_idx])
-            < similarity_prop
-        ):
-            grouped[group_idx].append(contours[cont_idx])
+    def find_group(c_area: int):
+        return next((g_area for g_area in groups.keys() if g_area / c_area < similarity_prop), None)
+
+    for contour in sorted(contours, key=cv2.contourArea, reverse=True):
+        contour_area = cv2.contourArea(contour)
+        if (group_area := find_group(contour_area)) is not None:
+            groups[group_area].append(contour)  # Add contour to existing found group
         else:
-            grouped.append([contours[cont_idx]])
-            group_idx += 1
-        cont_idx += 1
-
-    return grouped
+            groups[contour_area].append(contour)  # Create new group with contour area as key
+    return dict(groups)
 
 
-def drop_insignificant(contours: np.ndarray, dropout: float = 400):
+def drop_insignificant(contours: np.ndarray, dropout: float = 600):
     return [contour for contour in contours if cv2.contourArea(contour) >= dropout]
 
 
@@ -77,7 +77,18 @@ def mark_contours(
     return new_image
 
 
-def calculate_rectangle(contours: List[int], inside: bool = True) -> List[List[int]]:
+def mark_squares_on_image(image: np.ndarray, coordinates: List[List[int]]):
+    fig, ax = plt.subplots()
+    image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
+    ax.imshow(image)
+    for (x1, y1, w1, h1) in coordinates:
+        color = choice(list(mcolors.CSS4_COLORS.keys()))
+        rect = Rectangle((x1, y1), w1, h1, linewidth=2, edgecolor=color, facecolor='none')
+        ax.add_patch(rect)
+    plt.show()
+
+
+def calculate_rectangle(contours: List[int], inside: bool = True) -> List[int]:
     contours = [cv2.boundingRect(contour) for contour in contours]
     right_x = [x[0] + x[2] for x in contours]
     bottom_y = [x[1] + x[3] for x in contours]
@@ -91,7 +102,7 @@ def calculate_rectangle(contours: List[int], inside: bool = True) -> List[List[i
     x2 = second_fun(right_x)
     y2 = second_fun(bottom_y)
     w, h = abs(x1 - x2), abs(y1 - y2)
-    return [[min(x1, x2), min(y1, y2), w, h]]
+    return [min(x1, x2), min(y1, y2), w, h]
 
 
 def detect_lines(threshold, kernel_size: Tuple[int, int]):
