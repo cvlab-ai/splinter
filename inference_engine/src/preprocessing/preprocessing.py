@@ -9,41 +9,17 @@ from .fields import Fields
 
 
 class Preprocessing:
-    def __init__(self, image: np.ndarray, binary_threshold: int = 185, expected_shape: tuple = (290, 60)):
+    def __init__(self, image: np.ndarray, binary_threshold: int = 185, row_shape: tuple = (290, 60)):
         self.image = image.copy()
         self.binary_threshold = binary_threshold
-        self.expected_shape = expected_shape
+        self.row_shape = row_shape
 
     def process(self) -> tp.Tuple[np.ndarray, np.ndarray]:
         operated_image = self.prepare_image(self.image)
         box_images = self.separate_content_boxes(operated_image)
         index_img = IndexExtraction(box_images[Fields.student_id]).extract()
-        box_positions = self._detect_box_positions(box_images[Fields.answers])
-        print(box_positions)
-        cropped_rows = self.crop_rows(box_images[Fields.answers], box_positions)
-        return cropped_rows, index_img
-
-    def crop_rows(self, answer_card: np.ndarray, box_positions: np.ndarray):
-        def shift_each_box(box):
-            x1 = box[0][0] - x_shift
-            x2 = box[-1][0] + x_shift
-            y1 = box[0][1] - y_shift
-            y2 = box[0][1] + y_shift
-            return y1, y2, x1, x2
-
-        def crop_image(box):
-            y1, y2, x1, x2 = box
-            _img = cv2.resize(answer_card[y1:y2, x1:x2], self.expected_shape)
-            return cv2.merge([_img] * 3)  # For some reason model has three channel input for grayscale images
-
-        x_shift = (box_positions[0][-1][0] - box_positions[0][0][0]) // ((box_positions.shape[1] - 1) * 2)
-        y_shift = (box_positions[1][0][1] - box_positions[0][0][1]) // 2
-        shifted_positions = [shift_each_box(box) for box in box_positions]
-        image_crops_np = np.empty((box_positions.shape[0], *self.expected_shape[::-1], 3))
-        image_crops = [crop_image(positions) for positions in shifted_positions]
-        for idx in range(len(image_crops_np)):
-            image_crops_np[idx] = image_crops[idx]
-        return image_crops_np
+        rows_img = self.detect_rows(box_images[Fields.answers], 3)
+        return rows_img, index_img
 
     def prepare_image(self, image: np.ndarray) -> np.ndarray:
         image = image.copy()
@@ -52,29 +28,49 @@ class Preprocessing:
         image = to_portrait(image)
         return image
 
-    def _detect_box_positions(self, answer_card):
-        raise NotImplementedError
-        thresh = cv2.threshold(answer_card, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
-        horizontal_contours = detect_lines(thresh, (40, 1))
-        vertical_contours = detect_lines(thresh, (1, 30))
-        box_positions = self._group_box_positions(horizontal_contours, vertical_contours)
-        return box_positions
+    def detect_rows(self, answer_card: np.ndarray, number_of_columns: int):
+        rows = []
+        for column in self.extract_columns(answer_card, number_of_columns):
+            rows.extend(self.extract_rows(column))
+        return np.array(rows)
 
-    def _group_box_positions(self, horizontal_contours: np.ndarray, vertical_contours: np.ndarray):
-        grouped_box_positions = []
-        grouped_vertical_contours = self._group_by(vertical_contours, lambda x: x[0][0], 2)
-        for column_vertical in grouped_vertical_contours:
-            box_positions = detect_boxes_middles(horizontal_contours, column_vertical)
-            grouped_boxes_in_row = self._group_by(box_positions, lambda x: x[1], int(len(box_positions) / 4))
-            grouped_box_positions.extend(grouped_boxes_in_row)
-        return np.array(grouped_box_positions)
+    def extract_columns(self, answer_card: np.ndarray, number_of_columns: int):
+        columns = []
+        for answer_card_split in self.split_verticaly(answer_card, number_of_columns):
+            mask = cv2.erode(answer_card_split, np.ones((5, 5)))
+            contours = detect_contours(mask)
+            grouped_contours = group_by_size(contours).values()
+            rectangles = [calculate_rectangle(contour, inside=False) for contour in grouped_contours]
+            x, y, w, h = max(rectangles, key=lambda _x: _x[2] * _x[3])
+            columns.append(answer_card_split[y:y + h, x:x + w])
+        return columns
+
+    def extract_rows(self, column: np.ndarray, height_similarity = 1.1):
+        mask = cv2.erode(column, np.ones((3, 3)))
+        horizontal_lines = np.array(sorted(detect_lines(mask, (60, 1)), key=lambda x: x[0][1]))
+        row_median_height = self._calculate_row_height(horizontal_lines)
+        rows = []
+        for line1, line2 in zip(horizontal_lines[:-1], horizontal_lines[1:]):
+            y1, y2 = line1[0][1], line2[0][1]
+            if ((y2 - y1) / row_median_height) < height_similarity:
+                row = column[y1:y2, :]
+                row = cv2.resize(row, self.row_shape)
+                row = cv2.merge([row] * 3)
+                rows.append(row)
+        return rows
+
+    def _calculate_row_height(self, horizontal_lines: np.ndarray):
+        rows_y = horizontal_lines[:, 0, 1]
+        roll_rows_y = np.roll(rows_y, 1)
+        roll_rows_y[0] = 0
+        return float(np.median(rows_y - roll_rows_y))
+
+    def split_verticaly(self, img: np.ndarray, number_of_columns: int):
+        width_chunk = int(img.shape[1] / number_of_columns)
+        return [img[:, width_chunk * i: width_chunk * (i + 1)] for i in range(number_of_columns)]
 
     @staticmethod
-    def _group_by(data: np.ndarray, sort_func: tp.Callable, number_of_groups: int):
-        return np.array_split(sorted(data, key=sort_func), number_of_groups)
-
-    @staticmethod
-    def separate_content_boxes(image: np.ndarray, y_disc: int = 10) -> tp.Dict[Fields, np.ndarray]:
+    def separate_content_boxes(image: np.ndarray, y_disc: int = 10, b: int = 2) -> tp.Dict[Fields, np.ndarray]:
         image_copy = image.copy()
         contours = detect_contours(image_copy)
         grouped_contours = group_by_size(contours)
@@ -84,7 +80,7 @@ class Preprocessing:
         sorted_rectangles = sorted(rectangles, key=lambda x: (int(x[1]/y_disc), x[0]))
         box_images = []
         for x, y, w, h in sorted_rectangles:
-            box_images.append(image_copy[y:y + h, x:x + w].copy())
+            box_images.append(image_copy[y - b:y + h + b, x - b:x + w + b].copy())
             image_copy[y:y + h, x:x + w] = 255
         # mark_squares_on_image(image, sorted_rectangles)
         assigned_box_images = Preprocessing.assign_field_names(box_images)
