@@ -41,9 +41,9 @@ def detect_contours(image: np.ndarray, threshold: int = 80) -> np.ndarray:
     return black_cnt
 
 
-def group_by_size(contours: np.ndarray, similarity_prop: float = 1.1) -> tp.Dict[float, tp.List[int]]:
+def group_by_size(contours: np.ndarray, similarity_prop: float = 1.1, dropout: int = 600) -> tp.Dict[float, tp.List[int]]:
     groups = defaultdict(list)
-    contours = drop_insignificant(contours)
+    contours = drop_insignificant(contours, dropout=dropout)
 
     def find_group(c_area: int):
         return next((g_area for g_area in groups.keys() if g_area / c_area < similarity_prop), None)
@@ -57,7 +57,7 @@ def group_by_size(contours: np.ndarray, similarity_prop: float = 1.1) -> tp.Dict
     return dict(groups)
 
 
-def drop_insignificant(contours: np.ndarray, dropout: float = 600):
+def drop_insignificant(contours: np.ndarray, dropout: int):
     return [contour for contour in contours if cv2.contourArea(contour) >= dropout]
 
 
