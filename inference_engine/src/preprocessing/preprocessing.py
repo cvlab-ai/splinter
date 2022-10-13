@@ -1,10 +1,14 @@
-from .extractors import IndexExtractor, RowsExtractor, FieldExtractor
+from .extractors import TextExtractor, IndexExtractor, RowsExtractor, FieldExtractor
 from .help import *
 from .fields import Fields
 
 
 class Preprocessing:
     FIELD_EXTRACTOR_MAPPING = {
+        Fields.exam_title: TextExtractor,
+        Fields.student_name: TextExtractor,
+        Fields.student_group: TextExtractor,
+        Fields.date: TextExtractor,
         Fields.student_id: IndexExtractor,
         Fields.answers_rows: RowsExtractor
     }
@@ -15,4 +19,5 @@ class Preprocessing:
     def process(self) -> tp.Dict[Fields, np.ndarray]:
         fields = FieldExtractor(self._exam_copy).process()
         _map = Preprocessing.FIELD_EXTRACTOR_MAPPING
-        return {f: _map[f](img).process() for f, img in fields.items() if f in _map}
+        result = {f: _map[f](img).process() for f, img in fields.items() if f in _map}
+        return result
