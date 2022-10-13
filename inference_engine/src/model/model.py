@@ -9,8 +9,8 @@ class Model:
         self.input_layer = self.model.input(0)
         self.output_layer = self.model.output(0)
 
-    def inference(self, _input: np.array):
-        return self._decode(self.model([_input])[self.output_layer])
+    def inference(self, _input: np.array, *args, **kwargs):
+        return self._decode(self.model([_input])[self.output_layer], *args, **kwargs)
 
-    def _decode(self, predictions: np.ndarray):
+    def _decode(self, predictions: np.ndarray, *args, **kwargs):
         raise NotImplementedError
