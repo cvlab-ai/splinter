@@ -8,7 +8,9 @@ exam_storage:
 
 inference:
   answer_threshold: 0.5
-
+  answer_row_shape:
+    - 290
+    - 60
 paths:
   answer_model_path: data/model/saved_model.xml
   index_model_path: data/model/handwritten-english-recognition-0001.xml
