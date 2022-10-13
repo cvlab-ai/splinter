@@ -8,4 +8,4 @@ class Fields(Enum):
     date = 4
     exam_key = 5
     student_id = 6
-    answers = 7
+    answers_rows = 7

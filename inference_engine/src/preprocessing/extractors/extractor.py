@@ -16,75 +16,76 @@ import matplotlib.colors as mcolors
 
 class Extractor:
     def __init__(self, img: np.ndarray):
-        self._img_copy = img.copy()
+        self._operated_img = img.copy()
+        self._original_img = img
 
     def process(self, *args, **kwargs):
-        return self._img_copy
+        return self._operated_img
 
     # Preprocessing
     def to_grayscale(self) -> np.ndarray:
-        if self._img_copy.shape[-1] > 1:
-            self._img_copy = cv2.cvtColor(self._img_copy, cv2.COLOR_BGR2GRAY)
+        if self._operated_img.shape[-1] > 1:
+            self._operated_img = cv2.cvtColor(self._operated_img, cv2.COLOR_BGR2GRAY)
         return self
 
     def to_binary(self, threshold: int) -> np.ndarray:
-        self._img_copy[self._img_copy <= threshold] = 0
-        self._img_copy[self._img_copy > threshold] = 255
+        self._operated_img[self._operated_img <= threshold] = 0
+        self._operated_img[self._operated_img > threshold] = 255
         return self
 
     def to_portrait(self) -> np.ndarray:
-        if self._img_copy.shape[0] < self._img_copy.shape[1]:
-            return cv2.rotate(self._img_copy, cv2.ROTATE_90_COUNTERCLOCKWISE)
+        if self._operated_img.shape[0] < self._operated_img.shape[1]:
+            return cv2.rotate(self._operated_img, cv2.ROTATE_90_COUNTERCLOCKWISE)
         return self
 
     def remove_borders(self, width: int):
-        self._img_copy = self._img_copy[width: -width, width: -width]
+        self._operated_img = self._operated_img[width: -width, width: -width]
         return self
 
     def erode(self, kernel: tp.Tuple[int, int]):
         kernel = np.ones(kernel, np.uint8)
-        self._img_copy = cv2.erode(self._img_copy, kernel)
+        self._operated_img = cv2.erode(self._operated_img, kernel)
         return self
 
     def recover(self, kernel_shape: tp.Tuple[int, int] = (5, 5)):
         kernel = np.ones(kernel_shape, np.uint8)
-        self._img_copy = cv2.morphologyEx(self._img_copy, cv2.MORPH_OPEN, kernel)
+        self._operated_img = cv2.morphologyEx(self._operated_img, cv2.MORPH_OPEN, kernel)
         return self
 
     def split_vertically(self, number_of_columns: int):
-        width_chunk = int(self._img_copy.shape[1] / number_of_columns)
-        return [self._img_copy[:, width_chunk * i: width_chunk * (i + 1)] for i in range(number_of_columns)]
+        width_chunk = int(self._operated_img.shape[1] / number_of_columns)
+        return [self._operated_img[:, width_chunk * i: width_chunk * (i + 1)] for i in range(number_of_columns)]
 
     # Computer vision
     def detect_and_remove_lines(self):
-        exc = Extractor(cv2.threshold(self._img_copy, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1])
+        exc = Extractor(cv2.threshold(self._operated_img, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1])
         lines = exc.detect_lines((25, 1)) + exc.detect_lines((1, 25))
-        self.__remove_lines(lines)
+        self._remove_lines(lines)
         return self
 
-    def __remove_lines(self, lines: tp.List[np.ndarray], color=255, width: int = 2):
+    def _remove_lines(self, lines: tp.List[np.ndarray], color=255, width: int = 2):
         for line in lines:
             x1 = min(line, key=lambda x: x[0])[0] - width
             y1 = min(line, key=lambda x: x[1])[1] - width
             x2 = max(line, key=lambda x: x[0])[0] + width
             y2 = max(line, key=lambda x: x[1])[1] + width
-            cv2.rectangle(self._img_copy, (x1, y1), (x2, y2), color, -1)
+            cv2.rectangle(self._operated_img, (x1, y1), (x2, y2), color, -1)
         return self
 
     def detect_rectangles(self):
         contours = self.detect_contours()
-        grouped_contours = self.__group_by_size(contours).values()
+        grouped_contours = self._group_by_size(contours).values()
         return [self.calculate_rectangle(contour, inside=False) for contour in grouped_contours]
 
     def detect_contours(self, threshold: int = 80) -> np.ndarray:
         lower_black = np.array([0])
         upper_black = np.array([threshold])
-        mask = cv2.inRange(self._img_copy, lowerb=lower_black, upperb=upper_black)
+        mask = cv2.inRange(self._operated_img, lowerb=lower_black, upperb=upper_black)
         black_cnt = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[-2]
         return black_cnt
 
     @staticmethod
-    def __group_by_size(contours: np.ndarray, similarity_prop: float = 1.1, dropout: int = 600
+    def _group_by_size(contours: np.ndarray, similarity_prop: float = 1.1, dropout: int = 600
                         ) -> tp.Dict[float, tp.List[int]]:
 
         def drop_insignificant(contours: np.ndarray, dropout: int):
@@ -123,7 +124,7 @@ class Extractor:
 
     def detect_lines(self, kernel_size: Tuple[int, int]):
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT, kernel_size)
-        detect = cv2.morphologyEx(self._img_copy, cv2.MORPH_OPEN, kernel, iterations=2)
+        detect = cv2.morphologyEx(self._operated_img, cv2.MORPH_OPEN, kernel, iterations=2)
         contours = cv2.findContours(detect, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         contours: np.ndarray = contours[0] if len(contours) == 2 else contours[1]
         lines = []
@@ -150,7 +151,7 @@ class Extractor:
         coordinates = coordinates or []
 
         fig, ax = plt.subplots()
-        image = cv2.cvtColor(self._img_copy, cv2.COLOR_GRAY2RGB)
+        image = cv2.cvtColor(self._operated_img, cv2.COLOR_GRAY2RGB)
         ax.imshow(image)
         for (x1, y1, w1, h1) in coordinates:
             color = choice(list(mcolors.CSS4_COLORS.keys()))

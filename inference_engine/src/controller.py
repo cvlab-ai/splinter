@@ -5,7 +5,7 @@ from json import dumps
 
 from src.config import Config
 from .storage import Storage
-from .preprocessing import Preprocessing
+from .preprocessing import Preprocessing, Fields
 from .model import AnswerModel, IndexModel
 from .dto import CheckExamsDTO, CheckExamDTO, GenerateExamKeyDTO
 
@@ -36,10 +36,10 @@ class Controller:
     @staticmethod
     def _mark_detection(file_path: str, file_name: str, output_path: str):
         image = Storage.get_exam_image(file_path, file_name)
-        answer_input, index_input = Preprocessing(image).process()
-        index_result = IndexModel(Config.paths.index_model_path).inference(index_input)
+        fields_images = Preprocessing(image).process()
+        index_result = IndexModel(Config.paths.index_model_path).inference(fields_images[Fields.student_id])
         logging.info(f"Detected index: {index_result}")
-        answer_result = AnswerModel(Config.paths.answer_model_path).inference(answer_input)
+        answer_result = AnswerModel(Config.paths.answer_model_path).inference(fields_images[Fields.answers_rows])
         logging.info(f"Detected answers: {Controller._get_readable_answers(answer_result)}")
         json_result = Controller._create_output_json(answer_result, index_result)
         Storage.set_exam_answer_json(output_path, file_name, json_result)
