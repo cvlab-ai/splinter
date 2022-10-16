@@ -1,7 +1,7 @@
 # API Design
 
-This docuement is a note from team design session and describes planned
-communication between web application (backend) and internal logic
+This document is a note from the team design session and describes planned
+communication between the web application (backend) and internal logic
 services(inference_engine + exam_storage).
 
 ## Web Application requests to Exam Storage
