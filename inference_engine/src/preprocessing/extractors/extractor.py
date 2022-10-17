@@ -147,7 +147,7 @@ class Extractor:
         return lines
 
     # Visualization
-    def vis(self, coordinates: List[List[int]] = None):
+    def vis(self, coordinates: List[List[int]] = None, title: str = ""):
         coordinates = coordinates or []
 
         fig, ax = plt.subplots()
@@ -157,4 +157,5 @@ class Extractor:
             color = choice(list(mcolors.CSS4_COLORS.keys()))
             rect = Rectangle((x1, y1), w1, h1, linewidth=2, edgecolor=color, facecolor='none')
             ax.add_patch(rect)
+        plt.title(title)
         plt.show()

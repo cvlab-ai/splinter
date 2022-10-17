@@ -28,7 +28,7 @@ class RowsExtractor(Extractor):
             columns.append(column_split[y:y + h, x:x + w])
         return columns
 
-    def _extract_rows(self, column: np.ndarray, height_similarity: float = 1.1):
+    def _extract_rows(self, column: np.ndarray, height_similarity: float = 0.1):
         rows_extractor = Extractor(column)
         rows_extractor.erode((3, 3))
         horizontal_lines = np.array(sorted(rows_extractor.detect_lines((60, 1)), key=lambda x: x[0][1]))
@@ -38,7 +38,7 @@ class RowsExtractor(Extractor):
 
         rows = []
         for y1, y2 in zip(y_values[:-1], y_values[1:]):
-            if ((y2 - y1) / row_median_height) < height_similarity:
+            if abs(((y2 - y1) / row_median_height) - 1) < height_similarity:
                 row = column[y1:y2, :]
                 row = cv2.resize(row, Config.inference.answer_row_shape)
                 row = cv2.merge([row] * 3)

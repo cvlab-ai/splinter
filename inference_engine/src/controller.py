@@ -45,7 +45,12 @@ class Controller:
         for field, result in ocr_results.items():
             logging.info(f"Detected {field.name}: {result}")
 
-        answer_result = AnswerModel(Config.paths.answer_model_path).inference(fields_images[Fields.answers_rows])
+        box_model = AnswerModel(Config.paths.answer_model_path)
+
+        exam_key_result = box_model.inference(fields_images[Fields.exam_key])
+        logging.info(f"Detected exam key: {Controller._get_readable_answers(exam_key_result)}")
+
+        answer_result = box_model.inference(fields_images[Fields.answers_rows])
         logging.info(f"Detected answers: {Controller._get_readable_answers(answer_result)}")
 
         json_result = Controller._create_output_json(answer_result, ocr_results)

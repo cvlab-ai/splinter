@@ -10,7 +10,7 @@ from .extractor import Extractor
 class FieldExtractor(Extractor):
     def process(self, *args, **kwargs):
         self.to_grayscale()
-        self.to_binary(185)
+        self.to_binary(210)
         self.to_portrait()
 
         # Calculate rectangles on erode

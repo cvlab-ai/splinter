@@ -36,4 +36,4 @@ class OCRModel(Model):
                 char_list.append(self.letters[preds_index_reshape[i]])
                 odds_list.append(max(predictions[preds_index_reshape[i]][0]))
         text = ''.join(char_list)
-        return re.sub("[^0-9]", "", text) if only_digits else text # Remove all non-numeric characters
+        return re.sub("[^0-9]", "", text) if only_digits else text  # Remove all non-numeric characters
