@@ -1,4 +1,4 @@
-from .extractors import TextExtractor, IndexExtractor, RowsExtractor, FieldExtractor
+from .extractors import TextExtractor, IndexExtractor, RowsExtractor, FieldExtractor, GroupExtractor
 from .help import *
 from .fields import Fields
 
@@ -10,7 +10,8 @@ class Preprocessing:
         Fields.student_group: TextExtractor,
         Fields.date: TextExtractor,
         Fields.student_id: IndexExtractor,
-        Fields.answers_rows: RowsExtractor
+        Fields.answers_rows: RowsExtractor,
+        Fields.exam_key: GroupExtractor
     }
 
     def __init__(self, img: np.ndarray):
