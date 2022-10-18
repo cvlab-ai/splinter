@@ -24,14 +24,24 @@ services:
   exam_storage:
     container_name: splinter_exam_storage
     hostname: splinter_exam_storage
-    build: exam_storage/
+    build:
+      context: exam_storage/
+      args:
+        webdav_user: ${EX_STORE_WEBDAV_USER}
+        webdav_pass: ${EX_STORE_WEBDAV_PASS}
+        splinter_user: ${EX_STORE_SPLINTER_USER}
+        splinter_pass: ${EX_STORE_SPLINTER_PASS}
+
     restart: always
     ports:
       - "8888:80"
     volumes:
       - type: bind
-        source: ./exam_storage/volumes/www/data
-        target: /www/data
+        source: ./exam_storage/volumes/www/data/splinter
+        target: /www/data/splinter
+      - type: bind
+        source: ./exam_storage/volumes/www/data/uploads
+        target: /www/data/uploads
   inference_engine:
     container_name: splinter_inference_engine
     hostname: splinter_inference_engine
