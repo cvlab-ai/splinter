@@ -2,4 +2,4 @@ from pydantic import BaseModel
 
 
 class ExamConfig(BaseModel):
-    number_of_columns: int = 3
+    number_of_columns: int = 5
