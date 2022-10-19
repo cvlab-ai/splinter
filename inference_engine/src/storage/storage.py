@@ -1,11 +1,11 @@
 import io
 import json
 import typing as tp
-from PIL import Image
+from pathlib import Path
 
 import numpy as np
 import requests
-
+from PIL import Image
 from src.config import Config
 
 
@@ -16,6 +16,25 @@ class Storage:
         response = Storage._send_request("GET", path)
         return [file_data["name"] for file_data in response.json() if file_data["type"] == "file"
                 and file_data["name"].endswith(Config.exam_storage.img_extension)]
+
+    @staticmethod
+    def get_file(file_path: str):
+        return Storage._send_request("GET", file_path).content
+
+    @staticmethod
+    def next_answer_version(exam_id: int, index: str):
+
+        dir_content = Storage._get_dir(f"{exam_id}/students/{index}/")
+        if dir_content is None:
+            return 0
+        version_candidates = Storage._filter_versioned_files([row['name'] for row in dir_content])
+        return Storage._find_next_file_version(version_candidates)
+
+    @staticmethod
+    def push_student_dir(exam_id: int, student_dir: Path):
+        url = f"{Config.exam_storage.full_url}"
+        for filepath in student_dir.iterdir():
+            Storage._send_request("PUT", f"{exam_id}/students/{student_dir.name}/{filepath.name}", data = open(filepath, "rb"))
 
     @staticmethod
     def get_exam_image(exam_path: str, exam_name: str, ) -> np.ndarray:
@@ -53,6 +72,35 @@ class Storage:
         if not response.ok:
             raise requests.ConnectionError(url, response.status_code)
         return response
+
+    @staticmethod
+    def _get_dir(dirpath: str):
+        try:
+            response = Storage._send_request("GET", f"{dirpath}/")
+        except requests.ConnectionError as e:
+            if e.args[1] == 404:
+                return None
+            raise
+        return response.json()
+
+    @staticmethod
+    def _filter_versioned_files(files, base_filename='answers', ext='json'):
+        names = []
+        for filename in files:
+            name, ext = filename.split('.', 1)
+            if ext == 'json' and name.startswith(base_filename):
+                names.append(name)
+        return names
+
+    @staticmethod
+    def _find_next_file_version(files):
+        if len(files) == 0:
+            return 0
+        latest_name = max(files)
+        version = latest_name.split('_')[-1]
+        if version.isnumeric():
+            return int(version) + 1
+        return 0
 
 
 if __name__ == "__main__":
