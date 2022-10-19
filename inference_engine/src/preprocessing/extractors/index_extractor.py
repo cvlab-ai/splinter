@@ -2,17 +2,16 @@ from .extractor import Extractor
 
 
 class IndexExtractor(Extractor):
-
     def process(self):
-        self.remove_borders(15).to_binary(10)
-        rectangles = self.detect_rectangles()
-        rectangles_by_area = sorted(rectangles, key=lambda x: x[2] * x[3])
-        rectangle_images = [self._operated_img[y:y + h, x:x + w] for x, y, w, h in rectangles_by_area]
-        index_number_field, index_answer_field = rectangle_images
+        horizontal = self.detect_lines((64, 1))
+        y_values = sorted([p1[1] for p1, p2 in horizontal])
+        self.fill_missing_values(y_values, self._operated_img.shape[0], 15)
+        index_text, index_answer = self._operated_img[:y_values[1], :], self._operated_img[y_values[1]:, :]
 
-        # Process the index as a numeric field
-        index_field_extractor = Extractor(index_number_field)
-        index_field_extractor.remove_borders(5)
-        index_field_extractor.detect_and_remove_lines()
-        index_field_extractor.recover()
-        return index_field_extractor.process()
+        index_text_extractor = Extractor(index_text)
+        index_text_extractor.remove_borders(2)
+        index_text_extractor.detect_and_remove_lines()
+        index_text_extractor.recover()
+
+        # TODO extract index columns
+        return index_text_extractor.process()

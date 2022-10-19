@@ -40,7 +40,7 @@ class Controller:
         fields_images = Preprocessing(image).process()
         ocr_model = OCRModel(Config.paths.index_model_path)
 
-        ocr_results = {f: ocr_model.inference(fields_images[f], True if f == Fields.student_id else False)
+        ocr_results = {f: ocr_model.inference(fields_images[f][0], True if f == Fields.student_id else False)
                        for f in Fields.ocr_fields()}
         for field, result in ocr_results.items():
             logging.info(f"Detected {field.name}: {result}")
@@ -50,7 +50,7 @@ class Controller:
         exam_key_result = box_model.inference(fields_images[Fields.exam_key])
         logging.info(f"Detected exam key: {Controller._get_readable_answers(exam_key_result)}")
 
-        answer_result = box_model.inference(fields_images[Fields.answers_rows])
+        answer_result = box_model.inference(fields_images[Fields.answer_column])
         logging.info(f"Detected answers: {Controller._get_readable_answers(answer_result)}")
 
         json_result = Controller._create_output_json(answer_result, ocr_results)

@@ -9,6 +9,7 @@ from typing import List, Tuple
 import matplotlib
 matplotlib.use('TkAgg')
 from matplotlib import pyplot as plt
+from matplotlib import collections as mc
 
 from matplotlib.patches import Rectangle
 import matplotlib.colors as mcolors
@@ -58,12 +59,11 @@ class Extractor:
 
     # Computer vision
     def detect_and_remove_lines(self):
-        exc = Extractor(cv2.threshold(self._operated_img, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1])
-        lines = exc.detect_lines((25, 1)) + exc.detect_lines((1, 25))
-        self._remove_lines(lines)
+        lines = self.detect_lines((25, 1)) + self.detect_lines((1, 25))
+        self.remove_lines(lines)
         return self
 
-    def _remove_lines(self, lines: tp.List[np.ndarray], color=255, width: int = 2):
+    def remove_lines(self, lines: tp.List[np.ndarray], color=255, width: int = 3):
         for line in lines:
             x1 = min(line, key=lambda x: x[0])[0] - width
             y1 = min(line, key=lambda x: x[1])[1] - width
@@ -74,7 +74,7 @@ class Extractor:
 
     def detect_rectangles(self):
         contours = self.detect_contours()
-        grouped_contours = self._group_by_size(contours).values()
+        grouped_contours = self.group_by_size(contours).values()
         return [self.calculate_rectangle(contour, inside=False) for contour in grouped_contours]
 
     def detect_contours(self, threshold: int = 80) -> np.ndarray:
@@ -85,8 +85,8 @@ class Extractor:
         return black_cnt
 
     @staticmethod
-    def _group_by_size(contours: np.ndarray, similarity_prop: float = 1.1, dropout: int = 600
-                        ) -> tp.Dict[float, tp.List[int]]:
+    def group_by_size(contours: np.ndarray, similarity_prop: float = 1.1, dropout: int = 600
+                      ) -> tp.Dict[float, tp.List[int]]:
 
         def drop_insignificant(contours: np.ndarray, dropout: int):
             return [contour for contour in contours if cv2.contourArea(contour) >= dropout]
@@ -123,8 +123,9 @@ class Extractor:
         return [min(x1, x2), min(y1, y2), w, h]
 
     def detect_lines(self, kernel_size: Tuple[int, int]):
+        negative = cv2.threshold(self._operated_img, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT, kernel_size)
-        detect = cv2.morphologyEx(self._operated_img, cv2.MORPH_OPEN, kernel, iterations=2)
+        detect = cv2.morphologyEx(negative, cv2.MORPH_OPEN, kernel, iterations=2)
         contours = cv2.findContours(detect, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         contours: np.ndarray = contours[0] if len(contours) == 2 else contours[1]
         lines = []
@@ -146,16 +147,47 @@ class Extractor:
                 )
         return lines
 
+    def extract(self, rectangles: tp.List[tp.List[int]]):
+        """
+        :param rectangles: position of area to extract as x, y, width, height
+        :return: extracted fields from operated image
+        """
+        return [self._operated_img[y:y + h, x:x + w] for x, y, w, h in rectangles]
+
+    @staticmethod
+    def ensure_correct_distribution(values: tp.List[int], similarity: float = 0.3):
+        _roll_values = np.roll(values, 1)
+        _roll_values[0] = 0
+        median_delta = float(np.median(values - _roll_values))
+
+        result = [values[0]] if values else []
+        for v1, v2 in zip(values[:-1], values[1:]):
+            if abs(((v2 - v1) / median_delta) - 1) < similarity:
+                result.append(v2)
+        return result
+
+    @staticmethod
+    def fill_missing_values(values: tp.List[int], overall_size: int, threshold: 5):
+        if values[0] > threshold:
+            values.insert(0, 0)
+        if overall_size - values[-1] > threshold:
+            values.append(overall_size)
+        return values
+
     # Visualization
-    def vis(self, coordinates: List[List[int]] = None, title: str = ""):
-        coordinates = coordinates or []
+    def vis(self, rectangles: List[List[int]] = None, lines: List[List[int]] = None, title: str = ""):
+        rectangles = rectangles or []
+        lines = lines or []
 
         fig, ax = plt.subplots()
         image = cv2.cvtColor(self._operated_img, cv2.COLOR_GRAY2RGB)
         ax.imshow(image)
-        for (x1, y1, w1, h1) in coordinates:
+        for (x1, y1, w1, h1) in rectangles:
             color = choice(list(mcolors.CSS4_COLORS.keys()))
             rect = Rectangle((x1, y1), w1, h1, linewidth=2, edgecolor=color, facecolor='none')
             ax.add_patch(rect)
+
+        lc = mc.LineCollection(lines, linewidths=2)
+        ax.add_collection(lc)
         plt.title(title)
         plt.show()

@@ -11,17 +11,13 @@ class OCRModel(Model):
     letters = '~ !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_abcdefghijklmnopqrstuvwxyz{|}~£'
 
     def inference(self, _input: np.array, only_digits: bool = False,  *args, **kwargs):
-        try:
-            h, w = _input.shape
-            i_b, i_c, i_h, i_w = self.input_layer.partial_shape
-            i_h, i_w = i_h.get_length(), i_w.get_length()
-            ratio = i_h / h
-            _input = cv2.resize(_input, (int(ratio * w), i_h), interpolation=cv2.INTER_AREA)[None]
-            _input = np.pad(_input, ((0, 0), (0, 0), (0, i_w - int(ratio * w))), mode='edge')[None]
-            return super(OCRModel, self).inference(_input, only_digits)
-        except (ValueError, IndexError):
-            logging.error("Cannot read index properly")
-            return ""
+        h, w = _input.shape
+        i_b, i_c, i_h, i_w = self.input_layer.partial_shape
+        i_h, i_w = i_h.get_length(), i_w.get_length()
+        ratio = i_h / h
+        _input = cv2.resize(_input, (int(ratio * w), i_h), interpolation=cv2.INTER_AREA)[None]
+        _input = np.pad(_input, ((0, 0), (0, 0), (0, i_w - int(ratio * w))), mode='edge')[None]
+        return super(OCRModel, self).inference(_input, only_digits)
 
     def _decode(self, predictions, only_digits: bool = False, *args, **kwargs):
         # Select max probability (greedy decoding) then decode index to character
