@@ -4,7 +4,7 @@ exam_storage:
   exams_dir: "/splinter"
   answer_key_filename: answer_key
   img_extension: jpg
-  default_input_dirname: exams
+  default_input_dirname: pdfs
   default_output_dirname: answers
   exam_storage_user : splinter
   exam_storage_password : 1234

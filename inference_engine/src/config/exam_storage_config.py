@@ -7,8 +7,8 @@ class ExamStorageConfig(BaseModel):
     exams_dir: str = "/splinter"
     answer_key_filename: str = "answer_key"
     img_extension: str = "jpg"
-    default_input_dirname: str = "exams"
-    default_output_dirname: str = "answers"
+    default_input_dirname: str = "pdfs"
+    default_output_dirname: str = "students"
     exam_storage_user: str = "splinter"
     exam_storage_password: str = "1234"
 

@@ -1,5 +1,5 @@
 from .extended_base_model import ExtendedBaseModel
 
 
-class GenerateExamKeyDTO(ExtendedBaseModel):
-    exam_path: str
+class GenerateExamKeysDTO(ExtendedBaseModel):
+    exam_id: int
