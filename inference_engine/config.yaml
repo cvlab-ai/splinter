@@ -3,9 +3,9 @@ exam_storage:
   port: 80
   exams_dir: "/splinter"
   answer_key_filename: answer_key
-  img_extension: jpg
+  img_extension: pdf
   default_input_dirname: pdfs
-  default_output_dirname: answers
+  default_output_dirname: students
   exam_storage_user : splinter
   exam_storage_password : 1234
 

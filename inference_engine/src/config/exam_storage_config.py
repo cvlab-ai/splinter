@@ -6,7 +6,7 @@ class ExamStorageConfig(BaseModel):
     port: int = 8888
     exams_dir: str = "/splinter"
     answer_key_filename: str = "answer_key"
-    img_extension: str = "jpg"
+    img_extension: str = "pdf"
     default_input_dirname: str = "pdfs"
     default_output_dirname: str = "students"
     exam_storage_user: str = "splinter"
