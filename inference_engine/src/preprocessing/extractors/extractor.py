@@ -167,7 +167,7 @@ class Extractor:
         return result
 
     @staticmethod
-    def fill_missing_values(values: tp.List[int], overall_size: int, threshold: 5):
+    def fill_missing_values(values: tp.List[int], overall_size: int, threshold: int = 5):
         if values[0] > threshold:
             values.insert(0, 0)
         if overall_size - values[-1] > threshold:

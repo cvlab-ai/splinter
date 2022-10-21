@@ -14,7 +14,7 @@ class Preprocessing:
         Fields.date: TextExtractor,
         Fields.exam_key: GroupExtractor,
         Fields.student_id: IndexExtractor,
-        Fields.answer_column: RowsExtractor
+        Fields.answers: RowsExtractor
     }
 
     def __init__(self, img: np.ndarray):

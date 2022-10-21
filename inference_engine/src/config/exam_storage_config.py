@@ -5,12 +5,14 @@ class ExamStorageConfig(BaseModel):
     url: str = "http://localhost"
     port: int = 8888
     exams_dir: str = "/splinter"
+    answer_keys_dir: str = "answers_keys"
     answer_key_filename: str = "answer_key"
     img_extension: str = "pdf"
     default_input_dirname: str = "pdfs"
     default_output_dirname: str = "students"
     exam_storage_user: str = "splinter"
     exam_storage_password: str = "1234"
+    metadata_filename: str = "metadata.json"
 
     @property
     def full_answer_image_filename(self):

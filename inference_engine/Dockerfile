@@ -1,6 +1,6 @@
 FROM python:3.9
 
-RUN apt-get update && apt-get install -y python3-opencv
+RUN apt-get update && apt-get install -y python3-opencv poppler-utils
 RUN pip install --upgrade pip
 
 WORKDIR /app

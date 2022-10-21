@@ -8,7 +8,7 @@ class Fields(Enum):
     date = 3
     exam_key = 4
     student_id = 5
-    answer_column = 6
+    answers = 6
 
     @staticmethod
     def ocr_fields():
@@ -17,6 +17,6 @@ class Fields(Enum):
     @staticmethod
     def multiplied_answer_columns():
         fields = list(Fields)
-        answers_idx = fields.index(Fields.answer_column)
-        fields[answers_idx:answers_idx + 1] = [Fields.answer_column] * Config.exam.number_of_columns
+        answers_idx = fields.index(Fields.answers)
+        fields[answers_idx:answers_idx + 1] = [Fields.answers] * Config.exam.number_of_columns
         return fields

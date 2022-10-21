@@ -19,6 +19,7 @@ def check_exam(check_exam_dto: CheckExamDTO):
     """
     Controller.check_exam(check_exam_dto)
 
+
 @router.post("/check-pdf")
 def check_pdf(check_exam_dto: CheckPdfDTO):
     """
