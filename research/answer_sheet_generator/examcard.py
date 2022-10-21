@@ -7,8 +7,8 @@ from constructs import *
 svg_code = [page_top(PAGE_WIDTH, PAGE_HEIGHT), 
             page(),                                             # empty page
             black_squares_rows((245, 240), (245, 3130), 3),     # left vertical squares
-            black_squares_rows((2015, 240), (2015, 3130), 2),   # right vertical squares
             full_black_squares(1130, 3010),                     # bottom middle square
+            full_black_squares(2015, 3010),                     # bottom right square
             writing_rectangle((630, 335), (1350, 150)),         # exam title box
             multiline_text((630, 345), ['Exam   ', 'title']),      # exam title text
             writing_rectangle((630, 510), (1350, 150)),         # student name box
@@ -35,7 +35,7 @@ svg_code = [page_top(PAGE_WIDTH, PAGE_HEIGHT),
             bounding_box((405, 2980), (685, 230)),
             answer_column((1630, 3015), (4, 2), bounding_boxes=False),
             bounding_box((1290, 2980), (685, 230)),
-            f'<image href="tutorialmask.png" height="{PAGE_HEIGHT}" width="{PAGE_WIDTH}"/>',
+            f'<image href="research/answer_sheet_generator/tutorialmask.png" height="{PAGE_HEIGHT}" width="{PAGE_WIDTH}"/>',
             page_bottom]
 svg_code = ''.join(svg_code)
-svg2png(bytestring=svg_code, write_to='research/svg/svgtest.png')
+svg2png(bytestring=svg_code, write_to='research/answer_sheet_generator/svgtest.png')
