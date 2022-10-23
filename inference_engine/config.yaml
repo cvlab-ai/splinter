@@ -1,10 +1,13 @@
 exam_storage:
   url: http://splinter_exam_storage
   port: 80
+  exams_dir: "/splinter"
   answer_key_filename: answer_key
   img_extension: jpg
   default_input_dirname: exams
   default_output_dirname: answers
+  exam_storage_user : splinter
+  exam_storage_password : 1234
 
 inference:
   answer_threshold: 0.5
