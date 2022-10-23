@@ -5,11 +5,18 @@ $dbname = "dbname = splinter";
 $credentials = "user = postgres password=1234";
 $db = pg_connect("$host $port $dbname $credentials");
 if(isset($_POST['submit'])&&!empty($_POST['submit'])){
+    $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+    $pass = array(); //remember to declare $pass as an array
+    $alphaLength = strlen($alphabet) - 1; //put the length -1 in cache
+    for ($i = 0; $i < 8; $i++) {
+        $n = rand(0, $alphaLength);
+        $pass[] = $alphabet[$n];
+    }
 
-    $sql = "insert into public.user(name,email,password)values('".$_POST['name']."','".$_POST['email']."','".md5($_POST['pwd'])."')";
+    $sql = "insert into public.user(name,email,password, register_key, registered)values('".$_POST['name']."','".$_POST['email']."','".md5($_POST['pwd'])."','".implode($pass)."',false)";
+
     $ret = pg_query($db, $sql);
     if($ret){
-
         echo "Data saved Successfully";
     }else{
 

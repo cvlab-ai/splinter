@@ -6,7 +6,7 @@ class NavBar
     public static function showNavBar($current)
     {
         $currMain = " <a class='nav-link' aria-current='page' href='index.php'>Strona Główna</a>";
-        $currScan = "<a class='nav-link' href='/scan-work/select-subject.php'>Zeskanuj prace</a>";
+        $currScan = "<a class='nav-link' href='/scan-work/select-exam.php'>Zeskanuj prace</a>";
         $currExams = "<a class='nav-link dropdown-toggle' href='#' id='navbarDropdown' role='button' data-bs-toggle='dropdown' aria-expanded='false'>
                         Zeskanowane prace
                     </a>";
@@ -14,7 +14,7 @@ class NavBar
         if ($current == "main") {
             $currMain = " <a class='nav-link active' aria-current='page' href='index.php'>Strona Główna</a>";
         } elseif ($current == "scan") {
-            $currScan = "<a class='nav-link active' href='/scan-work/select-subject.php'>Zeskanuj prace</a>";
+            $currScan = "<a class='nav-link active' href='/scan-work/select-exam.php'>Zeskanuj prace</a>";
         } else {
             $currExams = "<a class='nav-link dropdown-toggle active' href='#' id='navbarDropdown' role='button' data-bs-toggle='dropdown' aria-expanded='false'>
                         Zeskanowane prace
@@ -44,7 +44,8 @@ class NavBar
                 <li class='nav-item dropdown'>
                      ".$currExams."
                     <ul class='dropdown-menu' aria-labelledby='navbarDropdown'>
-                        <li><a class='dropdown-item' href='/scanned-work/subjects.php'>Przedmioty</a></li>
+                        <!--<li><a class='dropdown-item' href='/scanned-work/subjects.php'>Przedmioty</a></li>-->
+                        <li><a class='dropdown-item' href='/exam/exam-list.php'>Przedmioty</a></li>
                         <li><hr class='dropdown-divider'></li>
                         <li><a class='dropdown-item' href='/scanned-work/students.php'>Studenci</a></li>
                         <li><hr class='dropdown-divider'></li>

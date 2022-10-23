@@ -1,11 +1,11 @@
 a {
-    !important;text-decoration: none;
-    !important;transition: transform 500ms;
+    text-decoration: none !important;
+    transition: transform 500ms ;
 }
 
 a:hover {
-    text-decoration: none;
-    transition: transform 250ms;
-    transform: translateY(-10px);
-    box-shadow: 0 10px 5px rgba(33,33,33,.2);
+    text-decoration: none !important;
+    transition: transform 500ms ;
+    transform: translateY(-10px) ;
+    box-shadow: 0 10px 5px rgba(33,33,33,.2) ;
 }

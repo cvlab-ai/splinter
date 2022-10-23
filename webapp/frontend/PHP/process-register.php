@@ -29,16 +29,32 @@ echo NavBar::showNavBar("main");
 if (isset($_POST['submit']) && !empty($_POST['submit'])) {
     $db = Database::connectToDb();
 
-    $hashpassword = md5($_POST['pwd']);
+    $user_register_key = $_POST['registerKey'];
     $email = $_POST['email'];
-    $sql = "select id, registered from public.user where email = '$email' and password = '$hashpassword' and registered = 'true'";
+    $hashpassword = md5($_POST['pwd']);
+    $sql = "select id, register_key from public.user where email = '" . pg_escape_string($_POST['email']) . "'";
     $data = pg_query($db, $sql);
     $login_check = pg_num_rows($data);
     $row = pg_fetch_row($data);
-    if ($login_check > 0 && $row[1]) {
+
+    $registerConfirmed = false;
+    if ($row[1] == $user_register_key) {
+        $sql = "UPDATE public.user SET registered = true where email = '$email'";
+        $ret = pg_query($db, $sql);
+        if($ret){
+            echo "Data saved Successfully";
+            $registerConfirmed = true;
+        }else{
+            echo "Soething Went Wrong";
+        }
+    }
+    if ($login_check > 0) {
         $_SESSION['email'] = $_POST['email'];
         $_SESSION['userID'] = $row[0];
+
         $_POST['isLog'] = true;
+        $_POST['registerConfirmed'] = $registerConfirmed;
+
         header("Refresh:0; url=index.php");
     } else {
         echo '<script>alert("Nieprawodłowe dane")</script>';

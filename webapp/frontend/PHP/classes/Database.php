@@ -1,10 +1,23 @@
 <?php
 
 namespace database;
-
 class Database
 {
+    public static function connectToDb() {
+        $host = "host = splinter_db";
+        $port = "port = 5432";
+        $dbname = "dbname = splinter";
+        $credentials = "user = postgres password=1234";
+
+        $db = pg_connect("$host $port $dbname $credentials");
+        if (!$db) {
+            echo "Error : Unable to open database\n";
+        }
+        return $db;
+    }
+
     public static function getUserIDByEmail($db, $email) {
+
         $query = "SELECT id FROM public.user WHERE public.user.email = '$email'";
         $ret = pg_query($db, $query);
         if (!$ret) {
@@ -15,6 +28,12 @@ class Database
         while ($row = pg_fetch_row($ret)) {
             $userId = $row[0];
         }
+
+
         return $userId;
+    }
+
+    public static function disconnectDb($db) {
+        pg_close($db);
     }
 }
