@@ -41,7 +41,15 @@ class Storage:
     @staticmethod
     def _send_request(method: str, path: str, data: tp.Any = None) -> requests.Response:
         url = f"{Config.exam_storage.full_url}/{path}"
-        response = requests.request(method, url, data=data)
+        response = requests.request(
+            method,
+            url,
+            data=data,
+            auth=requests.auth.HTTPBasicAuth(
+                Config.exam_storage.exam_storage_user,
+                Config.exam_storage.exam_storage_password,
+            ),
+        )
         if not response.ok:
             raise requests.ConnectionError(url, response.status_code)
         return response

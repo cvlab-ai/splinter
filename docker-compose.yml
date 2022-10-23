@@ -7,14 +7,6 @@ services:
     restart: always
     env_file:
       - database/db.env
-  backend:
-    container_name: splinter_backend
-    hostname: splinter_backend
-    build: webapp/backend/
-    depends_on:
-      - "db"
-    ports:
-      - "8080:8080"
   frontend:
     container_name: splinter_frontend
     hostname: splinter_frontend
@@ -31,7 +23,6 @@ services:
         webdav_pass: ${EX_STORE_WEBDAV_PASS}
         splinter_user: ${EX_STORE_SPLINTER_USER}
         splinter_pass: ${EX_STORE_SPLINTER_PASS}
-
     restart: always
     ports:
       - "8888:80"
