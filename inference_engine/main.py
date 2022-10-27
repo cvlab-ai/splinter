@@ -1,8 +1,7 @@
 import logging
 
 from src.controller import Controller
-from src.storage import Storage
-from src.dto import CheckExamDTO, CheckPdfDTO, GenerateExamKeysDTO
+from src.dto import CheckExamDTO, GenerateExamKeysDTO
 
 logging.basicConfig(level=logging.INFO)
 

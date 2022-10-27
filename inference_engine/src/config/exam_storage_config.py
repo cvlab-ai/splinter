@@ -13,6 +13,7 @@ class ExamStorageConfig(BaseModel):
     exam_storage_user: str = "splinter"
     exam_storage_password: str = "1234"
     metadata_filename: str = "metadata.json"
+    result_basename: str = "answers"
 
     @property
     def full_answer_image_filename(self):
