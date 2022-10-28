@@ -115,7 +115,7 @@ def create_handwritten_doodle(alpha: float, beta: float, gamma: float, outlier_s
         return random.normalvariate(middle_x, gamma), random.normalvariate(middle_y, 0)
 
     lines = []
-    beta = max([beta / 4, 0.1])
+    beta = max([beta / 4, 0.05])
     handlers = []
     recent_handle = Point(random.normalvariate(1 - outlier_shape[0], alpha / 6), random.normalvariate(1 - outlier_shape[1], beta / 6))
     i = 0
