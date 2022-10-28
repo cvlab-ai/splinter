@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 
 from research.mark_generator import MarkGenerator, Mark
 from exam_solver import ExamSolver
-from research.data_augmentator import DataAugmentation
+from research.data_augmentator import DataAugmentator
 
 
 class MarkedAnswerCardGenerator:
@@ -33,7 +33,7 @@ class MarkedAnswerCardGenerator:
             plt.imshow(answer_card)
             plt.show()
             if augmentation:
-                data_augmentation = DataAugmentation(answer_card)
+                data_augmentation = DataAugmentator(answer_card)
                 data_augmentation.gaussian_noise()
                 answer_card = data_augmentation.augmented
             for box_row, row_label in zip(self.exam_solver.box_positions, labels):
@@ -53,7 +53,7 @@ class MarkedAnswerCardGenerator:
     def row_generator(self):
         while True:
             answer_card, labels = self.generate_filled_card()
-            data_augmentation = DataAugmentation(answer_card)
+            data_augmentation = DataAugmentator(answer_card)
             data_augmentation.gaussian_noise()
             for box_row, row_label in zip(self.exam_solver.box_positions, labels):
                 yield self.extract_row(data_augmentation.augmented, box_row), row_label
