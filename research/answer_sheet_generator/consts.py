@@ -6,5 +6,6 @@ rectangle = lambda x_pos, y_pos, w, h, fill_color, border_color, border_width: f
 
 text = lambda x_pos, y_pos, font_size, color, content: f'<text x="{x_pos}" y="{y_pos}" font-size="{font_size}" font-family="sans-serif" style="fill: {color}; stroke: {color}"> {content} </text>'
 
+# Those values are taken from previous template
 PAGE_HEIGHT = 3367
-PAGE_WIDTH = 2380
+PAGE_WIDTH = 2380 
