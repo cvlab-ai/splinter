@@ -44,6 +44,9 @@ $exam_storage_password = "1234";
 for ($i = 0; $i < count($_FILES['result']['name']); $i++) {
     // read file details
     $file_name = $_FILES['result']['name'][$i];
+    if(empty($file_name)){
+        continue;
+    }
     $file_size = $_FILES['result']['size'][$i];
     $file_tmp = $_FILES['result']['tmp_name'][$i];
     $file_type = $_FILES['result']['type'][$i];
@@ -85,10 +88,14 @@ for ($i = 0; $i < count($_FILES['result']['name']); $i++) {
 }
 
 
+
 // TODO
 // send student work
 for ($i = 0; $i < count($_FILES['files']['name']); $i++) {
     $file_name = $_FILES['files']['name'][$i];
+    if(empty($file_name)){
+        continue;
+    }
     $file_size = $_FILES['files']['size'][$i];
     $file_tmp = $_FILES['files']['tmp_name'][$i];
     $file_type = $_FILES['files']['type'][$i];

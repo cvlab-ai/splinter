@@ -50,12 +50,15 @@ $examName = $row[1];
 <div class="container text-center mt-5">
     <h2><?php echo $examName ?></h2>
     <?php
-    echo "<a class='btn btn-sm btn-primary btn-block m-3' href='/scanned-work/exam-details/exam-details-files.php?id=$examID'>Pliki Do Pobrania</a>"
+    echo "<a class='btn btn-sm btn-primary btn-block m-3' href='/exam/download/download-exam.php?examID=$examID'>Pliki Do Pobrania</a>";
+    echo "<a class='btn btn-sm btn-warning btn-block m-3' href='/exam/edit/exam-details-files.php?examID=$examID'>Edytuj Odpowiedzi</a>";
+    echo "<a class='btn btn-sm btn-danger btn-block m-3' href='/exam/edit/delete-exam.php?examID=$examID'>Usuń Egzamin</a>";
     ?>
     <hr>
     <ul class="list-group">
         <?php
         $students = Curl::searchExamPathForStudents($examID);
+
         foreach ($students as &$student) {
             $studentIndx = $student["name"];
             $examResult = Curl::getExamResult($examID, $studentIndx);
@@ -63,7 +66,7 @@ $examName = $row[1];
             echo "<b>Student:$studentIndx</b>";
             echo "<a style='color: white !important;' href='/exam/show-file.php?id=$examID&student=$studentIndx' class='badge bg-success rounded-pill'>Zobacz Pracę</a>";
             echo "<a style='color: white !important;' href='/exam/edit/edit-file.php?examID=$examID&index=$studentIndx' class='badge bg-warning rounded-pill'>Edytuj Pracę</a>";
-            echo "<a style='color: white !important;' href='/exam/edit/delete-file.php?examID=$examID&index=$studentIndx' class='badge bg-danger rounded-pill'>Usuń Pracę</a>";
+            echo "<a style='color: white !important;' href='/exam/edit/delete-file.php?examID=$examID&studentIndex=$studentIndx' class='badge bg-danger rounded-pill'>Usuń Pracę</a>";
 
             echo "</li>";
         }
