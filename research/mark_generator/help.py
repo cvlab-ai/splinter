@@ -1,3 +1,4 @@
+import time
 import typing as tp
 import math
 import random
@@ -160,8 +161,11 @@ def calculate_mask(xvals: np.array, yvals: np.array, image_shape: np.ndarray) ->
     _yvals += target_height * (1 - middle_rate) * .5
     _xvals[_xvals >= image_shape[0]] = image_shape[0] - 1
     _yvals[_yvals >= image_shape[1]] = image_shape[1] - 1
-    for x, y in zip(_xvals, _yvals):
-        result[int(y)][int(x)] = 1
+    _xvals = _xvals.astype(np.int)
+    _yvals = _yvals.astype(np.int)
+    _vals = np.column_stack((_yvals, _xvals))
+    # Fastest way to put a value in array with a given list of indexes
+    np.put(result, np.ravel_multi_index(_vals.T, result.shape), 1)
     return result
 
 
