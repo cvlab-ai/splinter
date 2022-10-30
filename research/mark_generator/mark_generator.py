@@ -52,7 +52,7 @@ class MarkGenerator:
     def generate_mark(self):
         mark_mask = self._generate_mark(self.mark)
         # Mark on answers sheet are smaller than unmark
-        mark_mask = cv2.resize(mark_mask, (self.shape * (0.4 + self.gamma * 2)).astype(np.int32))
+        mark_mask = cv2.resize(mark_mask, (self.shape * (0.45 + self.gamma)).astype(np.int32))
         mark_mask = self.reshape(mark_mask)
 
         return self.cast_to_int(mark_mask)
@@ -60,7 +60,7 @@ class MarkGenerator:
     def generate_unmark(self):
         mark_mask = self._generate_mark(self.mark)
         # Mark on answers sheet are smaller than unmark
-        mark_mask = cv2.resize(mark_mask, (self.shape * (0.4 + self.gamma)).astype(np.int32))
+        mark_mask = cv2.resize(mark_mask, (self.shape * (0.45 + self.gamma)).astype(np.int32))
         mark_mask = self.reshape(mark_mask)
 
         mark_mask += self._generate_mark(self.unmark)
