@@ -13,7 +13,7 @@ class TrainingDataGenerator:
     ANSWER_BOXES_PATH = 'data/input/answer_boxes.jpg'
     INDEX_BOXES_PATH = 'data/input/index_boxes.jpg'
 
-    def __init__(self, shape: tp.Tuple = (90, 90), box_offset: int = 4, output_dit: str = 'data/output'):
+    def __init__(self, shape: tp.Tuple = (90, 90), box_offset: int = 4, output_dir: str = 'data/output'):
         self._border = 5
         self._shape = shape
         self._box_offset = box_offset
