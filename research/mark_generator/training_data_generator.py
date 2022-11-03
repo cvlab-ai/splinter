@@ -4,20 +4,21 @@ from pathlib import Path
 
 import cv2
 import numpy as np
+import os
 
 from research.data_augmentator import DataAugmentator
 from research.mark_generator import MarkGenerator, Mark
 
 
 class TrainingDataGenerator:
-    ANSWER_BOXES_PATH = 'data/input/answer_boxes.jpg'
-    INDEX_BOXES_PATH = 'data/input/index_boxes.jpg'
+    ANSWER_BOXES_PATH = os.path.join(os.path.dirname(__file__), 'data/input/answer_boxes.jpg')
+    INDEX_BOXES_PATH = os.path.join(os.path.dirname(__file__), 'data/input/index_boxes.jpg')
 
     def __init__(self, shape: tp.Tuple = (90, 90), box_offset: int = 4, output_dir: str = 'data/output'):
         self._border = 5
         self._shape = shape
         self._box_offset = box_offset
-        self._output_dir = output_dit
+        self._output_dir = output_dir
         self._raw_answer_boxes = self.extract_boxes()
         self._mark_generator = self.set_random_mark_generator()
 
