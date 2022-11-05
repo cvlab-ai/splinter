@@ -4,10 +4,9 @@ from .model import Model
 from src.config import Config
 
 
-class AnswerModel(Model):
-
+class BoxIndexModel(Model):
     def inference(self, _input: np.array, *args, **kwargs):
-        return [self._decode(self.model([row])[0]) for row in _input]
+        return [np.argmax(self.model([column])[0]) for column in _input]
 
     def _decode(self, predictions: np.ndarray):
-        return (predictions > Config.inference.answer_threshold).astype(int)
+        pass

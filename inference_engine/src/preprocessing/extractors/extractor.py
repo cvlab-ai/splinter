@@ -7,6 +7,7 @@ import cv2
 from typing import List, Tuple
 
 import matplotlib
+
 matplotlib.use('TkAgg')
 from matplotlib import pyplot as plt
 from matplotlib import collections as mc
@@ -191,3 +192,28 @@ class Extractor:
         ax.add_collection(lc)
         plt.title(title)
         plt.show()
+
+    def split_image_into_squares(self, x_squares: int, y_squares: int, group_by: str = 'y',
+                                 expected_box_shape: tuple = (90, 90)):
+        assert len(self._operated_img.shape) == 2
+        assert group_by in ('x', 'y')
+        expected_y_box, expected_x_box = expected_box_shape
+        source_image = cv2.resize(self._operated_img, (expected_y_box * y_squares, expected_x_box * x_squares),
+                                  interpolation=cv2.INTER_LINEAR)
+        source_image = cv2.merge([source_image] * 3)
+        new_y_size, new_x_size, channels = source_image.shape
+        y_box_size, x_box_size = new_y_size // y_squares, new_x_size // x_squares
+        assert x_box_size == expected_x_box and y_box_size == expected_y_box and channels == 3
+        if group_by == 'y':
+            boxes = np.array([np.array([
+                source_image[y_idx * expected_y_box:(y_idx + 1) * expected_y_box]
+                [x_idx * expected_x_box:(x_idx + 1) * expected_x_box]
+                for x_idx in range(x_squares)]) for y_idx in range(y_squares)])
+            assert boxes.shape == (y_squares, x_squares, *expected_box_shape, 3)
+        else:
+            boxes = np.array([np.array([
+                source_image[y_idx * expected_y_box:(y_idx + 1) * expected_y_box]
+                [x_idx * expected_x_box:(x_idx + 1) * expected_x_box]
+                for y_idx in range(y_squares)]) for x_idx in range(x_squares)])
+            assert boxes.shape == (x_squares, y_squares, *expected_box_shape, 3)
+        return boxes
