@@ -92,7 +92,9 @@ def _check_image(image: Image):
         for f in Fields.ocr_fields()
     }
 
+    index_written = ocr_model.inference(fields_images[Fields.student_id][1][0])
     box_model = AnswerModel(Config.paths.answer_model_path)
+    index_box_detected = box_model.inference(fields_images[Fields.student_id][0])
     exam_key_result = box_model.inference(fields_images[Fields.exam_key])
     answer_result = box_model.inference(fields_images[Fields.answers])
 

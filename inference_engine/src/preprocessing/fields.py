@@ -12,7 +12,7 @@ class Fields(Enum):
 
     @staticmethod
     def ocr_fields():
-        return [Fields.exam_title, Fields.student_name, Fields.date, Fields.student_id]
+        return [Fields.exam_title, Fields.student_name, Fields.date]
 
     @staticmethod
     def multiplied_answer_columns():
