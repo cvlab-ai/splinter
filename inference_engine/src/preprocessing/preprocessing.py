@@ -5,6 +5,7 @@ import numpy as np
 
 from .extractors import TextExtractor, IndexExtractor, BoxExtractor, FieldExtractor, GroupExtractor
 from .fields import Fields
+from .rotation import rotate_exam
 
 
 class Preprocessing:
@@ -21,6 +22,7 @@ class Preprocessing:
         self._exam_copy = img.copy()
 
     def process(self) -> tp.Dict[Fields, np.ndarray]:
+        self._exam_copy = rotate_exam(self._exam_copy)
         fields = FieldExtractor(self._exam_copy).process()
         _map = Preprocessing.FIELD_EXTRACTOR_MAPPING
         result = [(f, _map[f](img).process()) for f, img in fields if f in _map]

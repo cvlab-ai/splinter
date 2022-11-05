@@ -12,6 +12,7 @@ from src.exam_storage import local_storage, metadata, remote_storage, versioning
 from src.exam_storage.pdf_type import PDFType
 from src.model import BoxModel, OCRModel
 from src.preprocessing import Fields, Preprocessing
+from src.utils.exceptions import ExamNotDetected
 
 
 class Controller:
@@ -54,7 +55,11 @@ def _check_pdf(exam_id, file_name, pdf_type: PDFType, force=False):
             logging.info(f"PDF {file_name} doesn't contains any images.")
             return
         for image in images:
-            results = _check_image(image)
+            try:
+                results = _check_image(image)
+            except ExamNotDetected:
+                logging.warning(ExamNotDetected)
+                continue
             output_dir = tmp_dir
             sufix = ""
             if pdf_type == PDFType.answer_sheets:
