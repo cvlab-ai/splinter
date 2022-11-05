@@ -1,10 +1,14 @@
+import logging
 import random
 import typing as tp
 from pathlib import Path
+from collections import defaultdict
 
 import cv2
 import numpy as np
 import os
+
+import tqdm
 
 from research.data_augmentator import DataAugmentator
 from research.mark_generator import MarkGenerator, Mark
@@ -20,7 +24,8 @@ class TrainingDataGenerator:
         self._box_offset = box_offset
         self._output_dir = output_dir
         self._raw_answer_boxes = self.extract_boxes()
-        self._mark_generator = self.set_random_mark_generator()
+        self._mark_generator = None
+        self.set_random_mark_generator()
 
     def set_random_mark_generator(self):
         mark, unmark = Mark.get_random_valid_marks()
@@ -29,17 +34,27 @@ class TrainingDataGenerator:
         gamma = random.uniform(0.05, 0.2)
         rho = random.uniform(0.05, 0.2)
         weight = (random.randint(3, 8), random.randint(3, 8))
-        return MarkGenerator(self._shape, mark, unmark, alpha, beta, gamma, rho, weight)
+        self._mark_generator = MarkGenerator(self._shape, mark, unmark, alpha, beta, gamma, rho, weight)
 
-    def generator(self, idx: int = 0, augmentation: bool = True, change_mark_chance: float = .2):
-        Path(self._output_dir).mkdir(parents=True, exist_ok=True)
+    def generate(self, n: int, idx: int = 0, augmentation_chance: float = .5, change_mark_chance: float = .2):
+        data_generator = self.generator(idx, augmentation_chance, change_mark_chance)
+        data = defaultdict(list)
+        for _ in tqdm.tqdm(range(n)):
+            box_dir, label = next(data_generator)
+            data["box_dirs"].append(box_dir)
+            data["labels"].append(label)
+        return data
+
+    def generator(self, idx: int = 0, augmentation_chance: float = .5, change_mark_chance: float = .1):
         while True:
             marked_box, label = self.create_marked_box()
-            if augmentation:
+            if random.random() < augmentation_chance:
                 marked_box = DataAugmentator(marked_box).gaussian_noise().shift().get()
-            box_dir = f"{self._output_dir}/{str(idx).rjust(6, '0')}.jpg"
-            cv2.imwrite(box_dir, marked_box)
 
+            output_dir = Path(f"{self._output_dir}//{label}")
+            output_dir.mkdir(parents=True, exist_ok=True)
+            box_dir = f"{output_dir}//{str(idx).rjust(6, '0')}.jpg"
+            cv2.imwrite(box_dir, marked_box)
             if random.random() < change_mark_chance:
                 self.set_random_mark_generator()
 
@@ -76,7 +91,4 @@ class TrainingDataGenerator:
 
 
 if __name__ == '__main__':
-    for i, (img_dir, _label) in enumerate(TrainingDataGenerator(box_offset=3).generator()):
-        print(img_dir, _label)
-        if i == 10:
-            break
+    TrainingDataGenerator(box_offset=3).generate(100000)
