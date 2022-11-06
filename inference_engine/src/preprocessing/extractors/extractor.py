@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import typing as tp
 from random import choice
 from collections import defaultdict
@@ -25,31 +27,31 @@ class Extractor:
         return self._operated_img
 
     # Preprocessing
-    def to_grayscale(self) -> np.ndarray:
+    def to_grayscale(self) -> Extractor:
         if self._operated_img.shape[-1] > 1:
             self._operated_img = cv2.cvtColor(self._operated_img, cv2.COLOR_BGR2GRAY)
         return self
 
-    def to_binary(self, threshold: int) -> np.ndarray:
+    def to_binary(self, threshold: int) -> Extractor:
         self._operated_img[self._operated_img <= threshold] = 0
         self._operated_img[self._operated_img > threshold] = 255
         return self
 
-    def to_portrait(self) -> np.ndarray:
+    def to_portrait(self) -> Extractor:
         if self._operated_img.shape[0] < self._operated_img.shape[1]:
             return cv2.rotate(self._operated_img, cv2.ROTATE_90_COUNTERCLOCKWISE)
         return self
 
-    def remove_borders(self, width: int):
+    def remove_borders(self, width: int) -> Extractor:
         self._operated_img = self._operated_img[width: -width, width: -width]
         return self
 
-    def erode(self, kernel: tp.Tuple[int, int]):
+    def erode(self, kernel: tp.Tuple[int, int]) -> Extractor:
         kernel = np.ones(kernel, np.uint8)
         self._operated_img = cv2.erode(self._operated_img, kernel)
         return self
 
-    def recover(self, kernel_shape: tp.Tuple[int, int] = (5, 5)):
+    def recover(self, kernel_shape: tp.Tuple[int, int] = (5, 5)) -> Extractor:
         kernel = np.ones(kernel_shape, np.uint8)
         self._operated_img = cv2.morphologyEx(self._operated_img, cv2.MORPH_OPEN, kernel)
         return self
