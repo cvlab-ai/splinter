@@ -9,13 +9,16 @@ from .extractor import Extractor
 
 class FieldExtractor(Extractor):
     def process(self, *args, **kwargs):
-        self.to_grayscale()
-        self.to_binary(120)
         self.to_portrait()
+        self.to_grayscale()
+        saved_extractor = Extractor(self._operated_img)
+
+        self.to_binary(180)
         rectangles = self.detect_rectangles()
         rectangles = self._remove_rectangles_by_size(rectangles)
         sorted_rectangles = sorted(rectangles, key=lambda x: (int(x[1] / 10), x[0]))
-        box_images = self.extract(sorted_rectangles)
+
+        box_images = saved_extractor.extract(sorted_rectangles)
         assigned_box_images = self._assign_field_names(box_images)
         return assigned_box_images
 
