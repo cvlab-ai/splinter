@@ -10,7 +10,7 @@ from .extractor import Extractor
 class FieldExtractor(Extractor):
     def process(self, *args, **kwargs):
         self.to_grayscale()
-        self.to_binary(140)
+        self.to_binary(120)
         self.to_portrait()
         rectangles = self.detect_rectangles()
         rectangles = self._remove_rectangles_by_size(rectangles)
@@ -37,7 +37,7 @@ class FieldExtractor(Extractor):
         return list(itertools.chain(*[_unpack(g) if a > min_area_to_unpack else [g] for a, g in groups.items()]))
 
     @staticmethod
-    def _remove_rectangles_by_size(rectangles, min_area: float = 10000, max_area: float = 1000000):
+    def _remove_rectangles_by_size(rectangles, min_area: float = 1000, max_area: float = 1000000):
         return [r for r in rectangles if min_area < r[2] * r[3] < max_area]
 
     @staticmethod

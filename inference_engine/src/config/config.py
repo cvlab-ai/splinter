@@ -14,4 +14,4 @@ class _Config(YamlModel):
     inference: InferenceConfig = InferenceConfig()
 
 
-Config = _Config.parse_file(DEFAULT_CONFIG_FILEPATH)
+Config: _Config = _Config.parse_file(DEFAULT_CONFIG_FILEPATH)

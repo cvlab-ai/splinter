@@ -198,22 +198,26 @@ class Extractor:
         assert len(self._operated_img.shape) == 2
         assert group_by in ('x', 'y')
         expected_y_box, expected_x_box = expected_box_shape
-        source_image = cv2.resize(self._operated_img, (expected_y_box * y_squares, expected_x_box * x_squares),
+        source_image = cv2.resize(self._operated_img, (expected_x_box * x_squares, expected_y_box * y_squares),
                                   interpolation=cv2.INTER_LINEAR)
         source_image = cv2.merge([source_image] * 3)
         new_y_size, new_x_size, channels = source_image.shape
         y_box_size, x_box_size = new_y_size // y_squares, new_x_size // x_squares
         assert x_box_size == expected_x_box and y_box_size == expected_y_box and channels == 3
+
+        y_values = np.linspace(0, new_y_size, y_squares + 1, dtype=int)
+        x_values = np.linspace(0, new_x_size, x_squares + 1, dtype=int)
+
         if group_by == 'y':
-            boxes = np.array([np.array([
-                source_image[y_idx * expected_y_box:(y_idx + 1) * expected_y_box]
-                [x_idx * expected_x_box:(x_idx + 1) * expected_x_box]
-                for x_idx in range(x_squares)]) for y_idx in range(y_squares)])
+            boxes = np.array([[
+                source_image[y0: y1, x0: x1]
+                for x0, x1 in zip(x_values[:-1], x_values[1:])]
+                for y0, y1 in zip(y_values[:-1], y_values[1:])])
             assert boxes.shape == (y_squares, x_squares, *expected_box_shape, 3)
-        else:
-            boxes = np.array([np.array([
-                source_image[y_idx * expected_y_box:(y_idx + 1) * expected_y_box]
-                [x_idx * expected_x_box:(x_idx + 1) * expected_x_box]
-                for y_idx in range(y_squares)]) for x_idx in range(x_squares)])
+        else:  # group_by == 'x'
+            boxes = np.array([[
+                source_image[y0: y1, x0: x1]
+                for y0, y1 in zip(y_values[:-1], y_values[1:])]
+                for x0, x1 in zip(x_values[:-1], x_values[1:])])
             assert boxes.shape == (x_squares, y_squares, *expected_box_shape, 3)
         return boxes

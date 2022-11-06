@@ -3,7 +3,7 @@ from collections import defaultdict
 
 import numpy as np
 
-from .extractors import TextExtractor, IndexExtractor, RowsExtractor, FieldExtractor, GroupExtractor
+from .extractors import TextExtractor, IndexExtractor, BoxExtractor, FieldExtractor, GroupExtractor
 from .fields import Fields
 
 
@@ -14,7 +14,7 @@ class Preprocessing:
         Fields.date: TextExtractor,
         Fields.exam_key: GroupExtractor,
         Fields.student_id: IndexExtractor,
-        Fields.answers: RowsExtractor
+        Fields.answers: BoxExtractor
     }
 
     def __init__(self, img: np.ndarray):
@@ -31,7 +31,7 @@ class Preprocessing:
     def group_by_field(field_images: tp.List[tp.Tuple[Fields, np.ndarray]]) -> tp.Dict[Fields, np.ndarray]:
         grouped = defaultdict(list)
         for field, img in field_images:
-            if isinstance(img, list):
+            if isinstance(img, np.ndarray) and len(img.shape) > 4:
                 grouped[field].extend(img)
             else:
                 grouped[field].append(img)
