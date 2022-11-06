@@ -11,7 +11,8 @@ class ResultsDTO(ExtendedBaseModel):
     student_name: str
     date: str
     exam_key: tp.List[int]
-    student_id: str
+    student_id_text: str
+    student_id_boxes: str
     answers: tp.Dict[int, tp.List[int]]
 
     @validator("exam_key", pre=True, always=True)
@@ -19,8 +20,12 @@ class ResultsDTO(ExtendedBaseModel):
         return [int(answer) for answer in v[0]]
 
     @validator("answers", pre=True, always=True)
-    def answers_to_list(cls, v):
+    def answers_to_dict(cls, v):
         return {i + 1: [int(answer) for answer in row] for i, row in enumerate(v)}
+
+    @validator("student_id_boxes", pre=True, always=True)
+    def list_to_str(cls, v):
+        return ''.join([str(val) for val in v])
 
     def __str__(self):
         output = []

@@ -10,7 +10,7 @@ from src.dto import CheckExamDTO, CheckPdfDTO, GenerateExamKeysDTO
 from src.dto.results_dto import ResultsDTO
 from src.exam_storage import local_storage, metadata, remote_storage, versioning
 from src.exam_storage.pdf_type import PDFType
-from src.model import AnswerModel, OCRModel
+from src.model import BoxModel, OCRModel
 from src.preprocessing import Fields, Preprocessing
 
 
@@ -58,10 +58,10 @@ def _check_pdf(exam_id, file_name, pdf_type: PDFType, force=False):
             output_dir = tmp_dir
             sufix = ""
             if pdf_type == PDFType.answer_sheets:
-                output_dir = output_dir / results.student_id
+                output_dir = output_dir / results.student_id_boxes
                 version = versioning.get_next_version(
                     output_dir,
-                    remote_storage.get_student_dir(exam_id, index=results.student_id),
+                    remote_storage.get_student_dir(exam_id, index=results.student_id_boxes),
                 )
             elif pdf_type == PDFType.answer_keys:
                 sufix = versioning.get_group_suffix(results)
@@ -81,26 +81,20 @@ def _check_pdf(exam_id, file_name, pdf_type: PDFType, force=False):
         metadata.mark_pdf_done(exam_id, file_name, pdf_type)
 
 
-def _check_image(image: Image):
+def _check_image(image: Image) -> ResultsDTO:
     fields_images = Preprocessing(np.asarray(image)).process()
-    ocr_model = OCRModel(Config.paths.index_model_path)
+    ocr_model = OCRModel(Config.paths.ocr_model_path)
+    box_model = BoxModel(Config.paths.box_model_path)
 
     results = {
-        f.name: ocr_model.inference(
-            fields_images[f][0], only_digits=f == Fields.student_id
-        )
-        for f in Fields.ocr_fields()
+        Fields.exam_title.name: ocr_model.inference(fields_images[Fields.exam_title][0]),
+        Fields.student_name.name: ocr_model.inference(fields_images[Fields.student_name][0]),
+        Fields.date.name: ocr_model.inference(fields_images[Fields.date][0]),
+        f"{Fields.student_id.name}_text": ocr_model.inference(fields_images[Fields.student_id][0][1], only_digits=True),
+        f"{Fields.student_id.name}_boxes": box_model.inference(fields_images[Fields.student_id][0][0], argmax=True),
+        Fields.exam_key.name: box_model.inference(fields_images[Fields.exam_key]),
+        Fields.answers.name: box_model.inference(fields_images[Fields.answers])
     }
-
-    index_written = ocr_model.inference(fields_images[Fields.student_id][1][0])
-    box_model = AnswerModel(Config.paths.answer_model_path)
-    index_box_detected = box_model.inference(fields_images[Fields.student_id][0])
-    exam_key_result = box_model.inference(fields_images[Fields.exam_key])
-    answer_result = box_model.inference(fields_images[Fields.answers])
-
-    results[Fields.exam_key.name] = exam_key_result
-    results[Fields.answers.name] = answer_result
     output = ResultsDTO.parse_obj(results)
     logging.info("Inference results:\n" + str(output))
-
     return output

@@ -10,7 +10,4 @@ class Model:
         self.output_layer = self.model.output(0)
 
     def inference(self, _input: np.array, *args, **kwargs):
-        return self._decode(self.model([_input])[self.output_layer], *args, **kwargs)
-
-    def _decode(self, predictions: np.ndarray, *args, **kwargs):
-        raise NotImplementedError
+        return self.model([_input])[self.output_layer]

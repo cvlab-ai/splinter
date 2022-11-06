@@ -17,9 +17,10 @@ class OCRModel(Model):
         ratio = i_h / h
         _input = cv2.resize(_input, (int(ratio * w), i_h), interpolation=cv2.INTER_AREA)[None]
         _input = np.pad(_input, ((0, 0), (0, 0), (0, i_w - int(ratio * w))), mode='edge')[None]
-        return super(OCRModel, self).inference(_input, only_digits)
 
-    def _decode(self, predictions, only_digits: bool = False, *args, **kwargs):
+        return self._decode(self.model([_input])[self.output_layer], only_digits=only_digits)
+
+    def _decode(self, predictions, only_digits: bool = False):
         # Select max probability (greedy decoding) then decode index to character
         preds_index = np.argmax(predictions, 2)  # WBD - > WB
         preds_index = preds_index.transpose(1, 0)  # WB -> BW
