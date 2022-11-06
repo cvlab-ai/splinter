@@ -54,11 +54,11 @@ def _check_pdf(exam_id, file_name, pdf_type: PDFType, force=False):
         if images is None:
             logging.info(f"PDF {file_name} doesn't contains any images.")
             return
-        for image in images:
+        for i, image in enumerate(images):
             try:
                 results = _check_image(image)
-            except ExamNotDetected:
-                logging.warning(ExamNotDetected)
+            except ExamNotDetected as e:
+                logging.warning(f"Error during processing page {i + 1} in file {file_name}: {e}")
                 continue
             output_dir = tmp_dir
             sufix = ""
