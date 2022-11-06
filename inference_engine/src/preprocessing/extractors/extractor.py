@@ -28,7 +28,7 @@ class Extractor:
 
     # Preprocessing
     def to_grayscale(self) -> Extractor:
-        if self._operated_img.shape[-1] > 1:
+        if len(self._operated_img.shape) > 2:
             self._operated_img = cv2.cvtColor(self._operated_img, cv2.COLOR_BGR2GRAY)
         return self
 

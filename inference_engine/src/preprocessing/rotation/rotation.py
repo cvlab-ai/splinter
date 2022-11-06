@@ -37,15 +37,15 @@ def _get_contours(new_image):
         if abs(rot_rect[1][0] - rot_rect[1][1]) < min(rot_rect[1]) / 50:
             squares.append(rot_rect)
 
-    if len(squares):
-        raise ExamNotDetected("Didn't detect six black squares")
+    if len(squares) != 5:
+        raise ExamNotDetected(f"Didn't detect five black squares - {len(squares)}")
     return squares
 
 
-def _set_numeric_values_squares(contours):
+def _set_numeric_values_squares(contours, threshold=0.01):
     def is_similar(first_delta, second_delta):
-        return abs(first_delta[0] - second_delta[0]) <= min(first_delta[0], second_delta[0]) / 100 and \
-               abs(first_delta[1] - second_delta[1]) <= min(first_delta[1], second_delta[1]) / 100
+        return abs(first_delta[0] - second_delta[0]) <= max(threshold, min(first_delta[0], second_delta[0]) / 100) and \
+               abs(first_delta[1] - second_delta[1]) <= max(threshold, min(first_delta[1], second_delta[1]) / 100)
 
     def calculate_delta(first_pos, second_pos):
         return abs(first_pos[0] - second_pos[0]), abs(first_pos[1] - second_pos[1])
@@ -76,7 +76,7 @@ def _set_numeric_values_squares(contours):
                     points.append([first_point, third_point, second_point])
 
     if len(points) != 2:
-        raise ExamNotDetected("Didn't detect two lines of squares")
+        raise ExamNotDetected(f"Didn't detect two lines of squares - {len(points)}")
 
     # Reorder points based on commonly shared sqare (0 index square)
     first_line = points[0]
