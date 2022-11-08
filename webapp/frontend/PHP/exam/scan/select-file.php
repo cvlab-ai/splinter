@@ -1,13 +1,9 @@
 <?php
 session_start();
 
-use database\Database;
 use navbar\NavBar;
-use curl\Curl;
 
 require("../../classes/NavBar.php");
-require("../../classes/Database.php");
-require("../../classes/Curl.php");
 ?>
 <!doctype html>
 <html lang="en">
@@ -30,12 +26,8 @@ require("../../classes/Curl.php");
         crossorigin="anonymous"></script>
 <?php
 echo NavBar::showNavBar("scan");
-$db = Database::connectToDb();
 
 $userID = $_SESSION['userID'];
-
-$sql = "SELECT id, name FROM exam WHERE user_id = $userID";
-$data = pg_query($db, $sql);
 
 if (isset($_POST["submit-btn"])) {
     $examID = $_POST['exam'];
@@ -62,6 +54,3 @@ if (isset($_POST["submit-btn"])) {
 </div>
 </body>
 </html>
-<?php
-Database::disconnectDb($db);
-?>

@@ -5,9 +5,9 @@ use database\Database;
 use navbar\NavBar;
 use curl\Curl;
 
-require("../classes/NavBar.php");
-require("../classes/Database.php");
-require("../classes/Curl.php");
+require("../../classes/NavBar.php");
+require("../../classes/Database.php");
+require("../../classes/Curl.php");
 ?>
 <!doctype html>
 <html lang="en">
@@ -49,24 +49,19 @@ $examName = $row[1];
 
 <div class="container text-center mt-5">
     <h2><?php echo $examName ?></h2>
-    <?php
-    echo "<a class='btn btn-sm btn-primary btn-block m-3' href='/exam/download/download-exam.php?examID=$examID'>Pliki Do Pobrania</a>";
-    echo "<a class='btn btn-sm btn-warning btn-block m-3' href='/exam/edit/edit-exam.php?examID=$examID'>Edytuj Odpowiedzi</a>";
-    echo "<a class='btn btn-sm btn-danger btn-block m-3' href='/exam/edit/delete-exam.php?examID=$examID'>Usuń Egzamin</a>";
-    ?>
     <hr>
     <ul class="list-group">
         <?php
-        $students = Curl::searchExamPathForStudents($examID);
+        $exams = Curl::getExams($examID);
+        var_dump($exams);
+        foreach ($exams as &$exam) {
+            $name = $exam["name"];
 
-        foreach ($students as &$student) {
-            $studentIndx = $student["name"];
-            $examResult = Curl::getExamResult($examID, $studentIndx);
             echo "<li class='list-group-item rounded d-flex justify-content-between align-items-center list-group-item-action'>";
-            echo "<b>Student:$studentIndx</b>";
-            echo "<a style='color: white !important;' href='/exam/show-file.php?id=$examID&student=$studentIndx' class='badge bg-success rounded-pill'>Zobacz Pracę</a>";
-            echo "<a style='color: white !important;' href='/exam/edit/edit-file.php?examID=$examID&index=$studentIndx' class='badge bg-warning rounded-pill'>Edytuj Pracę</a>";
-            echo "<a style='color: white !important;' href='/exam/edit/delete-file.php?examID=$examID&studentIndex=$studentIndx' class='badge bg-danger rounded-pill'>Usuń Pracę</a>";
+            echo "<b>Egzamin: $name</b>";
+            echo "<a style='color: white !important;' href='/exam/show-file.php?id=$examID&name=$name&isExam=true' class='badge bg-success rounded-pill'>Zobacz</a>";
+            echo "<a style='color: white !important;' href='/exam/edit/edit-answers.php?examID=$examID&name=$name' class='badge bg-warning rounded-pill'>Edytuj</a>";
+            echo "<a style='color: white !important;' href='/exam/edit/delete-file.php?examID=$examID&name=$name' class='badge bg-danger rounded-pill'>Usuń</a>";
 
             echo "</li>";
         }

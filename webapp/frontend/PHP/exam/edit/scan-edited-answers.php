@@ -26,7 +26,6 @@ require("../../classes/Curl.php");
 <body>
 <?php
 echo NavBar::showNavBar("scan");
-// generate-exam-keys: examId
 $exam_storage_user = "splinter";
 $exam_storage_password = "1234";
 
@@ -58,13 +57,12 @@ curl_exec($c);
 curl_close($c);
 fclose($fp);
 
-
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, "http://splinter_inference_engine:8000/generate-exam-keys");
 curl_setopt($ch, CURLOPT_USERPWD, $exam_storage_user . ":" . $exam_storage_password);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 curl_setopt($ch, CURLOPT_POST, 1);
-curl_setopt($ch, CURLOPT_POSTFIELDS, '{ "examId": "' .  $examID . '" }');
+curl_setopt($ch, CURLOPT_POSTFIELDS, '{ "examId": "' . $examID . '", "force": true }');
 curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
 
 $result = curl_exec($ch);

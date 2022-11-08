@@ -23,6 +23,7 @@ require("../../classes/NavBar.php");
     <?php
     echo NavBar::showNavBar("scan");
     $index = $_GET['index'];
+    var_dump($index);
     $examID = $_GET['examID'];
     ?>
 
@@ -31,7 +32,7 @@ require("../../classes/NavBar.php");
             <form method="post" action="/exam/edit/scan-edited-file.php" enctype="multipart/form-data">
                 <?php
                 echo "<input hidden name='index' value='$index'>";
-                echo "<input hidden name='examID' value='$examID'>"
+                echo "<input hidden name='examID' value='$examID'>";
                 ?>
                 <label for="files" class="form-label">Wybierz plik ze skanem pracy:</label>
                 <input class="form-control" accept="application/pdf" type="file" id="files" name="files" ><br><br>

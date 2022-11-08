@@ -1,36 +1,15 @@
 <?php
 session_start();
 
-use database\Database;
-use navbar\NavBar;
-use curl\Curl;
-
 require("../../classes/NavBar.php");
 require("../../classes/Database.php");
-require("../../classes/Curl.php");
-?>
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>Frontend</title>
-    <base href="/">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
 
-    <script src="../../css/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" href="../../css/bootstrap/bootstrap.min.css">
-    <link rel="stylesheet" href="../../css/style.css">
-</head>
-
-<body>
-<?php
-echo NavBar::showNavBar("scan");
 // generate-exam-keys: examId
 $exam_storage_user = "splinter";
 $exam_storage_password = "1234";
 
 $examID = $_POST['examID'];
+$index = $_POST['index'];
 
 $file_name = $_FILES['files']['name'];
 $file_size = $_FILES['files']['size'];
@@ -61,7 +40,7 @@ fclose($fp);
 // send curl to read correct answers
 $ch = curl_init();
 
-curl_setopt($ch, CURLOPT_URL, "http://splinter_inference_engine:8000/check-exam");
+curl_setopt($ch, CURLOPT_URL, "http://splinter_inference_engine:8000/check-pdf");
 curl_setopt($ch, CURLOPT_USERPWD, $exam_storage_user . ":" . $exam_storage_password);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 curl_setopt($ch, CURLOPT_POST, 1);

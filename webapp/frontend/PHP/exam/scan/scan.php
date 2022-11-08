@@ -80,7 +80,7 @@ for ($i = 0; $i < count($_FILES['result']['name']); $i++) {
     curl_setopt($ch, CURLOPT_USERPWD, $exam_storage_user . ":" . $exam_storage_password);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, '{ "examId": "' .  $examID . '" }');
+    curl_setopt($ch, CURLOPT_POSTFIELDS, '{ "examId": "' .  $examID . '", "force":true }');
     curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
 
     $result = curl_exec($ch);
@@ -128,7 +128,7 @@ for ($i = 0; $i < count($_FILES['files']['name']); $i++) {
     curl_setopt($ch, CURLOPT_USERPWD, $exam_storage_user . ":" . $exam_storage_password);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, '{ "examId": "' . $examID .'" }');
+    curl_setopt($ch, CURLOPT_POSTFIELDS, '{ "examId": "' . $examID .'", "force":true }');
     curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
 
     $result = curl_exec($ch);
