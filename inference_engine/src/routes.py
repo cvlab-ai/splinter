@@ -21,11 +21,11 @@ def check_exam(check_exam_dto: CheckExamDTO):
 
 
 @router.post("/check-pdf")
-def check_pdf(check_exam_dto: CheckPdfDTO):
+def check_pdf(check_pdf_dto: CheckPdfDTO):
     """
     Check one given pdf name, if the pdf was already checked it will not recheck it unless the force flag was passed.
     """
-    Controller.check_pdf(check_exam_dto)
+    Controller.check_pdf(check_pdf_dto)
 
 
 @router.post("/generate-exam-keys")

@@ -9,9 +9,12 @@ import requests
 from PIL.Image import Image
 from src.config.config import Config
 from src.exam_storage.pdf_type import PDFType
+from typing import Optional
+import logging
+from  src.exam_storage import versioning
 
 
-def get_file(file_path: str):
+def get_file(file_path: str) -> Optional[requests.Response]:
     try:
         return _send_request("GET", file_path)
     except requests.ConnectionError as e:
@@ -141,3 +144,44 @@ def _create_full_path(exam_path: str, exam_name: str):
 
 def change_extension(filename: str, extension: str):
     return f"{filename.split('.')[0]}.{extension}"
+
+def get_students_results(exam_id) -> tp.List[tp.Any]:
+    students_dir = get_dir(get_student_dir(exam_id))
+    if students_dir is None:
+        logging.info(f"Couldn't find checked students response in exam: {exam_id}")
+        return None
+
+    students_answers = []
+    for folder in students_dir:
+        if folder["type"] != "directory":
+            continue
+        student_dir_path = get_student_dir(exam_id) + "/" + folder["name"]
+        latest_version = versioning.get_latest_remote_version(student_dir_path)
+        answers_path = f"{student_dir_path}/{Config.exam_storage.result_basename}{versioning.v2s(latest_version)}.json"
+        student_answers = get_file(answers_path)
+        if student_answers is None:
+            logging.warn(f"Couldn't open student answers: {answers_path}")
+            continue
+        students_answers.append(student_answers.json())
+
+    return students_answers
+
+
+def get_answer_keys(exam_id: int):
+    answer_key_dir = get_dir(get_answer_key_dir(exam_id))
+    answer_keys = {}
+    groups = []
+    for file in answer_key_dir:
+        if file["type"] != "file":
+            continue
+        if not (file["name"].startswith("answers_") and file["name"].endswith(".json")):
+            continue
+        group = file["name"].split(".")[0].split("_")[1]
+        groups.append(group)
+
+    for group in groups:
+        latest_version = versioning.get_latest_remote_version(f"{get_answer_key_dir(exam_id)}",sufix=f"_{group}")
+        answer_key = get_file(f"{get_answer_key_dir(exam_id)}/{Config.exam_storage.result_basename}_{group}{versioning.v2s(latest_version)}.json")
+        if answer_key is not None:
+            answer_keys[group] = answer_key.json()
+    return answer_keys

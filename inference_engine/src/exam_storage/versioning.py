@@ -1,18 +1,11 @@
 from pathlib import Path
 from src.config.config import Config
-from src.dto.results_dto import ResultsDTO
 from src.exam_storage import remote_storage
+import typing as tp
 
 
 def get_next_remote_version(remote_dir, sufix=""):
-    dir_content = remote_storage.get_dir(remote_dir)
-    if dir_content is None:
-        return 0
-    version_candidates = _filter_versioned_files(
-        [row["name"] for row in dir_content],
-        base_filename=Config.exam_storage.result_basename + sufix,
-    )
-    return _find_next_file_version(version_candidates)
+    return get_latest_remote_version(remote_dir, sufix="") + 1
 
 
 def get_next_local_version(dir: Path, sufix=""):
@@ -46,15 +39,45 @@ def _find_next_file_version(files):
     return 1
 
 
-def get_group_suffix(results: ResultsDTO) -> str:
+def examkey2group(exam_key: tp.List[int]) -> str:
     try:
-        group_id = results.exam_key.index(1)
+        group_id = exam_key.index(1)
     except:
-        return None
-    return "_" + chr(ord("a") + group_id)
+        return ""
+    return chr(ord("a") + group_id)
 
 
-def get_next_version(local_dir: Path, remote_dir: str, sufix=""):
+def get_next_version(local_dir: Path, remote_dir: str, sufix="") -> int:
     local_version = get_next_local_version(local_dir, sufix)
     remote_version = get_next_remote_version(remote_dir, sufix)
     return max([local_version, remote_version])
+
+
+def get_latest_remote_version(remote_dir: str, sufix="") -> int:
+    dir_content = remote_storage.get_dir(remote_dir)
+    if dir_content is None:
+        return 0
+    version_candidates = _filter_versioned_files(
+        [row["name"] for row in dir_content],
+        base_filename=Config.exam_storage.result_basename + sufix,
+    )
+    return _find_latest_file_version(version_candidates)
+
+
+def _find_latest_file_version(files: tp.List[str]) -> int:
+    if len(files) == 0:
+        return 0
+    latest_name = max(files)
+    version = latest_name.split("_")[-1]
+    if version.isnumeric():
+        return int(version)
+    # some files exist but without version,
+    # that means it's version is 0
+    return 0
+
+def v2s(version: int) -> str:
+    suffix = ""
+    if version:
+        suffix = f"_{version}"
+    return suffix
+

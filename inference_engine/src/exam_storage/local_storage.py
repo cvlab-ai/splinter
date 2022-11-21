@@ -23,5 +23,5 @@ def save_answers_to_dir(
     if image is not None:
         image.save(f"{outputdir}/{Config.exam_storage.result_basename}{sufix}.jpg", "JPEG")
     with open(f"{outputdir}/{Config.exam_storage.result_basename}{sufix}.json", "w") as json_file:
-        json.dump(json_result, json_file, sort_keys=True)
+        json.dump(json_result, json_file, sort_keys=True, indent=4)
     pass
