@@ -13,17 +13,34 @@ from src.exam_storage.pdf_type import PDFType
 from src.model import BoxModel, OCRModel
 from src.preprocessing import Fields, Preprocessing
 from src.utils.exceptions import ExamNotDetected
+from src import score
+
+
+# Wrapper function for controller methods that affects exam scores
+def update_scores(func):
+    def wrapper(*args, **kwargs):
+        func(*args, **kwargs)
+        for arg in args:
+            if hasattr(arg, "exam_id"):
+                _update_exam_scores(arg.exam_id)
+                break
+    return wrapper
 
 
 class Controller:
     @staticmethod
+    @update_scores
     def check_pdf(request: CheckPdfDTO):
+        _generate_exam_keys(request.exam_id)
+        logging.info(f"Checking answer pdf: {request.file_name}")
         _check_pdf(
             request.exam_id, request.file_name, PDFType.answer_sheets, request.force
         )
 
     @staticmethod
+    @update_scores
     def check_exam(request: CheckExamDTO):
+        _generate_exam_keys(request.exam_id)
         logging.info(f"Checking exam: {request.exam_id}")
         files = remote_storage.get_pdfs_names(request.exam_id, PDFType.answer_sheets)
         if files is None:
@@ -33,14 +50,36 @@ class Controller:
             _check_pdf(request.exam_id, file_name, PDFType.answer_sheets, request.force)
 
     @staticmethod
+    @update_scores
     def generate_exam_keys(request: GenerateExamKeysDTO):
-        logging.info(f"Generating answer keys for exam: {request.exam_id}")
-        files = remote_storage.get_pdfs_names(request.exam_id, PDFType.answer_keys)
-        if files is None:
-            return
-        for file_name in files:
-            logging.info(f"Checking answer key pdf: {file_name}")
-            _check_pdf(request.exam_id, file_name, PDFType.answer_keys, request.force)
+        _generate_exam_keys(request.exam_id, force=request.force)
+
+
+def _generate_exam_keys(exam_id, force=False):
+    logging.info(f"Generating answer keys for exam: {exam_id}")
+    files = remote_storage.get_pdfs_names(exam_id, PDFType.answer_keys)
+    if files is None:
+        return
+    for file_name in files:
+        logging.info(f"Checking answer key pdf: {file_name}")
+        _check_pdf(exam_id, file_name, PDFType.answer_keys, force)
+
+
+def _update_exam_scores(exam_id: int):
+    logging.info(f"Updating scores for exam: {exam_id}")
+    students_result = remote_storage.get_students_results(exam_id)
+    answers_keys = remote_storage.get_answer_keys(exam_id)
+    if not answers_keys:
+        logging.info("No answer key to use in score calculation")
+        return
+    if not students_result:
+        logging.info("No student answers to calculate score")
+        return
+    with tempfile.TemporaryDirectory() as tmp, Path(tmp) as tmp_dir:
+        with open(tmp_dir/"scores.csv", "w") as result_file:
+            score_csv = score.ScoreCSV(result_file)
+            score_csv.write_scores(students_result, answers_keys)
+        remote_storage.push_dir(tmp_dir,f"{exam_id}")
 
 
 def _check_pdf(exam_id, file_name, pdf_type: PDFType, force=False):
@@ -59,6 +98,9 @@ def _check_pdf(exam_id, file_name, pdf_type: PDFType, force=False):
                 results = _check_image(image)
             except ExamNotDetected as e:
                 logging.warning(f"Error during processing page {i + 1} in file {file_name}: {e}")
+                output_dir = tmp_dir / "unknown"
+                output_dir.mkdir(exist_ok=True)
+                image.save(f"{output_dir}/unknown_{i}.jpg", "JPEG")
                 continue
             output_dir = tmp_dir
             sufix = ""
@@ -69,7 +111,7 @@ def _check_pdf(exam_id, file_name, pdf_type: PDFType, force=False):
                     remote_storage.get_student_dir(exam_id, index=results.student_id_boxes),
                 )
             elif pdf_type == PDFType.answer_keys:
-                sufix = versioning.get_group_suffix(results)
+                sufix = "_" + versioning.examkey2group(results.exam_key)
                 version = versioning.get_next_version(
                     output_dir, remote_storage.get_answer_key_dir(exam_id), sufix=sufix
                 )
