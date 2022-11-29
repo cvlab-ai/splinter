@@ -1,26 +1,47 @@
 <?php
+$emailErr = false;
+
 $host = "host = splinter_db";
 $port = "port = 5432";
 $dbname = "dbname = splinter";
 $credentials = "user = postgres password=1234";
 $db = pg_connect("$host $port $dbname $credentials");
+
+if(isset($_GET['registered'])){
+    $registered = true;
+} else {
+    $registered = false;
+}
+
 if(isset($_POST['submit'])&&!empty($_POST['submit'])){
+    $email = $_POST["email"];
+    $saveUser = true;
+
+    $sql = "SELECT id FROM public.user where email = '$email'";
+    $ret = pg_query($db, $sql);
+
+    if ((!filter_var($email, FILTER_VALIDATE_EMAIL) && !preg_match("/^.+@(pg.edu.pl|eti.pg.edu.pl)$/",$email)) || pg_num_rows($ret) != 0)  {
+        $emailErr = true;
+        $saveUser = false;
+    }
+
     $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
-    $pass = array(); //remember to declare $pass as an array
-    $alphaLength = strlen($alphabet) - 1; //put the length -1 in cache
+    $pass = array();
+    $alphaLength = strlen($alphabet) - 1;
     for ($i = 0; $i < 8; $i++) {
         $n = rand(0, $alphaLength);
         $pass[] = $alphabet[$n];
     }
 
-    $sql = "insert into public.user(name,email,password, register_key, registered)values('".$_POST['name']."','".$_POST['email']."','".md5($_POST['pwd'])."','".implode($pass)."',false)";
+    if ($saveUser) {
+        $sql = "insert into public.user(name,email,password, register_key, registered)values('".$_POST['name']."','".$_POST['email']."','".md5($_POST['pwd'])."','".implode($pass)."',false)";
 
-    $ret = pg_query($db, $sql);
-    if($ret){
-        echo "Data saved Successfully";
-    }else{
-
-        echo "Soething Went Wrong";
+        $ret = pg_query($db, $sql);
+        if($ret){
+            header("Refresh:0; url=register.php?registered=true");
+        }else{
+            echo "Something Went Wrong";
+        }
     }
 }
 ?>
@@ -37,12 +58,23 @@ if(isset($_POST['submit'])&&!empty($_POST['submit'])){
 </head>
 <body>
 <div class="container">
-    <h2>Register Here </h2>
+    <?php
+    var_dump($registered);
+    if ($registered){
+        echo '<div class="alert alert-success" role="alert"> Zarejstrowano! Sprawdź e-mail!</div>';
+    }
+    ?>
+    <h2>Register Here</h2>
     <form method="post">
 
         <div class="form-group">
+            <?php
+                if ($emailErr){
+                    echo '<div class="alert alert-danger" role="alert"> Nieprawidłowy adres email</div>';
+                }
+            ?>
             <label for="name">Name:</label>
-            <input type="text" class="form-control" id="name" placeholder="Enter name" name="name" requuired>
+            <input type="text" class="form-control" id="name" placeholder="Enter name" name="name" required>
         </div>
 
         <div class="form-group">

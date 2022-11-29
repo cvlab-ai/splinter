@@ -26,13 +26,13 @@ require("classes/NavBar.php");
 require("classes/Database.php");
 echo NavBar::showNavBar("main");
 
-if (isset($_POST['submit']) && !empty($_POST['submit'])) {
+if (isset($_GET['email']) && !empty($_GET['email'])) {
     $db = Database::connectToDb();
 
-    $user_register_key = $_POST['registerKey'];
-    $email = $_POST['email'];
-    $hashpassword = md5($_POST['pwd']);
-    $sql = "select id, register_key from public.user where email = '" . pg_escape_string($_POST['email']) . "'";
+    $user_register_key = $_GET['registerKey'];
+    $email = $_GET['email'];
+
+    $sql = "select id, register_key from public.user where email = '$email' AND register_key = '$user_register_key'";
     $data = pg_query($db, $sql);
     $login_check = pg_num_rows($data);
     $row = pg_fetch_row($data);
