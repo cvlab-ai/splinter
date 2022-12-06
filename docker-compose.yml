@@ -6,11 +6,13 @@ services:
     build: database
     restart: always
     env_file:
-      - database/db.env
+      - .env
   frontend:
     container_name: splinter_frontend
     hostname: splinter_frontend
     build: webapp/frontend/
+    env_file:
+      - .env
     ports:
       - "8000:8000"
   exam_storage:
@@ -23,6 +25,8 @@ services:
         webdav_pass: ${EX_STORE_WEBDAV_PASS}
         splinter_user: ${EX_STORE_SPLINTER_USER}
         splinter_pass: ${EX_STORE_SPLINTER_PASS}
+    env_file:
+      - .env
     restart: always
     ports:
       - "8888:80"
@@ -37,5 +41,7 @@ services:
     container_name: splinter_inference_engine
     hostname: splinter_inference_engine
     build: inference_engine/
+    env_file:
+      - .env
     ports:
       - "8880:8000"
