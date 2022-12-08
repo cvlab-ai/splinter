@@ -34,7 +34,7 @@ def _get_contours(new_image):
     for c in contours:
         # get rotated rectangle from contour
         rot_rect = cv2.minAreaRect(c)
-        if abs(rot_rect[1][0] - rot_rect[1][1]) < min(rot_rect[1]) / 50:
+        if abs(rot_rect[1][0] - rot_rect[1][1]) < min(rot_rect[1]) / 10:
             squares.append(rot_rect)
 
     if len(squares) != 5:
