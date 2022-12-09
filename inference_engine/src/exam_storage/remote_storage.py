@@ -168,8 +168,10 @@ def get_students_results(exam_id) -> tp.List[tp.Any]:
 
 
 def get_answer_keys(exam_id: int):
-    answer_key_dir = get_dir(get_answer_key_dir(exam_id))
     answer_keys = {}
+    if not (answer_key_dir := get_dir(get_answer_key_dir(exam_id))):
+        return answer_keys
+
     groups = []
     for file in answer_key_dir:
         if file["type"] != "file":
