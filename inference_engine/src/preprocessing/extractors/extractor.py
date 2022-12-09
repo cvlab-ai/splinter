@@ -20,8 +20,8 @@ import matplotlib.colors as mcolors
 
 class Extractor:
     def __init__(self, img: np.ndarray):
-        self._operated_img = img.copy()
-        self._original_img = img
+        self._operated_img: np.ndarray = img.copy()
+        self._original_img: np.ndarray = img
 
     def process(self, *args, **kwargs):
         return self._operated_img
@@ -40,6 +40,14 @@ class Extractor:
     def to_portrait(self) -> Extractor:
         if self._operated_img.shape[0] < self._operated_img.shape[1]:
             return cv2.rotate(self._operated_img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+        return self
+
+    def brighten_up(self, level: float) -> Extractor:
+        assert 0 <= level <= 1, "Level must be between 0 and 1"
+        self._operated_img = (255 - np.array(self._operated_img).astype(np.float)) * level
+        self._operated_img[self._operated_img > 255] = 255
+        self._operated_img = 255 - self._operated_img
+        self._operated_img = self._operated_img.astype(np.uint8)
         return self
 
     def remove_borders(self, width: int) -> Extractor:
