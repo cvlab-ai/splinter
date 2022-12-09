@@ -1,8 +1,11 @@
+from collections import defaultdict
+
 import cv2
 import numpy as np
 import math
 
 from src.utils.exceptions import ExamNotDetected
+from src.utils import show_image
 
 
 def rotate_exam(image: np.ndarray):
@@ -34,18 +37,23 @@ def _get_contours(new_image):
     for c in contours:
         # get rotated rectangle from contour
         rot_rect = cv2.minAreaRect(c)
-        if abs(rot_rect[1][0] - rot_rect[1][1]) < min(rot_rect[1]) / 10:
+        (x, y), (w, h), alpha = rot_rect
+        if abs(w - h) < min((w, h)) / 5:
             squares.append(rot_rect)
+
+    squares_by_size = defaultdict(list)
+    [squares_by_size[square[1][0] * square[1][1]].append(square) for square in squares]
+    squares = sorted(squares, key=lambda x: x[1][0] * x[1][1], reverse=True)[:5]
 
     if len(squares) != 5:
         raise ExamNotDetected(f"Didn't detect five black squares - {len(squares)}")
     return squares
 
 
-def _set_numeric_values_squares(contours, threshold=0.01):
+def _set_numeric_values_squares(contours, threshold=20):
     def is_similar(first_delta, second_delta):
-        return abs(first_delta[0] - second_delta[0]) <= max(threshold, min(first_delta[0], second_delta[0]) / 100) and \
-               abs(first_delta[1] - second_delta[1]) <= max(threshold, min(first_delta[1], second_delta[1]) / 100)
+        return abs(first_delta[0] - second_delta[0]) <= max(threshold, min(first_delta[0], second_delta[0]) / 10) and \
+               abs(first_delta[1] - second_delta[1]) <= max(threshold, min(first_delta[1], second_delta[1]) / 10)
 
     def calculate_delta(first_pos, second_pos):
         return abs(first_pos[0] - second_pos[0]), abs(first_pos[1] - second_pos[1])
