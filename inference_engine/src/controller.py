@@ -12,7 +12,7 @@ from src.exam_storage import local_storage, metadata, remote_storage, versioning
 from src.exam_storage.pdf_type import PDFType
 from src.model import BoxModel, OCRModel
 from src.preprocessing import Fields, Preprocessing
-from src.utils.exceptions import ExamNotDetected
+from src.utils.exceptions import IndexNotDetected, ExamInvalid
 from src import score
 
 
@@ -95,10 +95,10 @@ def _check_pdf(exam_id, file_name, pdf_type: PDFType, force=False):
             return
         for i, image in enumerate(images):
             try:
-                results = _check_image(image)
-            except ExamNotDetected as e:
+                results = _check_image(image, pdf_type == PDFType.answer_sheets)
+            except ExamInvalid as e:
                 logging.warning(f"Error during processing page {i + 1} in file {file_name}: {e}")
-                output_dir = tmp_dir / "unknown"
+                output_dir = tmp_dir / e.FILENAME
                 output_dir.mkdir(exist_ok=True)
                 image.save(f"{output_dir}/unknown_{i}.jpg", "JPEG")
                 continue
@@ -128,17 +128,20 @@ def _check_pdf(exam_id, file_name, pdf_type: PDFType, force=False):
         metadata.mark_pdf_done(exam_id, file_name, pdf_type)
 
 
-def _check_image(image: Image) -> ResultsDTO:
+def _check_image(image: Image, check_index: bool) -> ResultsDTO:
     fields_images = Preprocessing(np.asarray(image)).process()
     ocr_model = OCRModel(Config.paths.ocr_model_path)
     box_model = BoxModel(Config.paths.box_model_path)
+    index, predictions = box_model.inference(fields_images[Fields.student_id][0][0], argmax=True)
+    if check_index and predictions.min() < Config.inference.answer_threshold:
+        raise IndexNotDetected("Didn't detect 6 index numbers")
 
     results = {
         Fields.exam_title.name: ocr_model.inference(fields_images[Fields.exam_title][0]),
         Fields.student_name.name: ocr_model.inference(fields_images[Fields.student_name][0]),
         Fields.date.name: ocr_model.inference(fields_images[Fields.date][0]),
         f"{Fields.student_id.name}_text": ocr_model.inference(fields_images[Fields.student_id][0][1], only_digits=True),
-        f"{Fields.student_id.name}_boxes": box_model.inference(fields_images[Fields.student_id][0][0], argmax=True),
+        f"{Fields.student_id.name}_boxes": index,
         Fields.exam_key.name: box_model.inference(fields_images[Fields.exam_key]),
         Fields.answers.name: box_model.inference(fields_images[Fields.answers])
     }
