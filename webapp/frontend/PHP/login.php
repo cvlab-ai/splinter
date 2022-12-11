@@ -24,6 +24,7 @@ use navbar\NavBar;
 
 require("classes/NavBar.php");
 require("classes/Database.php");
+
 echo NavBar::showNavBar("main");
 
 if (isset($_POST['submit']) && !empty($_POST['submit'])) {

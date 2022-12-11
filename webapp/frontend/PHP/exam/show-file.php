@@ -10,8 +10,8 @@ require ("../classes/Curl.php");
 
 $examID = $_GET["id"];
 
-$exam_storage_user = "splinter";
-$exam_storage_password = "1234";
+$exam_storage_user =  getenv('POSTGRES_DB');
+$exam_storage_password = getenv('POSTGRES_PASSWORD');
 
 $index = 0;
 

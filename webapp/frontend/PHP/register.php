@@ -18,16 +18,16 @@
 
 <?php
 use navbar\NavBar;
+use database\Database;
+
+require("classes/Database.php");
 require("classes/NavBar.php");
+
 echo NavBar::showNavBar("main");
 
 $emailErr = false;
 
-$host = "host = splinter_db";
-$port = "port = 5432";
-$dbname = "dbname = splinter";
-$credentials = "user = postgres password=1234";
-$db = pg_connect("$host $port $dbname $credentials");
+$db = Database::connectToDb();
 
 if(isset($_GET['registered'])){
     $registered = true;
@@ -60,13 +60,13 @@ if(isset($_POST['submit'])&&!empty($_POST['submit'])){
 
         $ret = pg_query($db, $sql);
         if($ret){
-            // TODO email from env var
+            $emailServer = getenv('EMAIL_SERVER_ADDR');
             $to      = $_POST['email'];
             $subject = 'Rejstracja - PG';
             $message = 'Aby potwierdzić konto użytkownika wejdź w podany adres: '."<a href='http://www.sprawdzarka.pg.edu.pl/process-register.php?email=".$email."&registerKey=".implode($pass)."'>Potwierdź rejstracje!</a>";
-            $headers = 'From: webmaster@example.com'       . "\r\n" .
-                'Reply-To: webmaster@example.com' . "\r\n" .
-                'X-Mailer: PHP/' . phpversion();
+            $headers = 'From: '.$emailServer."\r\n".
+                'Reply-To: '.$emailServer."\r\n".
+                'X-Mailer: PHP/'.phpversion();
             var_dump($message);
             mail($to, $subject, $message, $headers);
             header("Refresh:0; url=register.php?registered=true");

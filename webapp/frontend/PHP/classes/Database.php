@@ -4,10 +4,13 @@ namespace database;
 class Database
 {
     public static function connectToDb() {
+        $envDbName = getenv('POSTGRES_DB');
+        $envDbUser = getenv('POSTGRES_USER');
+        $envDbPass = getenv('POSTGRES_PASSWORD');
         $host = "host = splinter_db";
         $port = "port = 5432";
-        $dbname = "dbname = splinter";
-        $credentials = "user = postgres password=1234";
+        $dbname = "dbname = ".$envDbName;
+        $credentials = "user = ".$envDbUser." password=".$envDbPass;
 
         $db = pg_connect("$host $port $dbname $credentials");
         if (!$db) {

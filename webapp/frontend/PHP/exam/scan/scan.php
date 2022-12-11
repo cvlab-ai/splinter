@@ -39,8 +39,8 @@ $examID = $_POST['exam'];
 // check-pdf sprawdza jeden exam, examId, nazwa pliku, bez forca zignoruje
 
 // generate-exam-keys: examId
-$exam_storage_user = "splinter";
-$exam_storage_password = "1234";
+$exam_storage_user =  getenv('POSTGRES_DB');
+$exam_storage_password = getenv('POSTGRES_PASSWORD');
 
 for ($i = 0; $i < count($_FILES['result']['name']); $i++) {
     // read file details

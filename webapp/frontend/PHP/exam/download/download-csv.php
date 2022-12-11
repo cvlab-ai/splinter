@@ -6,9 +6,8 @@ NavBar::userIsLogged(2);
 
 $examID = $_GET['examID'];
 
-$exam_storage_user = "splinter";
-$exam_storage_password = "1234";
-
+$exam_storage_user = getenv('POSTGRES_DB');
+$exam_storage_password = getenv('POSTGRES_PASSWORD');
 $ch = curl_init();
 $userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36';
 curl_setopt($ch, CURLOPT_HEADER, 0);
