@@ -5,8 +5,8 @@ namespace curl;
 class Curl
 {
     public static function searchExamPathForStudents($examID) {
-        $exam_storage_user = getenv('POSTGRES_DB');
-        $exam_storage_password = getenv('POSTGRES_PASSWORD');
+        $exam_storage_user = getenv('EX_STORE_SPLINTER_USER');
+        $exam_storage_password = getenv('EX_STORE_SPLINTER_PASS');
         $output = [];
         exec("curl -Ls -u ".$exam_storage_user.":".$exam_storage_password." http://splinter_exam_storage/splinter/".$examID."/students",
             $output);
@@ -15,8 +15,8 @@ class Curl
     }
 
     public static function getExamResult($examID, $index) {
-        $exam_storage_user = getenv('POSTGRES_DB');
-        $exam_storage_password = getenv('POSTGRES_PASSWORD');
+        $exam_storage_user = getenv('EX_STORE_SPLINTER_USER');
+        $exam_storage_password = getenv('EX_STORE_SPLINTER_PASS');
 
         $output = [];
         exec("curl -Ls -u ".$exam_storage_user.":".$exam_storage_password." http://splinter_exam_storage/splinter/".$examID."/students/".$index."/answers.json",
@@ -26,8 +26,8 @@ class Curl
     }
 
     public static function getExams($examID) {
-        $exam_storage_user = getenv('POSTGRES_DB');
-        $exam_storage_password = getenv('POSTGRES_PASSWORD');
+        $exam_storage_user = getenv('EX_STORE_SPLINTER_USER');
+        $exam_storage_password = getenv('EX_STORE_SPLINTER_PASS');
 
         $output = [];
         exec("curl -Ls -u ".$exam_storage_user.":".$exam_storage_password." http://splinter_exam_storage/splinter/".$examID."/answers_keys/ | grep -i .json",
@@ -41,29 +41,29 @@ class Curl
     }
 
     public static function deleteStudent($examID, $studentIndex) {
-        $exam_storage_user = getenv('POSTGRES_DB');
-        $exam_storage_password = getenv('POSTGRES_PASSWORD');
+        $exam_storage_user = getenv('EX_STORE_SPLINTER_USER');
+        $exam_storage_password = getenv('EX_STORE_SPLINTER_PASS');
         exec("curl -X DELETE -u ".$exam_storage_user.":".$exam_storage_password." http://splinter_exam_storage/splinter/".$examID."/students/".$studentIndex."/");
         header("Refresh:0; url=/exam/exam-detail.php?examID=".$examID);
     }
 
     public static function deleteExam($examID) {
-        $exam_storage_user = getenv('POSTGRES_DB');
-        $exam_storage_password = getenv('POSTGRES_PASSWORD');
+        $exam_storage_user = getenv('EX_STORE_SPLINTER_USER');
+        $exam_storage_password = getenv('EX_STORE_SPLINTER_PASS');
         exec("curl -X DELETE -u ".$exam_storage_user.":".$exam_storage_password." http://splinter_exam_storage/splinter/".$examID."/");
         header("Refresh:0; url=/exam/exam-list.php");
     }
 
     public static function deleteExamFile($examID, $name) {
-        $exam_storage_user = getenv('POSTGRES_DB');
-        $exam_storage_password = getenv('POSTGRES_PASSWORD');
+        $exam_storage_user = getenv('EX_STORE_SPLINTER_USER');
+        $exam_storage_password = getenv('EX_STORE_SPLINTER_PASS');
         exec("curl -X DELETE -u ".$exam_storage_user.":".$exam_storage_password." http://splinter_exam_storage/splinter/".$examID."/answers_keys/".$name);
         header("Refresh:0; url=/exam/exam-details.php?examID=".$examID);
     }
 
     public static function getNumOfAnswers($examID, $studentIndex) {
-        $exam_storage_user = getenv('POSTGRES_DB');
-        $exam_storage_password = getenv('POSTGRES_PASSWORD');
+        $exam_storage_user = getenv('EX_STORE_SPLINTER_USER');
+        $exam_storage_password = getenv('EX_STORE_SPLINTER_PASS');
 
         $output = [];
         exec("curl -Ls -u ".$exam_storage_user.":".$exam_storage_password." http://splinter_exam_storage/splinter/".$examID."/students/".$studentIndex,

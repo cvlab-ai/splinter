@@ -22,8 +22,8 @@ NavBar::userIsLogged(2);
 <body>
 <?php
 echo NavBar::showNavBar("scan");
-$exam_storage_user = getenv('POSTGRES_DB');
-$exam_storage_password = getenv('POSTGRES_PASSWORD');
+$exam_storage_user = getenv('EX_STORE_SPLINTER_USER');
+$exam_storage_password = getenv('EX_STORE_SPLINTER_PASS');
 
 $examID = $_POST['examID'];
 
