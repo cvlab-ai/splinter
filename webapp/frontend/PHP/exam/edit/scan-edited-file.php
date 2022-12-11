@@ -1,8 +1,9 @@
 <?php
 session_start();
 
+use navbar\Navbar;
 require("../../classes/NavBar.php");
-require("../../classes/Database.php");
+NavBar::userIsLogged(2);
 
 // generate-exam-keys: examId
 $exam_storage_user = "splinter";

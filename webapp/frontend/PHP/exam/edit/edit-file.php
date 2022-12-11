@@ -4,6 +4,7 @@ session_start();
 use navbar\NavBar;
 
 require("../../classes/NavBar.php");
+NavBar::userIsLogged(2);
 ?>
     <!doctype html>
     <html lang="en">
@@ -23,7 +24,7 @@ require("../../classes/NavBar.php");
     <?php
     echo NavBar::showNavBar("scan");
     $index = $_GET['index'];
-    var_dump($index);
+
     $examID = $_GET['examID'];
     ?>
 

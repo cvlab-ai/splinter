@@ -48,7 +48,7 @@ if (isset($_SESSION['email'])) {
     </div>
     <input class='btn btn-lg btn-primary btn-block' type='submit' value='Zaloguj Się' name='submit'>
     <br>
-    <a routerLink='/register'>Zarejestruj się</a>
+    <a href='register.php'>Zarejestruj się</a>
     <p class='mt-5 mb-3 text-muted'>© Politechnika Gdańska 2022</p>
   </form>
 </div>";

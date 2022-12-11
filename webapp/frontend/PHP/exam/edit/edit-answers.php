@@ -4,6 +4,7 @@ session_start();
 use navbar\NavBar;
 
 require("../../classes/NavBar.php");
+NavBar::userIsLogged(2);
 ?>
 <!doctype html>
 <html lang="en">

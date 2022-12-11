@@ -6,6 +6,7 @@ use navbar\NavBar;
 use curl\Curl;
 
 require("../../classes/NavBar.php");
+NavBar::userIsLogged(2);
 require("../../classes/Database.php");
 require("../../classes/Curl.php");
 ?>
@@ -53,7 +54,7 @@ $examName = $row[1];
     <ul class="list-group">
         <?php
         $exams = Curl::getExams($examID);
-        var_dump($exams);
+
         foreach ($exams as &$exam) {
             $name = $exam["name"];
 

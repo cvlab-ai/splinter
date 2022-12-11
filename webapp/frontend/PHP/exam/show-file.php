@@ -1,8 +1,12 @@
 <?php
 session_start();
+
+use navbar\Navbar;
+require ("../classes/NavBar.php");
+NavBar::userIsLogged(1);
+
 use curl\Curl;
 require ("../classes/Curl.php");
-
 
 $examID = $_GET["id"];
 

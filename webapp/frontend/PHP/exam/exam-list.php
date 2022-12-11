@@ -5,6 +5,7 @@ use database\Database;
 use navbar\NavBar;
 
 require("../classes/NavBar.php");
+NavBar::userIsLogged(1);
 require("../classes/Database.php");
 ?>
 <!doctype html>

@@ -6,6 +6,7 @@ use navbar\NavBar;
 use curl\Curl;
 
 require("../../classes/NavBar.php");
+NavBar::userIsLogged(2);
 require("../../classes/Database.php");
 require("../../classes/Curl.php");
 ?>

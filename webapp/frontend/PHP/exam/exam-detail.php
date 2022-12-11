@@ -6,6 +6,7 @@ use navbar\NavBar;
 use curl\Curl;
 
 require("../classes/NavBar.php");
+NavBar::userIsLogged(1);
 require("../classes/Database.php");
 require("../classes/Curl.php");
 ?>
@@ -51,6 +52,7 @@ $examName = $row[1];
     <h2><?php echo $examName ?></h2>
     <?php
     echo "<a class='btn btn-sm btn-primary btn-block m-3' href='/exam/download/download-exam.php?examID=$examID'>Pliki Do Pobrania</a>";
+    echo "<a class='btn btn-sm btn-success btn-block m-3' href='/exam/download/download-csv.php?examID=$examID'>Importuj do CSV</a>";
     echo "<a class='btn btn-sm btn-warning btn-block m-3' href='/exam/edit/edit-exam.php?examID=$examID'>Edytuj Odpowiedzi</a>";
     echo "<a class='btn btn-sm btn-danger btn-block m-3' href='/exam/edit/delete-exam.php?examID=$examID'>Usuń Egzamin</a>";
     ?>

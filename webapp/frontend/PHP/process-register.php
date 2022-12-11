@@ -45,7 +45,7 @@ if (isset($_GET['email']) && !empty($_GET['email'])) {
             echo "Data saved Successfully";
             $registerConfirmed = true;
         }else{
-            echo "Soething Went Wrong";
+            echo "Something Went Wrong";
         }
     }
     if ($login_check > 0) {

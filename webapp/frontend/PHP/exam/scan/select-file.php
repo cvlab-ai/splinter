@@ -2,8 +2,8 @@
 session_start();
 
 use navbar\NavBar;
-
 require("../../classes/NavBar.php");
+NavBar::userIsLogged(2);
 ?>
 <!doctype html>
 <html lang="en">
@@ -32,7 +32,7 @@ $userID = $_SESSION['userID'];
 if (isset($_POST["submit-btn"])) {
     $examID = $_POST['exam'];
 } else {
-    // TODO redirect
+    header("Location: select-exam.php");
 }
 
 ?>

@@ -6,6 +6,7 @@ use navbar\NavBar;
 use curl\Curl;
 
 require("../../classes/NavBar.php");
+NavBar::userIsLogged(2);
 require("../../classes/Database.php");
 require("../../classes/Curl.php");
 ?>
@@ -87,10 +88,6 @@ for ($i = 0; $i < count($_FILES['result']['name']); $i++) {
     curl_close($ch);
 }
 
-
-
-// TODO
-// send student work
 for ($i = 0; $i < count($_FILES['files']['name']); $i++) {
     $file_name = $_FILES['files']['name'][$i];
     if(empty($file_name)){

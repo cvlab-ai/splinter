@@ -1,13 +1,9 @@
 <?php
 session_start();
 
-use database\Database;
 use navbar\NavBar;
-use curl\Curl;
-
 require("../../classes/NavBar.php");
-require("../../classes/Database.php");
-require("../../classes/Curl.php");
+NavBar::userIsLogged(2);
 ?>
 <!doctype html>
 <html lang="en">
