@@ -1,0 +1,55 @@
+<?php
+session_start();
+
+use navbar\NavBar;
+require("../../classes/NavBar.php");
+NavBar::userIsLogged(2);
+?>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Frontend</title>
+    <base href="/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+    <link rel="stylesheet" href="../../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../css/style.css">
+    <script src="../../css/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+<?php
+echo NavBar::showNavBar("scan");
+
+$userID = $_SESSION['userID'];
+
+if (isset($_POST["submit-btn"])) {
+    $examID = $_POST['exam'];
+} else {
+    header("Location: select-exam.php");
+}
+
+?>
+
+<div class="container text-center w-25 mt-5">
+    <div class="mb-3">
+        <form method="post" action="/exam/scan/scan.php" enctype="multipart/form-data">
+            <?php
+            echo "<input hidden name='exam' value='$examID'>"
+            ?>
+            <label for="files" class="form-label">Wybierz plik ze skanami prac:</label>
+            <input class="form-control" accept="application/pdf" type="file" id="files" name="files[]" multiple><br><br>
+            <hr>
+            <label for="result" class="form-label">Wybierz plik z odpowiedziami:</label>
+            <input class="form-control" accept="application/pdf" type="file" id="result" name="result[]" multiple><br><br>
+            <input class="btn btn-sm btn-primary btn-block mt-3" type="submit" value="Sprawdź Prace" name="submit-btn">
+        </form>
+    </div>
+</div>
+</body>
+</html>
