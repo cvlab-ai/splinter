@@ -7,9 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 
-    <script src="./css/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" href="./css/bootstrap/bootstrap.min.css">
-    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="css/js/bootstrap.bundle.min.js"></script>
 </head>
 
 <body>
@@ -48,7 +48,7 @@ if (isset($_SESSION['email'])) {
     </div>
     <input class='btn btn-lg btn-primary btn-block' type='submit' value='Zaloguj Się' name='submit'>
     <br>
-    <a href='register.php'>Zarejestruj się</a>
+    <button class='btn btn-secondary btn-sm mt-2' href='register.php'>Zarejestruj się</button>
     <p class='mt-5 mb-3 text-muted'>© Politechnika Gdańska 2022</p>
   </form>
 </div>";

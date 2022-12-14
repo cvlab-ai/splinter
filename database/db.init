@@ -24,7 +24,6 @@ CREATE TABLE EXAM
     file_name   VARCHAR,
     date        DATE,
     user_id     SERIAL REFERENCES public."user" (id),
-    owners      VARCHAR
 );
 
 INSERT INTO public."user" (name, email, password, registered)

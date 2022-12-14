@@ -14,9 +14,9 @@ NavBar::userIsLogged(2);
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
 
-    <script src="../../css/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" href="../../css/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="../../css/bootstrap.min.css">
     <link rel="stylesheet" href="../../css/style.css">
+    <script src="../../css/js/bootstrap.bundle.min.js"></script>
 </head>
 
 <body>
