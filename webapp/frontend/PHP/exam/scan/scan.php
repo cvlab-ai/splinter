@@ -37,14 +37,42 @@ $examID = $_POST['exam'];
 
 // check-pdf sprawdza jeden exam, examId, nazwa pliku, bez forca zignoruje
 
-// generate-exam-keys: examId
-$exam_storage_user =  getenv('EX_STORE_SPLINTER_USER');
-$exam_storage_password = getenv('EX_STORE_SPLINTER_PASS');
+if (isset($_POST['webdav-results'])) {
+    // send webdav answers keys
+    for ($i = 0; $i < count($_POST['webdav-results']); $i++) {
+        $fileName = $_POST['webdav-results'][$i];
+        if(empty($fileName)){
+            continue;
+        }
+        $filePath = $examID . "/answers_keys/" . basename($fileName);
 
+        Curl::getWebdavFileAndUploadSplinter($fileName, $filePath);
+
+        Curl::generateExamAnswersKeys($examID);
+    }
+}
+
+
+if (isset($_POST['webdav-files'])) {
+    // send webdav student work
+    for ($i = 0; $i < count($_POST['webdav-files']); $i++) {
+        $fileName = $_POST['webdav-files'][$i];
+        if(empty($fileName)){
+            continue;
+        }
+        $filePath = $examID . "/pdfs/" . basename($fileName);
+
+        Curl::getWebdavFileAndUploadSplinter($fileName, $filePath);
+
+        Curl::generateStudentAnswers($examID);
+    }
+}
+
+// send answers key
 for ($i = 0; $i < count($_FILES['result']['name']); $i++) {
     // read file details
-    $file_name = $_FILES['result']['name'][$i];
-    if(empty($file_name)){
+    $fileName = $_FILES['result']['name'][$i];
+    if(empty($fileName)){
         continue;
     }
     $file_size = $_FILES['result']['size'][$i];
@@ -53,43 +81,19 @@ for ($i = 0; $i < count($_FILES['result']['name']); $i++) {
     $array = explode('.', $_FILES['result']['name'][$i]);
     $file_ext = strtolower(end($array));
 
-    move_uploaded_file($file_tmp, $file_name);
+    move_uploaded_file($file_tmp, $fileName);
 
-    $filePath = $examID . "/answers_keys/" . basename($file_name);
+    $filePath = $examID . "/answers_keys/" . basename($fileName);
 
-    // Upload file to exam storage
-    $c = curl_init();
-    curl_setopt($c, CURLOPT_URL, "http://splinter_exam_storage/splinter/" . $filePath);
-    curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($c, CURLOPT_PUT, true);
-    curl_setopt($c, CURLOPT_INFILESIZE, filesize($file_name));
-    curl_setopt($c, CURLOPT_BINARYTRANSFER, TRUE);
-    curl_setopt($c, CURLOPT_USERPWD, $exam_storage_user . ":" . $exam_storage_password);
-    $fp = fopen($file_name, "r");
+    Curl::sendFileToSplinter($fileName, $filePath);
 
-    curl_setopt($c, CURLOPT_INFILE, $fp);
-    curl_exec($c);
-    curl_close($c);
-    fclose($fp);
-    unlink($file_name);
-
-    // send curl to generate correct answers
-    $ch = curl_init();
-
-    curl_setopt($ch, CURLOPT_URL, "http://splinter_inference_engine:8000/generate-exam-keys");
-    curl_setopt($ch, CURLOPT_USERPWD, $exam_storage_user . ":" . $exam_storage_password);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, '{ "examId": "' .  $examID . '", "force":true }');
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-
-    $result = curl_exec($ch);
-    curl_close($ch);
+    Curl::generateExamAnswersKeys($examID);
 }
 
+// send student work
 for ($i = 0; $i < count($_FILES['files']['name']); $i++) {
-    $file_name = $_FILES['files']['name'][$i];
-    if(empty($file_name)){
+    $fileName = $_FILES['files']['name'][$i];
+    if(empty($fileName)){
         continue;
     }
     $file_size = $_FILES['files']['size'][$i];
@@ -100,36 +104,13 @@ for ($i = 0; $i < count($_FILES['files']['name']); $i++) {
 
     $file_ext = strtolower(end($array));
 
-    move_uploaded_file($file_tmp, $file_name);
-    $filePath = $examID . "/pdfs/" . basename($file_name);
+    move_uploaded_file($file_tmp, $fileName);
+    $filePath = $examID . "/pdfs/" . basename($fileName);
 
-    // Upload file to exam storage
-    $c = curl_init();
-    curl_setopt($c, CURLOPT_URL, "http://splinter_exam_storage/splinter/" . $filePath);
-    curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($c, CURLOPT_PUT, true);
-    curl_setopt($c, CURLOPT_INFILESIZE, filesize($file_name));
-    curl_setopt($c, CURLOPT_BINARYTRANSFER, TRUE);
-    $fp = fopen($file_name, "r");
-    curl_setopt($c, CURLOPT_INFILE, $fp);
-    curl_setopt($c, CURLOPT_USERPWD, $exam_storage_user . ":" . $exam_storage_password);
-    curl_exec($c);
-    curl_close($c);
-    fclose($fp);
+    Curl::sendFileToSplinter($fileName, $filePath);
 
-    // send curl to read correct answers
-    $ch = curl_init();
-
-    curl_setopt($ch, CURLOPT_URL, "http://splinter_inference_engine:8000/check-exam");
-    curl_setopt($ch, CURLOPT_USERPWD, $exam_storage_user . ":" . $exam_storage_password);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, '{ "examId": "' . $examID .'", "force":true }');
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-
-    $result = curl_exec($ch);
-    curl_close($ch);
+    Curl::generateStudentAnswers($examID);
 }
 
-header("Refresh:0; url=/exam/exam-list.php");
+//header("Refresh:0; url=/exam/exam-list.php");
 ?>

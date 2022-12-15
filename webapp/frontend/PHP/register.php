@@ -85,7 +85,6 @@ if(isset($_POST['submit'])&&!empty($_POST['submit'])){
     ?>
     <h2>Rejstracja</h2>
     <form method="post">
-
         <div class="form-group">
             <?php
                 if ($emailErr){

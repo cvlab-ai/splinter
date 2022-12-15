@@ -2,7 +2,9 @@
 session_start();
 
 use navbar\NavBar;
+use curl\Curl;
 require("../../classes/NavBar.php");
+require("../../classes/Curl.php");
 NavBar::userIsLogged(2);
 ?>
 <!doctype html>
@@ -44,9 +46,34 @@ if (isset($_POST["submit-btn"])) {
             ?>
             <label for="files" class="form-label">Wybierz plik ze skanami prac:</label>
             <input class="form-control" accept="application/pdf" type="file" id="files" name="files[]" multiple><br><br>
+
+            <label for="webdav-results" class="form-label">Lub wybierz plik z webdav:</label>
+            <select class="form-select" name="webdav-results[]" id="webdav-results" multiple>
+                <?php
+                $files = Curl::showWebDavFiles();
+                foreach ($files as $file) {
+                    echo '<option value="'.$file['name'].'">'.$file['name'].'</option>';
+                }
+                ?>
+            </select><br><br>
+
             <hr>
             <label for="result" class="form-label">Wybierz plik z odpowiedziami:</label>
             <input class="form-control" accept="application/pdf" type="file" id="result" name="result[]" multiple><br><br>
+
+            <label for="webdav-files" class="form-label">Lub wybierz plik z webdav:</label>
+            <select class="form-select" name="webdav-files[]" id="webdav-files" multiple>
+                <?php
+                $files = Curl::showWebDavFiles();
+                foreach ($files as $file) {
+                    echo '<option value="'.$file['name'].'">'.$file['name'].'</option>';
+                }
+                ?>
+
+            </select><br><br>
+
+            <hr>
+
             <input class="btn btn-sm btn-primary btn-block mt-3" type="submit" value="Sprawdź Prace" name="submit-btn">
         </form>
     </div>

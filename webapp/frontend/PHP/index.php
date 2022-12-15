@@ -16,10 +16,34 @@
 <?php
 session_start();
 
+use database\Database;
 use navbar\NavBar;
 
 require("classes/NavBar.php");
+require("classes/Database.php");
 echo NavBar::showNavBar("main");
+
+
+if (isset($_POST['submit']) && !empty($_POST['submit'])) {
+    $db = Database::connectToDb();
+
+    $hashpassword = md5($_POST['pwd']);
+    $email = $_POST['email'];
+    $sql = "select id, registered from public.user where email = '$email' and password = '$hashpassword' and registered = 'true'";
+    $data = pg_query($db, $sql);
+    $login_check = pg_num_rows($data);
+    $row = pg_fetch_row($data);
+    if ($login_check > 0 && $row[1]) {
+        $_SESSION['email'] = $_POST['email'];
+        $_SESSION['userID'] = $row[0];
+        $_POST['isLog'] = true;
+        header("Refresh:0; url=index.php");
+    } else {
+        echo '<script>alert("Nieprawodłowe dane")</script>';
+    }
+
+    Database::disconnectDb($db);
+}
 
 if (isset($_SESSION['email'])) {
     echo "
@@ -31,7 +55,7 @@ if (isset($_SESSION['email'])) {
 } else {
     echo " 
     <div class='container text-center w-25 mt-5'>
-  <form class='form-signin' method='post' action='login.php'>
+  <form class='form-signin' method='post'>
     <img class='mb-4' src='https://getbootstrap.com/docs/4.0/assets/brand/bootstrap-solid.svg' alt='' width='72' height='72'>
     <h1 class='h3 mb-3 font-weight-normal'>Zaloguj się</h1>
     <label for='inputEmail' class='sr-only'>Adres e-mail PG:</label>
@@ -53,9 +77,6 @@ if (isset($_SESSION['email'])) {
   </form>
 </div>";
 }
-
 ?>
-
-
 </body>
 </html>
