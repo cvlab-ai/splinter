@@ -21,6 +21,12 @@ class NavBar
                     </a>";
         }
 
+        if (!isset($_SESSION['email'])) {
+            $logoutBtn = "";
+        } else {
+            $logoutBtn = "<a href='logout.php' class='btn btn-outline-success'>Wyloguj</a>";
+        }
+
         return "
 <nav class='navbar navbar-expand-lg navbar-light bg-light'>
 <div class='container-fluid'>
@@ -47,7 +53,7 @@ class NavBar
                 </ul>
             </li>
         </ul>
-            <button class='btn btn-outline-success' type='submit'>Wyloguj</button>
+            ".$logoutBtn."
     </div>
 </div>
 </nav>";
@@ -58,5 +64,13 @@ class NavBar
         if (!isset($_SESSION['email'])) {
             header("Location: ".$subFolders."index.php");
         }
+    }
+
+    public static function logout() {
+        session_start();
+        unset($_SESSION['email']);
+        unset($_SESSION['userID']);
+        session_destroy();
+        header('Location: index.php');
     }
 }

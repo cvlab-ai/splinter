@@ -64,15 +64,10 @@ if (isset($_SESSION['email'])) {
     <input type='email' id='inputEmail' class='form-control' placeholder='Email' required='' autofocus='' name='email'>
     
     <label for='inputPassword' class='sr-only'>Hasło</label>
-    <input type=password id='inputPassword' class='form-control' placeholder='Hasło' required='' name='pwd'>
-    <div class='checkbox mb-3'>
-      <label>
-        <input type='checkbox' value='remember-me'> Zapamiętaj mnie
-    </label>
-    </div>
+    <input type=password id='inputPassword' class='form-control' placeholder='Hasło' required='true' name='pwd'>
     <input class='btn btn-lg btn-primary btn-block' type='submit' value='Zaloguj Się' name='submit'>
     <br>
-    <button class='btn btn-secondary btn-sm mt-2' href='register.php'>Zarejestruj się</button>
+    <a class='btn btn-secondary btn-sm mt-2' href='register.php'>Zarejestruj się</a>
     <p class='mt-5 mb-3 text-muted'>© Politechnika Gdańska 2022</p>
   </form>
 </div>";
