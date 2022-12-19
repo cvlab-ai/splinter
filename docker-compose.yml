@@ -3,7 +3,7 @@ services:
   db:
     container_name: splinter_db
     hostname: splinter_db
-    build: database
+    build: webapp/database
     restart: always
     env_file:
       - .env

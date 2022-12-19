@@ -1,8 +1,0 @@
-jupyter
-opencv-python
-numpy
-tensorflow
-matplotlib
-jupyterlab
-ipykernel
-black
