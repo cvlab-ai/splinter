@@ -22,7 +22,7 @@ def rotate_exam(image: np.ndarray):
     return _rotate_image(image, new_angle, middle_pos, True)
 
 
-def _get_contours(new_image):
+def _get_contours(new_image, min_contour_area: int = 3000):
     mask = cv2.inRange(new_image, 0, 150)
 
     # apply morphology
@@ -40,12 +40,9 @@ def _get_contours(new_image):
         (x, y), (w, h), alpha = rot_rect
         if abs(w - h) < min((w, h)) / 5:
             squares.append(rot_rect)
-
-    squares_by_size = defaultdict(list)
-    [squares_by_size[square[1][0] * square[1][1]].append(square) for square in squares]
     squares = sorted(squares, key=lambda x: x[1][0] * x[1][1], reverse=True)[:5]
 
-    if len(squares) != 5:
+    if len(squares) != 5 or any([s[1][0] * s[1][1] < min_contour_area for s in squares]):
         raise ExamNotDetected(f"Didn't detect five black squares - {len(squares)}")
     return squares
 
