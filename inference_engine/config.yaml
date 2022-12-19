@@ -7,8 +7,8 @@ exam_storage:
   img_extension: pdf
   default_input_dirname: pdfs
   default_output_dirname: students
-  exam_storage_user : splinter
-  exam_storage_password : 1234
+  # exam_storage_user : splinter
+  # exam_storage_password : 1234
   metadata_filename: "metadata.json"
 
 inference:

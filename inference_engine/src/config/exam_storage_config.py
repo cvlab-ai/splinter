@@ -1,3 +1,4 @@
+import os
 from pydantic import BaseModel
 
 
@@ -10,8 +11,8 @@ class ExamStorageConfig(BaseModel):
     img_extension: str = "pdf"
     default_input_dirname: str = "pdfs"
     default_output_dirname: str = "students"
-    exam_storage_user: str = "splinter"
-    exam_storage_password: str = "1234"
+    exam_storage_user: str = os.environ.get("EX_STORE_SPLINTER_USER")
+    exam_storage_password: str = os.environ.get("EX_STORE_SPLINTER_PASS")
     metadata_filename: str = "metadata.json"
     result_basename: str = "answers"
     debug_image_sufix: str = "_debug"
