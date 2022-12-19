@@ -27,3 +27,11 @@ password: 1
 ```bash
 docker exec -it splinter_db psql -U postgres -d splinter -f db.init
 ```
+
+## Testing
+
+Run integration tests by:
+
+```bash
+pytest -v -s tests/
+```

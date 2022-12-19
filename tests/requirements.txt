@@ -1,0 +1,5 @@
+pytest==7.2.0
+docker_py==1.10.6
+python-dotenv==0.21.0
+requests==2.22.0
+webdavclient3==3.14.6
