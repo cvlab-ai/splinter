@@ -9,3 +9,7 @@ class ExamNotDetected(ExamInvalid):
 
 class IndexNotDetected(ExamInvalid):
     FILENAME = "no_index"
+
+
+class PreprocessingError(ExamInvalid):
+    FILENAME = "no_index"

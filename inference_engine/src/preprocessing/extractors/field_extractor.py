@@ -3,7 +3,7 @@ import itertools
 
 import numpy as np
 
-from src.preprocessing import Fields
+from src.preprocessing import FieldName, Field
 from .extractor import Extractor
 
 
@@ -11,7 +11,7 @@ class FieldExtractor(Extractor):
     def process(self, *args, **kwargs):
         self.to_portrait()
         self.to_grayscale()
-        saved_extractor = Extractor(self._operated_img)
+        saved_extractor = Extractor(Field(self._operated_img))
 
         self.to_binary(180)
         rectangles = self.detect_rectangles()
@@ -19,7 +19,7 @@ class FieldExtractor(Extractor):
         sorted_rectangles = sorted(rectangles, key=lambda x: (int(x[1] / 10), x[0]))
 
         box_images = saved_extractor.extract(sorted_rectangles)
-        assigned_box_images = self._assign_field_names(box_images)
+        assigned_box_images = self._assign_field_names(box_images, sorted_rectangles)
         return assigned_box_images
 
     def detect_rectangles(self):
@@ -30,8 +30,11 @@ class FieldExtractor(Extractor):
         return [self.calculate_rectangle(contour, inside=False) for contour in grouped_contours]
 
     @staticmethod
-    def _assign_field_names(box_images: tp.List[np.ndarray]):
-        return [(field, image) for field, image in zip(Fields.multiplied_answer_columns(), box_images)]
+    def _assign_field_names(box_images: tp.List[np.ndarray], rect: tp.List[tp.Tuple[int, int, int, int]]):
+        fieldnames = FieldName.multiplied_answer_columns()
+        if len(box_images) < len(fieldnames):
+            raise ValueError(f"Not enough fieldnames detected: {len(box_images)} < {len(fieldnames)}")
+        return [(fieldname, Field(image, r)) for fieldname, image, r in zip(fieldnames, box_images, rect)]
 
     @staticmethod
     def _unpack_groups(groups: tp.Dict[float, tp.List], min_area_to_unpack: float = 5000):

@@ -1,40 +1,44 @@
+import logging
 import typing as tp
 from collections import defaultdict
 
 import numpy as np
+import cv2
 
+from src.utils.exceptions import PreprocessingError
 from .extractors import TextExtractor, IndexExtractor, BoxExtractor, FieldExtractor, GroupExtractor
-from .fields import Fields
+from .fields import FieldName, Field
 from .rotation import rotate_exam
 
 
 class Preprocessing:
     FIELD_EXTRACTOR_MAPPING = {
-        Fields.exam_title: TextExtractor,
-        Fields.student_name: TextExtractor,
-        Fields.date: TextExtractor,
-        Fields.exam_key: GroupExtractor,
-        Fields.student_id: IndexExtractor,
-        Fields.answers: BoxExtractor
+        FieldName.exam_title: TextExtractor,
+        FieldName.student_name: TextExtractor,
+        FieldName.date: TextExtractor,
+        FieldName.exam_key: GroupExtractor,
+        FieldName.student_id: IndexExtractor,
+        FieldName.answers: BoxExtractor
     }
 
     def __init__(self, img: np.ndarray):
         self._exam_copy = img.copy()
 
-    def process(self) -> tp.Dict[Fields, np.ndarray]:
+    def process(self) -> tp.Tuple[tp.Dict[FieldName, tp.List[Field]], np.ndarray]:
         self._exam_copy = rotate_exam(self._exam_copy)
-        fields = FieldExtractor(self._exam_copy).process()
-        _map = Preprocessing.FIELD_EXTRACTOR_MAPPING
-        result = [(f, _map[f](img).process()) for f, img in fields if f in _map]
-        result = self.group_by_field(result)
-        return result
+        try:
+            fields = FieldExtractor(Field(self._exam_copy)).process()
+            _map = Preprocessing.FIELD_EXTRACTOR_MAPPING
+            result = [(name, _map[name](field).process()) for name, field in fields if name in _map]
+            result = self.group_by_field(result)
+        except (IndexError, ValueError, cv2.error) as e:
+            logging.exception(e)
+            raise PreprocessingError(e)
+        return result, self._exam_copy
 
     @staticmethod
-    def group_by_field(field_images: tp.List[tp.Tuple[Fields, np.ndarray]]) -> tp.Dict[Fields, np.ndarray]:
+    def group_by_field(field_images: tp.List[tp.Tuple[FieldName, np.ndarray]]) -> tp.Dict[FieldName, tp.List[Field]]:
         grouped = defaultdict(list)
-        for field, img in field_images:
-            if isinstance(img, np.ndarray) and len(img.shape) > 4:
-                grouped[field].extend(img)
-            else:
-                grouped[field].append(img)
+        for fieldname, field in field_images:
+            grouped[fieldname].append(field)
         return dict(grouped)

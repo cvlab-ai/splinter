@@ -145,6 +145,7 @@ def _create_full_path(exam_path: str, exam_name: str):
 def change_extension(filename: str, extension: str):
     return f"{filename.split('.')[0]}.{extension}"
 
+
 def get_students_results(exam_id) -> tp.List[tp.Any]:
     students_dir = get_dir(get_student_dir(exam_id))
     if students_dir is None:
@@ -160,7 +161,7 @@ def get_students_results(exam_id) -> tp.List[tp.Any]:
         answers_path = f"{student_dir_path}/{Config.exam_storage.result_basename}{versioning.v2s(latest_version)}.json"
         student_answers = get_file(answers_path)
         if student_answers is None:
-            logging.warn(f"Couldn't open student answers: {answers_path}")
+            logging.warning(f"Couldn't open student answers: {answers_path}")
             continue
         students_answers.append(student_answers.json())
 
