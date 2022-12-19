@@ -10,6 +10,8 @@ from typing import List, Tuple
 
 import matplotlib
 
+from src.preprocessing import Field
+
 matplotlib.use('TkAgg')
 from matplotlib import pyplot as plt
 from matplotlib import collections as mc
@@ -19,12 +21,13 @@ import matplotlib.colors as mcolors
 
 
 class Extractor:
-    def __init__(self, img: np.ndarray):
-        self._operated_img: np.ndarray = img.copy()
-        self._original_img: np.ndarray = img
+    def __init__(self, field: Field):
+        self._rect = field.rect
+        self._operated_img: np.ndarray = field.img.copy()
+        self._original_img: np.ndarray = field.img
 
     def process(self, *args, **kwargs):
-        return self._operated_img
+        return Field(self._operated_img, self._rect)
 
     # Preprocessing
     def to_grayscale(self) -> Extractor:
