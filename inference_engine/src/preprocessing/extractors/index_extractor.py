@@ -12,5 +12,4 @@ class IndexExtractor(Extractor):
         index_text_extractor.detect_and_remove_lines()
         index_text_extractor.recover()
         index_answer_extractor = Extractor(index_answer)
-        index_answer_extractor.brighten_up(0.7)
         return index_answer_extractor.split_image_into_squares(6, 10, group_by='x'), index_text_extractor.process()
