@@ -62,6 +62,7 @@ class Curl
         fclose($fp);
 
         self::sendFileToSplinter($fileName,$filePath);
+        self::deleteWebDavFile($fileName);
     }
 
     public static function sendFileToSplinter($fileName, $filePath) {
@@ -141,6 +142,13 @@ class Curl
         $exam_storage_user = getenv('EX_STORE_SPLINTER_USER');
         $exam_storage_password = getenv('EX_STORE_SPLINTER_PASS');
         exec("curl -X DELETE -u ".$exam_storage_user.":".$exam_storage_password." http://splinter_exam_storage/splinter/".$examID."/");
+        header("Refresh:0; url=/exam/exam-list.php");
+    }
+
+    public static function deleteWebDavFile($fileName) {
+        $exam_webdav_user =  getenv('EX_STORE_WEBDAV_USER');
+        $exam_webdav_password = getenv('EX_STORE_WEBDAV_PASS');
+        exec("curl -X DELETE -u ".$exam_webdav_user.":".$exam_webdav_password." http://splinter_exam_storage/uploads/".$fileName);
         header("Refresh:0; url=/exam/exam-list.php");
     }
 

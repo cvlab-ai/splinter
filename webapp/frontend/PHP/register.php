@@ -77,7 +77,7 @@ if(isset($_POST['submit'])&&!empty($_POST['submit'])){
     }
 }
 ?>
-<div class="container">
+<div class="container text-center w-25 mt-5">
     <?php
     if ($registered){
         echo '<div class="alert alert-success" role="alert"> Zarejstrowano! Sprawdź e-mail!</div>';
@@ -91,16 +91,16 @@ if(isset($_POST['submit'])&&!empty($_POST['submit'])){
                     echo '<div class="alert alert-danger" role="alert"> Nieprawidłowy adres email</div>';
                 }
             ?>
-            <label for="email">Email:</label>
-            <input type="email" class="form-control" id="email" placeholder="Enter email" name="email">
+            <label for="email" class="form-label required">Email:</label>
+            <input type="email" class="form-control" id="email" placeholder="Podaj email" name="email" required="required">
         </div>
 
         <div class="form-group">
-            <label for="pwd">Password:</label>
-            <input type="password" class="form-control" id="pwd" placeholder="Enter password" name="pwd">
+            <label for="pwd" class="form-label required">Hasło:</label>
+            <input type="password" class="form-control" id="pwd" placeholder="Podaj hasło" name="pwd" required="required">
         </div>
-
-        <input type="submit" name="submit" class="btn btn-primary" value="Submit">
+        <br>
+        <input type="submit" name="submit" class="btn btn-primary" value="Zarejestruj się!">
     </form>
 </div>
 </body>

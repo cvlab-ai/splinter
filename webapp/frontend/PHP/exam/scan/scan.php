@@ -112,5 +112,5 @@ for ($i = 0; $i < count($_FILES['files']['name']); $i++) {
     Curl::generateStudentAnswers($examID);
 }
 
-//header("Refresh:0; url=/exam/exam-list.php");
+header("Refresh:0; url=/exam/exam-list.php");
 ?>

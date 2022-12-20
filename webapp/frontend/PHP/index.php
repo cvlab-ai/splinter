@@ -61,10 +61,11 @@ if (isset($_SESSION['email'])) {
     <label for='inputEmail' class='sr-only'>Adres e-mail PG:</label>
     <!--TODO Only PG mail ^-->
     
-    <input type='email' id='inputEmail' class='form-control' placeholder='Email' required='' autofocus='' name='email'>
+    <input type='email' id='inputEmail' class='form-control' placeholder='Email'required='required' autofocus='' name='email'>
     
     <label for='inputPassword' class='sr-only'>Hasło</label>
-    <input type=password id='inputPassword' class='form-control' placeholder='Hasło' required='true' name='pwd'>
+    <input type=password id='inputPassword' class='form-control' placeholder='Hasło' required='required' name='pwd'>
+    <br>
     <input class='btn btn-lg btn-primary btn-block' type='submit' value='Zaloguj Się' name='submit'>
     <br>
     <a class='btn btn-secondary btn-sm mt-2' href='register.php'>Zarejestruj się</a>
