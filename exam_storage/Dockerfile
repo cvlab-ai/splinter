@@ -41,7 +41,7 @@ RUN mkdir -p /www/data/splinter && chmod -R 777 /www/data/splinter && \
     chmod o+w /www/data
 
 COPY nginx.conf /etc/nginx/nginx.conf
-COPY ./scripts /www/data/scripts
+COPY ./scripts /www/scripts
 
 ARG splinter_user=splinter
 ARG splinter_pass=1234
