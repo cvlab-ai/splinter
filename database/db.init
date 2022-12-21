@@ -23,7 +23,7 @@ CREATE TABLE EXAM
     pass_score  VARCHAR,
     file_name   VARCHAR,
     date        DATE,
-    user_id     SERIAL REFERENCES public."user" (id),
+    user_id     SERIAL REFERENCES public."user" (id)
 );
 
 INSERT INTO public."user" (name, email, password, registered)

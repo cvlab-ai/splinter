@@ -34,7 +34,23 @@ if (isset($_POST['submit-subject']) && !empty($_POST['submit-subject'])) {
     $date = $_POST['subject-date'];
     $userID = $_SESSION['userID'];
 
-    $query = "INSERT INTO exam (name, description, user_id, date) VALUES ('$name','$desc', $userID, '$date')";
+    $queryFields = "(name, user_id";
+    $queryValues = "('$name',$userID";
+
+    if (isset($_POST['subject-desc']) && $desc !== "") {
+        $queryFields .= ",description";
+        $queryValues .= ",'$desc'";
+    }
+
+    if (isset($_POST['subject-date']) && $date !== "") {
+        $queryFields .= ",date";
+        $queryValues .= ",'$date'";
+    }
+    $queryFields .= ")";
+    $queryValues .= ")";
+
+    $query = "INSERT INTO exam $queryFields VALUES $queryValues";
+
     $res = pg_query($db, $query);
     if (!$res) {
         echo pg_last_error($db);
@@ -50,21 +66,22 @@ Database::disconnectDb($db);
 
 <div class="container text-center w-25 mt-5">
     <div class="mb-3">
-        <label for="select" class="form-label"><h2>Dodaj Egzamin</h2></label>
+        <label for="select" class="form-label">Dodaj Egzamin</label>
         <hr>
         <form method="post">
-            <label for="subject-name" class="form-label"><h2>Nazwa Egzaminu</h2></label>
+            <label for="subject-name" class="form-label required">Nazwa Egzaminu</label>
             <input type="text" name="subject-name" id="subject-name" placeholder="Nazwa Egzaminu"
-                   class="form-control">
+                   class="form-control" required='required'>
             <hr>
-            <label for="subject-desc" class="form-label"><h2>Opis Egzaminu</h2></label>
+            <label for="subject-desc" class="form-label">Opis Egzaminu</label>
             <textarea name="subject-desc" id="subject-desc" placeholder="Opis Egzaminu"
                       class="form-control"></textarea>
             <hr>
-            <label for="subject-date" class="form-label"><h2>Data Egzaminu</h2></label>
+            <label for="subject-date" class="form-label">Data Egzaminu</h2></label>
             <input class="form-control" type="date" id="subject-date" name="subject-date">
             <hr>
-            <input type="submit" class="btn btn-sm btn-primary btn-block mt-3" value="Dodaj Egzamin" name="submit-subject">
+            <input type="submit" class="btn btn-sm btn-primary btn-block mt-3" value="Dodaj Egzamin"
+                   name="submit-subject">
         </form>
     </div>
 </div>
