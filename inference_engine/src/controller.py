@@ -148,6 +148,9 @@ def _check_image(image: Image, check_index: bool) -> tp.Tuple[ResultsDTO, np.nda
     output = ResultsDTO.parse_obj(results)
     logging.info("Inference results:\n" + str(output))
 
+    if not Config.inference.debug_image:
+        return output, None
+
     try:
         debug_image = highlight_marks(debug_image, fields_images, output)
     except Exception:
@@ -211,4 +214,3 @@ def highlight_marks(debug_image: np.ndarray, fields: tp.Dict[FieldName, tp.List[
     highlight_answer_columns(rgb=mark_color)
     highlight_index_columns(fields[FieldName.student_id][0][0].rect, results.student_id_boxes, rgb=mark_color)
     return debug_image
-
