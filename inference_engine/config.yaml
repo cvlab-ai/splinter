@@ -16,6 +16,7 @@ inference:
   answer_row_shape:
     - 290
     - 60
+  debug_image: false
 
 exam:
   number_of_columns: 5
