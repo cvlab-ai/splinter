@@ -1,14 +1,12 @@
 version: '3.9'
 services:
   db:
-    container_name: splinter_db
     hostname: splinter_db
     build: webapp/database
     restart: always
     env_file:
       - .env
   frontend:
-    container_name: splinter_frontend
     hostname: splinter_frontend
     build: webapp/frontend/
     env_file:
@@ -16,7 +14,6 @@ services:
     ports:
       - "8000:8000"
   exam_storage:
-    container_name: splinter_exam_storage
     hostname: splinter_exam_storage
     build:
       context: exam_storage/
@@ -38,7 +35,6 @@ services:
         source: ./exam_storage/volumes/www/data/uploads
         target: /www/data/uploads
   inference_engine:
-    container_name: splinter_inference_engine
     hostname: splinter_inference_engine
     build: inference_engine/
     env_file:
