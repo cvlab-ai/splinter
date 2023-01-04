@@ -7,12 +7,12 @@ RUN apt-get update \
     && apt-get purge -y --auto-remove libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN useradd -ms /bin/bash splinter
+RUN mkdir -p /www
 
-WORKDIR /home/splinter
+WORKDIR /www
 COPY ./PHP ./app
 COPY ./php.ini /usr/local/etc/php/
 
 EXPOSE 8000
 
-ENTRYPOINT ["php", "-S", "0.0.0.0:8000", "-t", "/home/splinter/app/"]
+ENTRYPOINT ["php", "-S", "0.0.0.0:8000", "-t", "/www/app/"]
