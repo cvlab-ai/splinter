@@ -1,20 +1,26 @@
 version: '3.9'
 services:
-  db:
-    hostname: splinter_db
+  splinter_db:
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "splinter", "-U", "postgres" ]
+      timeout: 45s
+      interval: 10s
+      retries: 10
     build: webapp/database
     restart: always
     env_file:
       - .env
-  frontend:
-    hostname: splinter_frontend
+
+  splinter_frontend:
     build: webapp/frontend/
     env_file:
       - .env
     ports:
       - "8000:8000"
-  exam_storage:
-    hostname: splinter_exam_storage
+    depends_on:
+      - "splinter_db"
+
+  splinter_exam_storage:
     build:
       context: exam_storage/
       args:
@@ -34,8 +40,8 @@ services:
       - type: bind
         source: ./exam_storage/volumes/www/data/uploads
         target: /www/data/uploads
-  inference_engine:
-    hostname: splinter_inference_engine
+
+  splinter_inference_engine:
     build: inference_engine/
     env_file:
       - .env
