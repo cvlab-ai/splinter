@@ -24,7 +24,7 @@ class DockerService():
 
 class InfEngine(DockerService):
     def __init__(self) -> None:
-        super().__init__("splinter_inference_engine_1")
+        super().__init__("splinter_splinter-inference-engine_1")
 
     def check_exam(self, exam_id, force=False):
         body ={"exam_id": exam_id, "force": force}
@@ -44,7 +44,7 @@ class InfEngine(DockerService):
 
 class ExamStorage(DockerService):
     def __init__(self) -> None:
-        super().__init__("splinter_exam_storage_1")
+        super().__init__("splinter_splinter-exam-storage_1")
         self.port = 80
         splinter_options = {
             'webdav_hostname': self.url + '/splinter',

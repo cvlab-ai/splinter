@@ -15,7 +15,7 @@ curl_setopt($ch, CURLOPT_HEADER, 0);
 curl_setopt($ch, CURLOPT_VERBOSE, 0);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_USERPWD, $exam_storage_user . ":" . $exam_storage_password);
-curl_setopt($ch, CURLOPT_URL, 'http://splinter_exam_storage/zip/'.$examID);
+curl_setopt($ch, CURLOPT_URL, 'http://splinter-exam-storage/zip/'.$examID);
 curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
 $output = curl_exec($ch);
 curl_close($ch);

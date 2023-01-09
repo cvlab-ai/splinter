@@ -41,7 +41,7 @@ $filePath = $examID . "/answers_keys/" . basename($file_name);
 
 // Upload file to exam storage
 $c = curl_init();
-curl_setopt($c, CURLOPT_URL, "http://splinter_exam_storage/splinter/" . $filePath);
+curl_setopt($c, CURLOPT_URL, "http://splinter-exam-storage/splinter/" . $filePath);
 curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($c, CURLOPT_PUT, true);
 curl_setopt($c, CURLOPT_INFILESIZE, filesize($file_name));
@@ -54,7 +54,7 @@ curl_close($c);
 fclose($fp);
 
 $ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, "http://splinter_inference_engine:8000/check-exam-key-pdf");
+curl_setopt($ch, CURLOPT_URL, "http://splinter-inference-engine:8000/check-exam-key-pdf");
 curl_setopt($ch, CURLOPT_USERPWD, $exam_storage_user . ":" . $exam_storage_password);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 curl_setopt($ch, CURLOPT_POST, 1);

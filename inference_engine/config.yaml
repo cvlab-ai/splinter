@@ -1,5 +1,5 @@
 exam_storage:
-  url: http://splinter_exam_storage
+  url: http://splinter-exam-storage
   port: 80
   exams_dir: "/splinter"
   answer_keys_dir: "answers_keys"
