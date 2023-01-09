@@ -32,9 +32,9 @@ if (isset($_GET['student'])) {
 
 
 if (isset($_GET['student'])) { // show exam answer if student not set
-    $url ='http://splinter_exam_storage/splinter/'.$examID."/students/".$index."/".$answersUrlParam.".jpg";
+    $url ='http://splinter-exam-storage/splinter/'.$examID."/students/".$index."/".$answersUrlParam.".jpg";
 } else {
-    $url ='http://splinter_exam_storage/splinter/'.$examID."/answers_keys/".$answersUrlParam.".jpg";
+    $url ='http://splinter-exam-storage/splinter/'.$examID."/answers_keys/".$answersUrlParam.".jpg";
 }
 
 $ch = curl_init();

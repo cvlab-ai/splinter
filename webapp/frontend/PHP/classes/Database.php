@@ -7,7 +7,7 @@ class Database
         $envDbName = getenv('EX_STORE_SPLINTER_USER');
         $envDbUser = getenv('POSTGRES_USER');
         $envDbPass = getenv('EX_STORE_SPLINTER_PASS');
-        $host = "host = splinter_db";
+        $host = "host = splinter-db";
         $port = "port = 5432";
         $dbname = "dbname = ".$envDbName;
         $credentials = "user = ".$envDbUser." password=".$envDbPass;
