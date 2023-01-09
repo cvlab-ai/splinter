@@ -17,15 +17,10 @@ docker-compose up -d --build
 After starting the system, the web application is available under: http://localhost:8000/
 
 test user:
+
 ```bash
 email: x@x.pl
 password: 1
-```
-
-## Initialize database
-
-```bash
-docker exec -it splinter_db psql -U postgres -d splinter -f db.init
 ```
 
 ## Testing
