@@ -30,3 +30,19 @@ Run integration tests by:
 ```bash
 pytest -v -s tests/
 ```
+
+## Deploy
+
+To prepare the project for deploying run the `deploy_setup.sh` script:
+
+```bash
+./deploy_setup.sh
+```
+
+The script will:
+
+* generate random passwords for docker services & replace them in `.env` file
+* generate docker-compose file compatible with docker swarm e.g include the
+  content of .env file to each service depending on it.
+
+**NOTE: Remember to save generated passwords!**
