@@ -45,5 +45,3 @@ services:
     build: inference_engine/
     env_file:
       - .env
-    ports:
-      - "8880:8000"
