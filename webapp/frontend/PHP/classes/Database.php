@@ -4,9 +4,9 @@ namespace database;
 class Database
 {
     public static function connectToDb() {
-        $envDbName = getenv('EX_STORE_SPLINTER_USER');
+        $envDbName = getenv('POSTGRES_DB');
         $envDbUser = getenv('POSTGRES_USER');
-        $envDbPass = getenv('EX_STORE_SPLINTER_PASS');
+        $envDbPass = getenv('POSTGRES_PASSWORD');
         $host = "host = splinter-db";
         $port = "port = 5432";
         $dbname = "dbname = ".$envDbName;
