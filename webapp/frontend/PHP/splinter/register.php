@@ -52,9 +52,10 @@ if(isset($_POST['submit'])&&!empty($_POST['submit'])){
         $ret = pg_query($db, $sql);
         if($ret){
             $emailServer = getenv('EMAIL_SERVER_ADDR');
+            $appExternalURL = getenv('APP_EXTERNAL_URL');
             $to      = $_POST['email'];
             $subject = 'Rejstracja - PG';
-            $message = 'Aby potwierdzić konto użytkownika wejdź w podany adres: '."<a href='http://www.sprawdzarka.pg.edu.pl/process-register.php?email=".$email."&registerKey=".implode($pass)."'>Potwierdź rejstracje!</a>";
+            $message = 'Aby potwierdzić konto użytkownika wejdź w podany adres: '."<a href='".$appExternalURL."/process-register.php?email=".$email."&registerKey=".implode($pass)."'>Potwierdź rejstracje!</a>";
             $headers = 'From: '.$emailServer."\r\n".
                 'Reply-To: '.$emailServer."\r\n".
                 'X-Mailer: PHP/'.phpversion();

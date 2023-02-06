@@ -13,6 +13,7 @@ services:
     restart: always
     environment:
       EMAIL_SERVER_ADDR: ''
+      APP_EXTERNAL_URL: localhost:8888/splinter
       EX_STORE_SPLINTER_PASS: 1234
       EX_STORE_SPLINTER_USER: splinter
       EX_STORE_WEBDAV_PASS: 1234
