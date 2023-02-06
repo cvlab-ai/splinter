@@ -35,8 +35,8 @@ if (isset($_POST['submit']) && !empty($_POST['submit'])) {
 if (isset($_SESSION['email'])) {
     echo "
 <div class='container text-center w-25 mt-5'>
-    <a class='btn btn-primary btn-lg timeTr' href='splinter/exam/scan/select-exam.php'>Skanuj Prace</a>
-    <a class='btn btn-primary btn-lg timeTr' href='splinter/exam/exam-list.php'>Przeglądaj Zeskanowane Prace</a>
+    <a class='btn btn-primary btn-lg timeTr' href='".Config::APP_ROOT."/exam/scan/select-exam.php'>Skanuj Prace</a>
+    <a class='btn btn-primary btn-lg timeTr' href='".Config::APP_ROOT."/exam/exam-list.php'>Przeglądaj Zeskanowane Prace</a>
 </div>
 ";
 } else {
