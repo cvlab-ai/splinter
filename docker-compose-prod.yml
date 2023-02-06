@@ -1,7 +1,7 @@
 version: '3.9'
 services:
   splinter-db:
-    build: webapp/database
+    image: leckijakub/splinter-db
     restart: always
     environment:
       POSTGRES_DB: splinter
@@ -9,7 +9,7 @@ services:
       POSTGRES_USER: postgres
 
   splinter-frontend:
-    build: webapp/frontend/
+    image: leckijakub/splinter-frontend
     restart: always
     environment:
       EMAIL_SERVER_ADDR: ''
@@ -24,7 +24,7 @@ services:
       - "splinter-db"
 
   splinter-exam-storage:
-    build: exam_storage/
+    image: leckijakub/splinter-exam-storage
     restart: always
     environment:
       EX_STORE_SPLINTER_PASS: 1234
@@ -38,7 +38,7 @@ services:
       - ./exam_storage/volumes/www/data/uploads:/www/data/splinter/external/splinter/uploads
 
   splinter-inference-engine:
-    build: inference_engine/
+    image: leckijakub/splinter-inference-engine
     restart: always
     environment:
       EX_STORE_SPLINTER_PASS: 1234
