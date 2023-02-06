@@ -7,10 +7,10 @@ RUN apt-get update \
     && apt-get purge -y --auto-remove libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /www
+RUN mkdir -p /www/app
 
-WORKDIR /www
-COPY ./PHP ./app
+WORKDIR /www/app
+COPY ./PHP ./
 COPY ./php.ini /usr/local/etc/php/
 
 EXPOSE 8000
