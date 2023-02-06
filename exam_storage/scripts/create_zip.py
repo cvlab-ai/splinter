@@ -5,9 +5,9 @@ from pathlib import Path
 import zlib
 
 
-STORAGE_BASEDIR = Path("/www/data/")
-ZIP_BASEDIR = Path(STORAGE_BASEDIR / "zip/")
-SPLINTER_BASEDIR = Path(STORAGE_BASEDIR / "splinter/")
+STORAGE_BASEDIR = Path("/www/data/splinter/internal/")
+SPLINTER_BASEDIR = Path(STORAGE_BASEDIR / "splinter-data/")
+ZIP_BASEDIR = Path(SPLINTER_BASEDIR / "zip/")
 exam_path = Path(SPLINTER_BASEDIR / Path(sys.argv[1]).name)
 
 

@@ -34,22 +34,14 @@ RUN apt-get update && \
 RUN apt-get update && apt-get install -y python3
 
 ################################################################################
-RUN mkdir -p /www/data/splinter && chmod -R 777 /www/data/splinter && \
-    mkdir -p /www/data/uploads && chmod -R 777 /www/data/uploads && \
+RUN mkdir -p /www/data/splinter/internal/splinter-data && chmod -R 777 /www/data/splinter/internal/splinter-data && \
+    mkdir -p /www/data/splinter/external/splinter/uploads       && chmod -R 777 /www/data/splinter/external/splinter/uploads && \
     chmod o+w /www/data
 
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY ./scripts /www/scripts
 
-ARG splinter_user=splinter
-ARG splinter_pass=1234
-ARG webdav_user=exam_checker
-ARG webdav_pass=1234
-
-RUN mkdir -p /etc/apache2/ && \
-    htpasswd -b -c /etc/apache2/.htpasswd_splinter ${splinter_user} ${splinter_pass} && \
-    htpasswd -b -c /etc/apache2/.htpasswd_webdav ${webdav_user} ${webdav_pass}
-
+COPY ./00-gen-htpasswd.sh /docker-entrypoint.d/
 ################################################################################
 
 # forward request and error logs to docker log collector

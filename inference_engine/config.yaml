@@ -1,7 +1,7 @@
 exam_storage:
   url: http://splinter-exam-storage
-  port: 80
-  exams_dir: "/splinter"
+  port: 81
+  exams_dir: "/splinter-data"
   answer_keys_dir: "answers_keys"
   answer_key_filename: answer_key
   img_extension: pdf
