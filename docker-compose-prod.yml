@@ -1,18 +1,21 @@
 version: '3.9'
 services:
   splinter-db:
-    image: leckijakub/splinter-db
+    image: leckijakub/splinter-db:1.0
     restart: always
     environment:
       POSTGRES_DB: splinter
       POSTGRES_PASSWORD: 1234
       POSTGRES_USER: postgres
+    volumes:
+      - /opt/volumes/splinter/db:/var/lib/postgresql/data
 
   splinter-frontend:
-    image: leckijakub/splinter-frontend
+    image: leckijakub/splinter-frontend:1.0
     restart: always
     environment:
       EMAIL_SERVER_ADDR: ''
+      APP_EXTERNAL_URL: localhost:8888/splinter
       EX_STORE_SPLINTER_PASS: 1234
       EX_STORE_SPLINTER_USER: splinter
       EX_STORE_WEBDAV_PASS: 1234
@@ -24,7 +27,7 @@ services:
       - "splinter-db"
 
   splinter-exam-storage:
-    image: leckijakub/splinter-exam-storage
+    image: leckijakub/splinter-exam-storage:1.0
     restart: always
     environment:
       EX_STORE_SPLINTER_PASS: 1234
@@ -33,12 +36,14 @@ services:
       EX_STORE_WEBDAV_USER: exam_checker
     ports:
       - "8888:80"
+    depends_on:
+      - "splinter-frontend"
     volumes:
-      - ./exam_storage/volumes/www/data/splinter:/www/data/splinter/internal/splinter-data
-      - ./exam_storage/volumes/www/data/uploads:/www/data/splinter/external/splinter/uploads
+      - /opt/volumes/splinter/splinter-data:/www/data/splinter/internal/splinter-data
+      - /opt/volumes/splinter/uploads:/www/data/splinter/external/splinter/uploads
 
   splinter-inference-engine:
-    image: leckijakub/splinter-inference-engine
+    image: leckijakub/splinter-inference-engine:1.0
     restart: always
     environment:
       EX_STORE_SPLINTER_PASS: 1234
