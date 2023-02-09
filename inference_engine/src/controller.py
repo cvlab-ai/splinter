@@ -130,9 +130,7 @@ def _check_image(image: Image, check_index: bool) -> tp.Tuple[ResultsDTO, np.nda
     ocr_model = OCRModel(Config.paths.ocr_model_path)
     box_model = BoxModel(Config.paths.box_model_path)
     index, predictions = box_model.inference(fields_images[FieldName.student_id][0][0].img, argmax=True)
-    if check_index and predictions.min() < Config.inference.answer_threshold:
-        raise IndexNotDetected("Didn't detect 6 index numbers")
-
+    index = ''.join([str(i) if p > Config.inference.answer_threshold else 'X' for i, p in zip(index, predictions)])
     answers_img = np.array([f.img for f in fields_images[FieldName.answers]])
     answers_img = answers_img.reshape(-1, *answers_img.shape[2:])
 
