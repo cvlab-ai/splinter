@@ -1,15 +1,15 @@
 
 class ExamInvalid(Exception):
-    FILENAME = None
+    DIRNAME = None
 
 
 class ExamNotDetected(ExamInvalid):
-    FILENAME = "unknown"
+    DIRNAME = "unknown"
 
 
 class IndexNotDetected(ExamInvalid):
-    FILENAME = "no_index"
+    DIRNAME = "no_index"
 
 
 class PreprocessingError(ExamInvalid):
-    FILENAME = "no_index"
+    DIRNAME = "error"
