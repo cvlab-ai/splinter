@@ -97,10 +97,10 @@ def _check_pdf(exam_id, file_name, pdf_type: PDFType, force=False):
             return
         for i, image in enumerate(images):
             try:
-                results, debug_img = _check_image(image, pdf_type == PDFType.answer_sheets)
+                results, debug_img = _check_image(image)
             except ExamInvalid as e:
                 logging.warning(f"Error during processing page {i + 1} in file {file_name}: {e}")
-                output_dir = tmp_dir / e.FILENAME
+                output_dir = tmp_dir / e.DIRNAME
                 output_dir.mkdir(exist_ok=True)
                 image.save(f"{output_dir}/unknown_{i}.jpg", "JPEG")
                 continue
@@ -125,7 +125,7 @@ def _check_pdf(exam_id, file_name, pdf_type: PDFType, force=False):
         metadata.mark_pdf_done(exam_id, file_name, pdf_type)
 
 
-def _check_image(image: Image, check_index: bool) -> tp.Tuple[ResultsDTO, np.ndarray]:
+def _check_image(image: Image) -> tp.Tuple[ResultsDTO, np.ndarray]:
     fields_images, debug_image = Preprocessing(np.asarray(image)).process()
     ocr_model = OCRModel(Config.paths.ocr_model_path)
     box_model = BoxModel(Config.paths.box_model_path)
@@ -189,9 +189,10 @@ def highlight_marks(debug_image: np.ndarray, fields: tp.Dict[FieldName, tp.List[
         w = rect[2] // 6
         h = rect[3] // 10
         for i, number in enumerate(index):
-            x = rect[0] + w * i
-            y = rect[1] + h * int(number)
-            highlight_mark(x, y, w, h, rgb)
+            if number != 'X':
+                x = rect[0] + w * i
+                y = rect[1] + h * int(number)
+                highlight_mark(x, y, w, h, rgb)
 
     # Text fields
     text_color = (235, 255, 235)
