@@ -32,7 +32,7 @@ if (isset($_POST['webdav-results'])) {
 
         Curl::getWebdavFileAndUploadSplinter($fileName, $filePath);
 
-        Curl::generateExamAnswersKeys($examID);
+        Curl::generateExamAnswersKeys($examID, false);
     }
 }
 
@@ -71,7 +71,7 @@ for ($i = 0; $i < count($_FILES['result']['name']); $i++) {
 
     Curl::sendFileToSplinter($fileName, $filePath);
 
-    Curl::generateExamAnswersKeys($examID);
+    Curl::generateExamAnswersKeys($examID, false);
 }
 
 // send student work

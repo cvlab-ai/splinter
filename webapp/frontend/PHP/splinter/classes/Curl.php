@@ -20,7 +20,7 @@ class Curl
         curl_close($ch);
     }
 
-    public static function generateExamAnswersKeys($examID) {
+    public static function generateExamAnswersKeys($examID, $force) {
 
         $exam_storage_user =  getenv('EX_STORE_SPLINTER_USER');
         $exam_storage_password = getenv('EX_STORE_SPLINTER_PASS');
@@ -31,7 +31,7 @@ class Curl
         curl_setopt($ch, CURLOPT_USERPWD, $exam_storage_user . ":" . $exam_storage_password);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, '{ "examId": "' .  $examID . '", "force":true }');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, '{ "examId": "' .  $examID . '", "force":'.$force.' }');
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
         curl_exec($ch);
         curl_close($ch);
