@@ -31,9 +31,9 @@ class InfEngine(DockerService):
         r = self.send_request('check-exam', json=body)
         r.raise_for_status()
 
-    def check_pdf(self, exam_id, file_name, force=False):
+    def check_answers_pdf(self, exam_id, file_name, force=False):
         body ={"exam_id": exam_id, "file_name": file_name, "force": force}
-        r = self.send_request('check-pdf', json=body)
+        r = self.send_request('check-answers-pdf', json=body)
         r.raise_for_status()
 
     def generate_exam_keys(self, exam_id, file_name=None, force=False):

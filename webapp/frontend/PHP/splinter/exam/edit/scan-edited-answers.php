@@ -41,7 +41,7 @@ curl_close($c);
 fclose($fp);
 
 $ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, Config::INFERENCE_URL."check-exam-key-pdf");
+curl_setopt($ch, CURLOPT_URL, Config::INFERENCE_URL."check-exam-keys-pdf");
 curl_setopt($ch, CURLOPT_USERPWD, $exam_storage_user . ":" . $exam_storage_password);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 curl_setopt($ch, CURLOPT_POST, 1);

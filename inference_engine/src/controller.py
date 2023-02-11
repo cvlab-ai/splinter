@@ -32,11 +32,19 @@ def update_scores(func):
 class Controller:
     @staticmethod
     @update_scores
-    def check_pdf(request: CheckPdfDTO):
+    def check_answers_pdf(request: CheckPdfDTO):
         _generate_exam_keys(request.exam_id)
         logging.info(f"Checking answer pdf: {request.file_name}")
         _check_pdf(
             request.exam_id, request.file_name, PDFType.answer_sheets, request.force
+        )
+
+    @staticmethod
+    @update_scores
+    def check_exam_keys_pdf(request: CheckPdfDTO):
+        logging.info(f"Checking exam keys pdf: {request.file_name}")
+        _check_pdf(
+            request.exam_id, request.file_name, PDFType.answer_keys, request.force
         )
 
     @staticmethod
