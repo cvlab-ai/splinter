@@ -13,7 +13,7 @@ class Config
     <html lang="en">
     <head>
         <meta charset="utf-8">
-        <title>Frontend</title>
+        <title>Splinter</title>
         <base href="<?=self::APP_ROOT?>">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="icon" type="image/x-icon" href="<?=self::APP_ROOT?>/favicon.ico">

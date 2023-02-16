@@ -18,13 +18,18 @@ class Curl
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
         curl_exec($ch);
         curl_close($ch);
+        $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($http_status > 299 || $http_status < 200) {
+            return false;
+        }
+        return true;
     }
 
     public static function generateExamAnswersKeys($examID) {
 
         $exam_storage_user =  getenv('EX_STORE_SPLINTER_USER');
         $exam_storage_password = getenv('EX_STORE_SPLINTER_PASS');
-        var_dump("generating".$examID." ".$exam_storage_user." ".$exam_storage_password);
+        //var_dump("generating".$examID." ".$exam_storage_user." ".$exam_storage_password);
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, Config::INFERENCE_URL."generate-exam-keys");
@@ -35,6 +40,12 @@ class Curl
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
         curl_exec($ch);
         curl_close($ch);
+        
+        $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($http_status > 299 || $http_status < 200) {
+            return false;
+        }
+        return true;
     }
 
     public static function getWebdavFileAndUploadSplinter($fileName, $filePath) {
@@ -57,12 +68,18 @@ class Curl
 
         curl_close($ch);
 
+        $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($http_status > 299 || $http_status < 200) {
+            return false;
+        }
+
         $fp = fopen($fileName, 'w');
         fwrite($fp, $output);
         fclose($fp);
 
         self::sendFileToSplinter($fileName,$filePath);
         self::deleteWebDavFile($fileName);
+        return true;
     }
 
     public static function sendFileToSplinter($fileName, $filePath) {
@@ -81,15 +98,20 @@ class Curl
         curl_setopt($ch, CURLOPT_INFILE, $fp);
         curl_exec($ch);
         curl_close($ch);
+        $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($http_status > 299 || $http_status < 200) {
+            return false;
+        }
         fclose($fp);
         unlink($fileName);
+        return true;
     }
 
     public static function showWebDavFiles() {
         $exam_storage_user = getenv('EX_STORE_WEBDAV_USER');
         $exam_storage_password = getenv('EX_STORE_WEBDAV_PASS');
 
-        exec("curl -Ls -u ".$exam_storage_user.":".$exam_storage_password." ".Config::UPLOADS_URL, $output);
+        exec("curl -Ls -u ".$exam_storage_user.":".$exam_storage_password." ".Config::UPLOADS_URL, $output, $res);
         $resultStr = implode(" ",$output);
 
         return json_decode($resultStr, true);

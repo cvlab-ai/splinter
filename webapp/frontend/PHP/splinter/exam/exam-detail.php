@@ -12,6 +12,18 @@ Config::header();
 <?php
 echo NavBar::showNavBar("main");
 
+if (isset($_GET['scanned'])) {
+    if ($_GET['scanned']== 1) {
+        echo '<script language="javascript">';
+        echo 'alert("Pomyślnie zeskanowano plik/i!")';
+        echo '</script>';
+    } else {
+        echo '<script language="javascript">';
+        echo 'alert("Nie udało się zeskanować pliku/ów")';
+        echo '</script>';
+    }
+}
+
 $db = Database::connectToDb();
 
 echo '<div class="container text-center w-25 mt-5">';
@@ -33,29 +45,39 @@ $examName = $row[1];
 ?>
 
 <div class="container text-center mt-5">
-    <h2><?php echo $examName ?></h2>
+    <h3>Nazwa Egzaminu <?php echo $examName ?></h3>
+    <p class='fw-light text-muted'>Tutaj możesz sprawdzić zeskanowane egzaminy i klucze odpowiedzić</p>
     <?php
-    echo "<a class='btn btn-sm btn-primary btn-block m-3' href='".Config::APP_ROOT."/exam/download/download-exam.php?examID=$examID'>Pliki Do Pobrania</a>";
-    echo "<a class='btn btn-sm btn-success btn-block m-3' href='".Config::APP_ROOT."/exam/download/download-csv.php?examID=$examID'>Importuj do CSV</a>";
-    echo "<a class='btn btn-sm btn-warning btn-block m-3' href='".Config::APP_ROOT."/exam/edit/edit-exam.php?examID=$examID'>Edytuj Odpowiedzi</a>";
-    echo "<a class='btn btn-sm btn-danger btn-block m-3' href='".Config::APP_ROOT."/exam/edit/delete-exam.php?examID=$examID'>Usuń Egzamin</a>";
+    echo "<a class='btn btn-sm btn-primary btn-block m-2' href='".Config::APP_ROOT."/exam/download/download-exam.php?examID=$examID'>Pobierz zeskanowane prace</a></br>";
+    echo "<a class='btn btn-sm btn-success btn-block m-2' href='".Config::APP_ROOT."/exam/download/download-csv.php?examID=$examID'>Eksportuj wyniki egzaminu do CSV</a></br>";
+    echo "<a class='btn btn-sm btn-warning btn-block m-2' href='".Config::APP_ROOT."/exam/edit/edit-exam.php?examID=$examID'>Edytuj Odpowiedzi</a></br>";
     ?>
+    <a class="btn btn-sm btn-danger btn-block m-2" href="<?=Config::APP_ROOT ?>/exam/edit/delete-exam.php?examID=<?=$examID ?>" onClick="return confirm('Czy na pewno chcesz usunąć egzamin?');">Usuń Egzamin <?=$examName ?> </a>
+    
+    <p class='fw-light text-muted'>*Możesz też usuwać/edytować pliki. lub pobrać wyniki do pliku CSV. Lub pobrać wyniki do pliku CSV.</p>
     <hr>
+    <h4>Zeskanowane odpowiedzi studentów</h4>
+    <p class='fw-light text-muted'>Ponieżej znajdziesz zeskanowane egzaminy studentów.</p>
     <ul class="list-group">
         <?php
         $students = Curl::searchExamPathForStudents($examID);
-
-        foreach ($students as &$student) {
-            $studentIndx = $student["name"];
-            $examResult = Curl::getExamResult($examID, $studentIndx);
-            echo "<li class='list-group-item rounded d-flex justify-content-between align-items-center list-group-item-action'>";
-            echo "<b>Student:$studentIndx</b>";
-            echo "<a style='color: white !important;' href='".Config::APP_ROOT."/exam/show-file.php?id=$examID&student=$studentIndx' class='badge bg-success rounded-pill'>Zobacz Pracę</a>";
-            echo "<a style='color: white !important;' href='".Config::APP_ROOT."/exam/edit/edit-file.php?examID=$examID&index=$studentIndx' class='badge bg-warning rounded-pill'>Edytuj Pracę</a>";
-            echo "<a style='color: white !important;' href='".Config::APP_ROOT."/exam/edit/delete-file.php?examID=$examID&studentIndex=$studentIndx' class='badge bg-danger rounded-pill'>Usuń Pracę</a>";
-
+        if ($students == null) {
+            echo "<li class='list-group-item'>";
+            echo '<h4>Brak zeskanowanych prac!</h4>';
             echo "</li>";
+        } else {
+            foreach ($students as &$student) {
+                $studentIndx = $student["name"];
+                $examResult = Curl::getExamResult($examID, $studentIndx);
+                echo "<li class='list-group-item'>";
+                echo "<b>Student:$studentIndx</b></br>";
+                echo "<a style='color: white !important;' href='".Config::APP_ROOT."/exam/show-file.php?id=$examID&student=$studentIndx' class='badge bg-success rounded-pill m-1'>Zobacz Egzamin</a>";
+                echo "<a style='color: white !important;' href='".Config::APP_ROOT."/exam/edit/edit-file.php?examID=$examID&index=$studentIndx' class='badge bg-warning rounded-pill m-1'>Zamień Plik Egzaminu</a>";
+                echo "<a style='color: white !important;' href='".Config::APP_ROOT."/exam/edit/delete-file.php?examID=$examID&studentIndex=$studentIndx' class='badge bg-danger rounded-pill m-1'>Usuń Egzamin</a>";
+                echo "</li>";
+            }
         }
+
         Database::disconnectDb($db);
         ?>
     </ul>

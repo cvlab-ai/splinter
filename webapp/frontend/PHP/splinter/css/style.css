@@ -1,16 +1,25 @@
 a {
-    text-decoration: none;
-    border-radius: 12px;
+  text-decoration: none;
+  border-radius: 12px;
 }
 
 a:hover {
-    text-decoration: none;
-    transition: transform 500ms ;
-    transform: translateY(-2px) ;
-    box-shadow: 0 10px 5px rgba(33,33,33,.2) ;
+  text-decoration: none;
+  transition: transform 500ms;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 5px rgba(33, 33, 33, 0.2);
 }
 
 .required:before {
-    content:"*";
-    color:red;
+  content: "*";
+  color: red;
+}
+
+.loader {
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #3498db;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  animation: spin 2s linear infinite;
 }

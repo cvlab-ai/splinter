@@ -17,6 +17,7 @@ echo NavBar::showNavBar("scan");
 
 $examID = $_POST['exam'];
 
+$scanned=true;
 //check-exam: examId
 
 // check-pdf sprawdza jeden exam, examId, nazwa pliku, bez forca zignoruje
@@ -30,12 +31,12 @@ if (isset($_POST['webdav-results'])) {
         }
         $filePath = $examID . "/answers_keys/" . basename($fileName);
 
-        Curl::getWebdavFileAndUploadSplinter($fileName, $filePath);
+        $scanned =  Curl::getWebdavFileAndUploadSplinter($fileName, $filePath);
 
         Curl::generateExamAnswersKeys($examID);
     }
 }
-
+var_dump($scanned);
 
 if (isset($_POST['webdav-files'])) {
     // send webdav student work
@@ -46,12 +47,12 @@ if (isset($_POST['webdav-files'])) {
         }
         $filePath = $examID . "/pdfs/" . basename($fileName);
 
-        Curl::getWebdavFileAndUploadSplinter($fileName, $filePath);
+        $scanned = Curl::getWebdavFileAndUploadSplinter($fileName, $filePath);
 
         Curl::generateStudentAnswers($examID);
     }
 }
-
+var_dump($scanned);
 // send answers key
 for ($i = 0; $i < count($_FILES['result']['name']); $i++) {
     // read file details
@@ -69,11 +70,11 @@ for ($i = 0; $i < count($_FILES['result']['name']); $i++) {
 
     $filePath = $examID . "/answers_keys/" . basename($fileName);
 
-    Curl::sendFileToSplinter($fileName, $filePath);
+    $scanned = Curl::sendFileToSplinter($fileName, $filePath);
 
     Curl::generateExamAnswersKeys($examID);
 }
-
+var_dump($scanned);
 // send student work
 for ($i = 0; $i < count($_FILES['files']['name']); $i++) {
     $fileName = $_FILES['files']['name'][$i];
@@ -91,10 +92,10 @@ for ($i = 0; $i < count($_FILES['files']['name']); $i++) {
     move_uploaded_file($file_tmp, $fileName);
     $filePath = $examID . "/pdfs/" . basename($fileName);
 
-    Curl::sendFileToSplinter($fileName, $filePath);
+    $scanned = Curl::sendFileToSplinter($fileName, $filePath);
 
     Curl::generateStudentAnswers($examID);
 }
-
-header("Refresh:0; url=".Config::APP_ROOT."/exam/exam-list.php");
+var_dump($scanned);
+header("Refresh:0; url=".Config::APP_ROOT."/exam/exam-detail.php?examID=".$examID."&scanned=".$scanned);
 ?>
