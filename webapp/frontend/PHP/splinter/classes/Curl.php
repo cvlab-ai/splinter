@@ -29,7 +29,7 @@ class Curl
 
         $exam_storage_user =  getenv('EX_STORE_SPLINTER_USER');
         $exam_storage_password = getenv('EX_STORE_SPLINTER_PASS');
-        //var_dump("generating".$examID." ".$exam_storage_user." ".$exam_storage_password);
+        
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, Config::INFERENCE_URL."generate-exam-keys");
@@ -178,7 +178,7 @@ class Curl
         $exam_storage_user = getenv('EX_STORE_SPLINTER_USER');
         $exam_storage_password = getenv('EX_STORE_SPLINTER_PASS');
         exec("curl -X DELETE -u ".$exam_storage_user.":".$exam_storage_password." ".Config::EXAM_STORAGE_URL.$examID."/answers_keys/".$name);
-        header("Refresh:0; url=".Config::APP_ROOT."/exam/exam-details.php?examID=".$examID);
+        header("Refresh:0; url=".Config::APP_ROOT."/exam/exam-detail.php?examID=".$examID);
     }
 
     public static function getNumOfAnswers($examID, $studentIndex) {

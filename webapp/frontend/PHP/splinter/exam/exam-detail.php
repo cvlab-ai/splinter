@@ -10,7 +10,7 @@ Config::header();
 ?>
 <body>
 <?php
-echo NavBar::showNavBar("main");
+echo NavBar::showNavBar("exam");
 
 if (isset($_GET['scanned'])) {
     if ($_GET['scanned']== 1) {
@@ -30,7 +30,7 @@ echo '<div class="container text-center w-25 mt-5">';
 
 $examID = $_GET['examID'];
 $userID = $_SESSION['userID'];
-
+$_SESSION['exam'] = $examID;
 $sql = "SELECT * FROM exam WHERE user_id = $userID AND id = $examID";
 
 $ret = pg_query($db, $sql);
@@ -58,6 +58,8 @@ $examName = $row[1];
     <hr>
     <h4>Zeskanowane odpowiedzi studentów</h4>
     <p class='fw-light text-muted'>Ponieżej znajdziesz zeskanowane egzaminy studentów.</p>
+    
+    <a class="btn btn-sm btn-success btn-block m-2" href="<?=Config::APP_ROOT ?>/exam/scan/select-file.php">Dodaj skan egzaminu</a></br>
     <ul class="list-group">
         <?php
         $students = Curl::searchExamPathForStudents($examID);
@@ -70,10 +72,10 @@ $examName = $row[1];
                 $studentIndx = $student["name"];
                 $examResult = Curl::getExamResult($examID, $studentIndx);
                 echo "<li class='list-group-item'>";
-                echo "<b>Student:$studentIndx</b></br>";
+                echo "<b>Student: $studentIndx</b></br>";
                 echo "<a style='color: white !important;' href='".Config::APP_ROOT."/exam/show-file.php?id=$examID&student=$studentIndx' class='badge bg-success rounded-pill m-1'>Zobacz Egzamin</a>";
                 echo "<a style='color: white !important;' href='".Config::APP_ROOT."/exam/edit/edit-file.php?examID=$examID&index=$studentIndx' class='badge bg-warning rounded-pill m-1'>Zamień Plik Egzaminu</a>";
-                echo "<a style='color: white !important;' href='".Config::APP_ROOT."/exam/edit/delete-file.php?examID=$examID&studentIndex=$studentIndx' class='badge bg-danger rounded-pill m-1'>Usuń Egzamin</a>";
+                echo "<a style='color: white !important;' href='".Config::APP_ROOT."/exam/edit/delete-file.php?examID=$examID&studentIndex=$studentIndx' class='badge bg-danger rounded-pill m-1' onClick='return confirm(\"Czy na pewno chcesz usunąć egzamin?\");'>Usuń Egzamin</a>";
                 echo "</li>";
             }
         }

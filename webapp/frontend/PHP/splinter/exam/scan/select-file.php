@@ -19,6 +19,9 @@ $userID = $_SESSION['userID'];
 
 if (isset($_POST["submit-btn"])) {
     $examID = $_POST['exam'];
+} elseif (isset($_SESSION["exam"])) {
+    $examID = $_SESSION["exam"];
+    $_SESSION["exam"] = "";
 } else {
     header("Location: select-exam.php");
 }
@@ -26,6 +29,8 @@ if (isset($_POST["submit-btn"])) {
 ?>
 
 <div class="container text-center w-25 mt-5">
+    <h4>Wybierz plik ze skanem poprawnych odpowiedzi lub skanem egzaminów</h4>
+    <p class='fw-light text-muted'>Nie jest wymaganie przesłanie poprwanych odpowiedzi i egzaminów NA RAZ.</p>
     <div class="mb-3">
         <form method="post" action="<?=Config::APP_ROOT?>/exam/scan/scan.php" enctype="multipart/form-data">
             <?php

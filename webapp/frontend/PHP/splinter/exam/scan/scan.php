@@ -36,7 +36,6 @@ if (isset($_POST['webdav-results'])) {
         Curl::generateExamAnswersKeys($examID);
     }
 }
-var_dump($scanned);
 
 if (isset($_POST['webdav-files'])) {
     // send webdav student work
@@ -52,7 +51,7 @@ if (isset($_POST['webdav-files'])) {
         Curl::generateStudentAnswers($examID);
     }
 }
-var_dump($scanned);
+
 // send answers key
 for ($i = 0; $i < count($_FILES['result']['name']); $i++) {
     // read file details
@@ -74,7 +73,7 @@ for ($i = 0; $i < count($_FILES['result']['name']); $i++) {
 
     Curl::generateExamAnswersKeys($examID);
 }
-var_dump($scanned);
+
 // send student work
 for ($i = 0; $i < count($_FILES['files']['name']); $i++) {
     $fileName = $_FILES['files']['name'][$i];
@@ -96,6 +95,6 @@ for ($i = 0; $i < count($_FILES['files']['name']); $i++) {
 
     Curl::generateStudentAnswers($examID);
 }
-var_dump($scanned);
+
 header("Refresh:0; url=".Config::APP_ROOT."/exam/exam-detail.php?examID=".$examID."&scanned=".$scanned);
 ?>
