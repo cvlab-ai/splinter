@@ -42,7 +42,7 @@ if (isset($_SESSION['email'])) {
     <a class='btn btn-primary btn-lg timeTr' href='".Config::APP_ROOT."/exam/scan/select-exam.php'>Skanowanie Egzaminu</a>
 
     <p class='fw-light text-muted mt-3'>Lub</p>
-    <p class='fw-light text-muted'>2) Przeglądaj wcześniej dodane egzamini wraz z ich zawartością.</p>
+    <p class='fw-light text-muted'>2) Przeglądaj wcześniej dodane egzaminy wraz z ich zawartością.</p>
     <a class='btn btn-primary btn-lg timeTr' href='".Config::APP_ROOT."/exam/exam-list.php'>Przeglądaj Egzaminy</a>
 </div>
 ";
