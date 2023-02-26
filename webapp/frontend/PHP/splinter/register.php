@@ -62,7 +62,7 @@ if(isset($_POST['submit'])&&!empty($_POST['submit'])){
             $headers .= "Content-type: text/html\r\n";
             $headers .= "X-Mailer: PHP/" . phpversion();
 
-            var_dump($message);
+            
             file_put_contents('php://stdout', "Sending registration email:\nTo: ".$to."\nSubject: ".$subject."\nMessage: ".$message."\nHeaders: ".$headers);
             mail($to, $subject, $message, $headers);
 

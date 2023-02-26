@@ -7,19 +7,15 @@ class NavBar
     public static function showNavBar($current)
     {
         $currMain = " <a class='nav-link' aria-current='page' href='".Config::APP_ROOT."/index.php'>Strona Główna</a>";
-        $currScan = "<a class='nav-link' href='".Config::APP_ROOT."/exam/scan/select-exam.php'>Zeskanuj prace</a>";
-        $currExams = "<a class='nav-link dropdown-toggle' href='#' id='navbarDropdown' role='button' data-bs-toggle='dropdown' aria-expanded='false'>
-                        Zeskanowane prace
-                    </a>";
+        $currScan = "<a class='nav-link' href='".Config::APP_ROOT."/exam/scan/select-exam.php'>Zeskanuj Egzamin</a>";
+        $currExams = "<a class='nav-link' href='".Config::APP_ROOT."/exam/exam-list.php'>Egzaminy</a>";
 
         if ($current == "main") {
             $currMain = " <a class='nav-link active' aria-current='page' href='".Config::APP_ROOT."/index.php'>Strona Główna</a>";
         } elseif ($current == "scan") {
-            $currScan = "<a class='nav-link active' href='".Config::APP_ROOT."/exam/scan/select-exam.php'>Zeskanuj prace</a>";
+            $currScan = "<a class='nav-link active' href='".Config::APP_ROOT."/exam/scan/select-exam.php'>Zeskanuj Egzamin</a>";
         } else {
-            $currExams = "<a class='nav-link dropdown-toggle active' href='#' id='navbarDropdown' role='button' data-bs-toggle='dropdown' aria-expanded='false'>
-                        Zeskanowane prace
-                    </a>";
+            $currExams = "<a class='nav-link active' href='".Config::APP_ROOT."/exam/exam-list.php'>Egzaminy</a>";
         }
 
         if (!isset($_SESSION['email'])) {
@@ -46,12 +42,8 @@ class NavBar
             <li class='nav-item'>
                ".$currScan."
             </li>
-            <!--TODO check if its loged-->
-            <li class='nav-item dropdown'>
-                 ".$currExams."
-                <ul class='dropdown-menu' aria-labelledby='navbarDropdown'>
-                    <li><a class='dropdown-item' href='".Config::APP_ROOT."/exam/exam-list.php'>Przedmioty</a></li>
-                </ul>
+            <li class='nav-item'>
+                ".$currExams."
             </li>
         </ul>
             ".$logoutBtn."

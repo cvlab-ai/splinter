@@ -35,8 +35,15 @@ if (isset($_POST['submit']) && !empty($_POST['submit'])) {
 if (isset($_SESSION['email'])) {
     echo "
 <div class='container text-center w-25 mt-5'>
-    <a class='btn btn-primary btn-lg timeTr' href='".Config::APP_ROOT."/exam/scan/select-exam.php'>Skanuj Prace</a>
-    <a class='btn btn-primary btn-lg timeTr' href='".Config::APP_ROOT."/exam/exam-list.php'>Przeglądaj Zeskanowane Prace</a>
+    <h2>Sprawdzarka Egzaminów</h2>
+    <p class='fw-light text-muted'>Tutaj możesz wybrać i zeskanować egzamin lub przejrzeć istniejące już egzaminy.</p>
+
+    <p class='fw-light text-muted mt-5'>1) Wybierz lub stwórz egzamin a następnie dodaj zeskanowane pliki aby sprawdzić egzamin.</p>
+    <a class='btn btn-primary btn-lg timeTr' href='".Config::APP_ROOT."/exam/scan/select-exam.php'>Skanowanie Egzaminu</a>
+
+    <p class='fw-light text-muted mt-3'>Lub</p>
+    <p class='fw-light text-muted'>2) Przeglądaj wcześniej dodane egzaminy wraz z ich zawartością.</p>
+    <a class='btn btn-primary btn-lg timeTr' href='".Config::APP_ROOT."/exam/exam-list.php'>Przeglądaj Egzaminy</a>
 </div>
 ";
 } else {
