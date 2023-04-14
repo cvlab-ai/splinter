@@ -22,7 +22,8 @@ $data = pg_query($db, $sql);
 
 <div class="container text-center w-25 mt-5">
     <div class="mb-3">
-        <label for="select" class="form-label"><h2>Egzamin</h2></label>
+        <label for="select" class="form-label"><h2>Wybór Egzaminu</h2></label>
+        <p class='fw-light text-muted'>Wybierz egzamin i następnie przejdź dalej do wyboru pliku ze skanami egzaminów</p>
         <form method="post" action="<?=Config::APP_ROOT?>/exam/scan/select-file.php">
             <select id="select" class="form-select" name="exam">
                 <?php
@@ -33,11 +34,12 @@ $data = pg_query($db, $sql);
                 }
                 ?>
             </select>
-            <input type="submit" class="btn btn-sm btn-primary btn-block mt-3" value="Dalej" name="submit-btn">
-            <?php
-            echo "<a class='btn btn-sm btn-success btn-block mt-3' href='".Config::APP_ROOT."/exam/scan/add-exam.php'>Dodaj Egzamin</a>"
-            ?>
+            <input type="submit" class="btn btn-sm btn-primary btn-block mt-3" value="Wybór Plików" name="submit-btn">
         </form>
+        <p class='fw-light text-muted mt-3'>Lub stwórz nowy egzamin</p>
+        <?php
+            echo "<a class='btn btn-sm btn-success btn-block' href='".Config::APP_ROOT."/exam/scan/add-exam.php'>Stwórz Egzamin</a>"
+        ?>
     </div>
 </div>
 </body>

@@ -9,11 +9,12 @@ Config::header();
 ?>
 <body>
 <?php
-echo NavBar::showNavBar("main");
+echo NavBar::showNavBar("exam");
 ?>
 
 <div class="container text-center w-25 mt-5">
     <h2>Lista egzaminów</h2>
+    <p class='fw-light text-muted'>Wybierz egzamin, który chcesz obejrzeć.</p>
     <hr>
     <!--TODO mała rozdzielczość-->
     <ul class="list-group">

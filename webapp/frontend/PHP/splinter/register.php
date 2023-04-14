@@ -51,16 +51,21 @@ if(isset($_POST['submit'])&&!empty($_POST['submit'])){
 
         $ret = pg_query($db, $sql);
         if($ret){
-            $emailServer = getenv('EMAIL_SERVER_ADDR');
+            $senderHostname = getenv('EMAIL_SENDER_HOSTNAME');
             $appExternalURL = getenv('APP_EXTERNAL_URL');
             $to      = $_POST['email'];
             $subject = 'Rejstracja - PG';
             $message = 'Aby potwierdzić konto użytkownika wejdź w podany adres: '."<a href='".$appExternalURL."/process-register.php?email=".$email."&registerKey=".implode($pass)."'>Potwierdź rejstracje!</a>";
-            $headers = 'From: '.$emailServer."\r\n".
-                'Reply-To: '.$emailServer."\r\n".
-                'X-Mailer: PHP/'.phpversion();
-            var_dump($message);
+
+            $headers = "From: ".$senderHostname."\r\n";
+            $headers .= "MIME-Version: 1.0\r\n";
+            $headers .= "Content-type: text/html\r\n";
+            $headers .= "X-Mailer: PHP/" . phpversion();
+
+            
+            file_put_contents('php://stdout', "Sending registration email:\nTo: ".$to."\nSubject: ".$subject."\nMessage: ".$message."\nHeaders: ".$headers);
             mail($to, $subject, $message, $headers);
+
             header("Refresh:0; url=".Config::APP_ROOT."/register.php?registered=true");
         }else{
             echo "Something Went Wrong";

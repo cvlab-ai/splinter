@@ -17,6 +17,7 @@ echo NavBar::showNavBar("scan");
 
 $examID = $_POST['exam'];
 
+$scanned=true;
 //check-exam: examId
 
 // check-pdf sprawdza jeden exam, examId, nazwa pliku, bez forca zignoruje
@@ -30,12 +31,11 @@ if (isset($_POST['webdav-results'])) {
         }
         $filePath = $examID . "/answers_keys/" . basename($fileName);
 
-        Curl::getWebdavFileAndUploadSplinter($fileName, $filePath);
+        $scanned =  Curl::getWebdavFileAndUploadSplinter($fileName, $filePath);
 
         Curl::generateExamAnswersKeys($examID);
     }
 }
-
 
 if (isset($_POST['webdav-files'])) {
     // send webdav student work
@@ -46,7 +46,7 @@ if (isset($_POST['webdav-files'])) {
         }
         $filePath = $examID . "/pdfs/" . basename($fileName);
 
-        Curl::getWebdavFileAndUploadSplinter($fileName, $filePath);
+        $scanned = Curl::getWebdavFileAndUploadSplinter($fileName, $filePath);
 
         Curl::generateStudentAnswers($examID);
     }
@@ -69,7 +69,7 @@ for ($i = 0; $i < count($_FILES['result']['name']); $i++) {
 
     $filePath = $examID . "/answers_keys/" . basename($fileName);
 
-    Curl::sendFileToSplinter($fileName, $filePath);
+    $scanned = Curl::sendFileToSplinter($fileName, $filePath);
 
     Curl::generateExamAnswersKeys($examID);
 }
@@ -91,10 +91,10 @@ for ($i = 0; $i < count($_FILES['files']['name']); $i++) {
     move_uploaded_file($file_tmp, $fileName);
     $filePath = $examID . "/pdfs/" . basename($fileName);
 
-    Curl::sendFileToSplinter($fileName, $filePath);
+    $scanned = Curl::sendFileToSplinter($fileName, $filePath);
 
     Curl::generateStudentAnswers($examID);
 }
 
-header("Refresh:0; url=".Config::APP_ROOT."/exam/exam-list.php");
+header("Refresh:0; url=".Config::APP_ROOT."/exam/exam-detail.php?examID=".$examID."&scanned=".$scanned);
 ?>

@@ -9,7 +9,7 @@ Config::header();
 ?>
 <body>
 <?php
-echo NavBar::showNavBar("main");
+echo NavBar::showNavBar("scan");
 
 $db = Database::connectToDb();
 
