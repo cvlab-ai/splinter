@@ -1,0 +1,270 @@
+\usepackage{fancyhdr}
+\usepackage{amssymb}
+\usepackage{luacode}
+\usepackage{pgffor}
+\usepackage{enumitem}
+\usepackage{qrcode}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{emptypage}
+
+\usepackage[a4paper, margin={0.6in, 1in}]{geometry}
+
+
+\begin{luacode*}
+
+local mode = "none"
+local questions = {}
+local current_question = 0
+local current_answer = 0
+local key = "EXAMv0.1:"
+
+
+function log(msg)
+	luatexbase.module_warning('Exam', msg)
+end
+
+
+function get_param(line, tag)
+	a, b = string.find(line, "\\" .. tag .. "{.-}")
+	return string.sub(line, a+string.len(tag)+2, b-1)
+end
+
+
+function add_param(line, tag, param)
+	return line:gsub("\\" .. tag, "\\" .. tag .. "[" .. param .. "]")
+end
+
+
+function read_line(line)
+    local value
+    
+    line = line:gsub("\\%%", "XXXPERCENTXXX")
+    line = line:gsub("%%.*", "")
+    line = line:gsub("XXXPERCENTXXX", "\\%%")
+
+    if string.find(line, "\\stopquestions") then
+        stoprecording()
+        return ""
+    elseif string.find(line, "\\question") then
+        current_question = current_question + 1
+        log("Question " .. current_question)
+        questions[current_question] = {}
+        questions[current_question]["question"] = {line}
+        questions[current_question]["answers"] = {}
+        key = key .. "Q" .. current_question
+        mode = "question"
+        return ""
+    elseif string.find(line, "\\answer") then
+        current_answer = current_answer + 1
+        key = key .. "A" .. current_answer
+        value = get_param(line, "answer")
+        log("- Answer " .. current_answer .. ": " .. value)
+        key = key .. "{" .. value .. "}"
+        line = add_param(line, "answer", current_answer)
+        questions[current_question]["answers"][current_answer] = {line}
+        mode = "answer"
+        return ""
+    elseif string.find(line, "\\numberAnswer") then
+        current_answer = current_answer + 1
+        key = key .. "N" .. current_answer
+        value = get_param(line, "numberAnswer")
+        log("- Number answer " .. current_answer .. ": " .. value)
+        key = key .. "{" .. value .. "}"
+        line = add_param(line, "numberAnswer", current_answer)
+        table.insert(questions[current_question]["question"], line)
+        return ""
+    elseif mode == "question" then
+        table.insert(questions[current_question]["question"], line)
+        return ""
+    elseif mode == "answer" then
+        table.insert(questions[current_question]["answers"][current_answer], line)
+        return ""
+    else
+        return ""
+    end
+end
+
+
+function shuffle(t)
+    local s = {}
+    for i = 1, #t do s[i] = t[i] end
+    for i = #t, 2, -1 do
+        local j = math.random(i)
+        s[i], s[j] = s[j], s[i]
+    end
+    return s
+end
+
+function shuffle_keys(t)
+    local keys = {}
+    for key, value in pairs(t) do
+        table.insert(keys, key)
+    end
+
+    for i = #keys, 2, -1 do
+        local j = math.random(i)
+        keys[i], keys[j] = keys[j], keys[i]
+    end
+    
+    return keys
+end
+
+
+function generate_key()
+    -- Q4A2{x}A22{qqq|qqqx}
+    k = key:gsub("{", "\\{")
+    k = k:gsub("}", "\\}")    
+    tex.print(k)
+end
+
+
+function generate_exam()
+    for _, question_id in ipairs(shuffle_keys(questions)) do
+        q = questions[question_id]
+        tex.print("", "\\begin{minipage}{\\linewidth}", "")
+        for _, line in ipairs(q["question"]) do
+            tex.print(line)
+        end
+        if next(q["answers"]) == nil then else
+	        tex.print("\\begin{enumerate}", "")
+	        for _, answer_id in ipairs(shuffle_keys(q["answers"])) do
+	            a = q["answers"][answer_id]
+	            for _, line in ipairs(a) do
+	                tex.print(line)
+	            end
+	        end
+	        tex.print("\\end{enumerate}")
+	    end
+        tex.print("\\end{minipage}", "")
+    end
+end
+
+function startrecording()
+    luatexbase.add_to_callback('process_input_buffer', read_line, 'read_line')
+end
+
+function stoprecording()
+    luatexbase.remove_from_callback('process_input_buffer', 'read_line')
+end
+\end{luacode*}
+
+\setlength{\columnsep}{5mm}
+
+\setlength{\parskip}{5mm}
+\setlength{\parindent}{0pt}
+\setlist[enumerate,1]{leftmargin=13mm}
+
+\newcommand{\Repeat}[2]{\foreach \n in {1,...,#1}{#2}}
+\newcounter{questioncnt}
+
+\newcommand{\startquestions}{\directlua{startrecording()}}
+\newcommand{\stopquestions}{}
+
+%\newcommand{\rune}[1]{\begin{pspicture}[shift=-1mm](11,5)\psbarcode{#1}{width=0.195 height=0.195}{aztecrune}\psset{linewidth=0.1}\psframe(6,0)(11,5)\pscircle(8.5,2.5){1.5}\end{pspicture}}
+%\newcommand{\checkbox}{$\square$}
+%\newcommand{\rune}[1]{\qrcode[height=5mm]{#1}}
+%\newcommand{\rune}[1]{[#1]}
+
+%\newcommand{\rune}[1]{\raisebox{-0.3\totalheight}{\includegraphics[width=5mm,height=5mm]{runes/#1.png}}}  % 2:11
+
+%\newcommand{\rune}[1]{\raisebox{-0.3\totalheight}{\includegraphics[width=5mm,height=5mm]{runes_bmp/#1.bmp}}}
+
+
+%\newcommand{\rune}[1]{\raisebox{-0.3\totalheight}{\includegraphics[width=5mm,height=5mm]{runes_pdf/#1.pdf}}}  % 1:23
+%\newcommand{\rune}[1]{\raisebox{-0.3\totalheight}{\includegraphics[width=5mm,height=5mm,page=100]{runes_pdf/runes.pdf}}}
+
+
+%\newcommand{\rune}[1]{\raisebox{-0.3\totalheight}{\includegraphics[width=5mm,height=5mm]{runes_ps/0.ps}}}
+
+\newcommand{\rune}[1]{\raisebox{-0.3\totalheight}{\includegraphics[width=5mm,height=5mm]{microqr/#1}}}  % micro qr codes
+
+%\hrule
+\newcommand{\question}{\stepcounter{questioncnt} \par \thequestioncnt. \setlength{\parskip}{2mm}}
+
+%\newcommand{\answer}[2][0]{\vspace{1mm} \par \rune{#1} }
+\newcommand{\answer}[2][0]{\item[\rune{#1}\put(4mm,1mm){\circle{2mm}}\put(4mm,1mm){\circle{5mm}}\hspace{6mm}]}
+%\newcommand{\answer}[2][0]{\item[\rune{#1}]}
+
+
+\newcommand{\NumberAnswer}[2]{%
+\mbox{%
+\rune{#2}%
+\hspace{1mm}%
+\raisebox{-0.3\totalheight}{%
+  \setlength\fboxrule{0.1pt}%
+  \setlength\fboxsep{0.1pt}%
+  \Repeat{#1}{\framebox(4mm,5mm){}\hspace{0.5pt}}%
+}}}
+
+
+\newcommand{\numberAnswer}[2][0]{\NumberAnswer{12}{#1}}
+
+
+%\newcommand{\makekey}{\begin{pspicture}(50,50)\psbarcode{\directlua{generate_key()}}{width=1.95 height=1.95}{qrcode}\end{pspicture}}
+\newcommand{\makekey}{\qrcode[height=10cm]{\directlua{generate_key()}}}
+%\newcommand{\makekey}{\href{http://0.0.0.0/\directlua{generate_key()}}{ID}}
+
+%\newcommand{\makekey}{\texttt{\directlua{generate_key()}}}
+
+%\newcolumntype{M}{>{\Centering\arraybackslash} m }
+%\newcolumntype{V}{>{\Centering\arraybackslash} X }
+
+\newcommand{\makekeypage}{
+\begin{figure*}
+
+	Exam key page. This is the key for the exam, containing correct answers for every question. It's the same for all exams, as the keys and their IDs are never randomized.
+	
+	\vspace{1cm}
+	\texttt{\directlua{generate_key()}}
+
+	\vspace{2cm}
+	\centering
+	\makekey
+
+\end{figure*}
+\cleardoublepage
+}
+
+
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\headruleskip}{0pt}
+
+\renewcommand{\footrulewidth}{0pt}
+\renewcommand{\footruleskip}{15pt}
+
+\setlength{\headheight}{8mm}
+\setlength{\headsep}{5pt}
+
+%\setlength{\footheight}{8mm}
+\setlength{\footskip}{20pt}
+
+\newcounter{examid}
+
+\newcommand{\introduction}[1]{\newcommand{\theintroduction}{#1}}
+
+\newcommand{\makeexam}{%
+    \setcounter{questioncnt}{0}%
+    \setcounter{page}{1}%
+    \stepcounter{examid}%
+    \pagestyle{fancy}%
+    \fancyhf{}%
+    \fancyhead[R,L]{\rune{\theexamid}}%
+    \fancyhead[C]{\hspace{15mm}Student ID: \NumberAnswer{6}{\theexamid}}%
+    \fancyfoot[R,L]{\rune{\theexamid}}%
+    \fancyfoot[C]{Exam ID: \theexamid \hspace{5cm} Page: \thepage}%
+    
+    Your individual Exam ID: \textbf{\theexamid}. Please check if all your pages have the same Exam ID. If not, your exam won't be checked correctly.
+    
+    \theintroduction
+    
+    \vspace{3mm}
+    \hrule
+    \vspace{3mm}
+    
+    \directlua{generate_exam()}%
+    \cleardoublepage%
+}
+
+\newcommand{\makeexams}[1]{\Repeat{#1}{\makeexam }}
+
