@@ -1,4 +1,4 @@
-FROM nginx:stable
+FROM nginx:1.22
 
 ENV NGINX_VERSION 1.18.0
 

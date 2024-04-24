@@ -35,6 +35,8 @@ services:
       EX_STORE_WEBDAV_USER: exam_checker
     ports:
       - "8888:80"
+      - "81:81" # For application development only
+      - "82:82" # For application development only
     depends_on:
       - "splinter-frontend"
     volumes:

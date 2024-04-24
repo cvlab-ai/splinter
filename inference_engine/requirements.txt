@@ -2,11 +2,12 @@ fastapi==0.85.0
 humps==0.2.2
 keras==2.9.0
 numpy==1.23.1
-openvino==2022.2.0
-openvino_dev==2022.2.0
+openvino==2024.0.0
+openvino_dev==2024.0.0
 pydantic==1.10.2
 pydantic_yaml==0.8.1
 tensorflow==2.9.1
 uvicorn==0.18.3
 pdf2image==1.16.0
 matplotlib==3.6.1
+opencv-python==4.9.0.80
