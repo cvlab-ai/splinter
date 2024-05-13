@@ -120,7 +120,6 @@ def find_extreme_squares(squares, image):
           farest_square = square
   return nearest_square, farest_square
 
-
 def detect_student_name(image):
   gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
   _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
@@ -130,31 +129,31 @@ def detect_student_name(image):
   contours, _ = cv2.findContours(edged, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
   original_ratio = float(870 / 100) # hardcoded ratio based on sheet
-  squares = []
+  rectangles = []
   for contour in contours:
       x, y, w, h = cv2.boundingRect(contour)
       ratio = float(w / h)
       if 0.8 * ratio <= original_ratio <= 1.2 * ratio:
-        squares.append((w * h, (x, y, w, h)))
+        rectangles.append((w * h, (x, y, w, h)))
 
-  squares.sort(key=lambda x: x[0], reverse=True)
-
+  rectangles.sort(key=lambda x: x[0], reverse=True)
+  print(rectangles)
   # find the pair of largest rectangles that fit the ratio
   similar_rectangles = None
   largest_area_difference = float('inf')
 
-  for i in range(len(squares)):
-      for j in range(i + 1, len(squares)):
-          if 0.9 * squares[i][0] <= squares[j][0] <= 1.1 * squares[i][0]:
-              area_difference = abs(squares[i][0] - squares[j][0])
-              if area_difference < largest_area_difference:
-                  similar_rectangles = (squares[i][1], squares[j][1])
-                  largest_area_difference = area_difference
+  for i in range(len(rectangles)):
+    for j in range(i + 1, len(rectangles)):
+      if 0.9 * rectangles[i][0] <= rectangles[j][0] <= 1.1 * rectangles[i][0]:
+        similar_rectangles = (rectangles[i][1], rectangles[j][1])
+        break
+    if similar_rectangles is not None:
+      break
 
   # take the square that is lower than the other one
   rectangle = similar_rectangles[0] if similar_rectangles[0][1] > similar_rectangles[1][1] else similar_rectangles[1]
   assert rectangle is not None
-
+  print(rectangle)
   # put the mask on the rectangle
   x, y, w, h = rectangle
   image = cv2.rectangle(
