@@ -1,4 +1,7 @@
 from pdf2image import convert_from_path
+from PIL import Image
+from os import listdir
+from os.path import splitext
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
@@ -13,18 +16,28 @@ Path("extract").mkdir(parents=True, exist_ok=True)
 Path("rotate").mkdir(parents=True, exist_ok=True)
 Path("anonymize").mkdir(parents=True, exist_ok=True)
 
-file_name = sys.argv[1]
+target_directory = sys.argv[1] if sys.argv[1] else '.'
+image_exts = ['.png', '.jpg']
+pdf_exts = ['.pdf']
+target_ext = '.png'
 
-pages = convert_from_path(file_name, 300)
-
-# extraction
-for i, page in tqdm(enumerate(pages)):
-  page.save(f'extract/{i}.png')
+for file in listdir(target_directory):
+  filename, ext = splitext(file)
+  try:
+    if ext in image_exts:
+      im = Image.open(f"{target_directory}/{filename}{ext}")
+      im.save(f'extract/{filename}{target_ext}')
+    if ext in pdf_exts:
+      pages = convert_from_path(f"{target_directory}/{filename}{ext}")
+      for i, page in enumerate(pages):
+        page.save(f'extract/{filename}_page_{i}{target_ext}')
+  except OSError:
+    print('Cannot convert %s' % file)
 
 # rotation
-for i in range(len(pages)):
-  print("Image:", i)
-  img = cv2.imread(f"extract/{i}.png") # load image
+for file in listdir('./extract'):
+  print("Image:", file)
+  img = cv2.imread(f"extract/{file}") # load image
 
   contours = detect_black_squares(img) # detect squares
 
@@ -59,13 +72,13 @@ for i in range(len(pages)):
   if horizontal == 2 and vertical == 3:
     img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
-  cv2.imwrite(f"rotate/{i}.png", img)
+  cv2.imwrite(f"rotate/{file}", img)
 
 # anonymization
-for i in range(len(pages)):
-  print("Image:", i)
-  img = cv2.imread(f"rotate/{i}.png")
+for file in listdir('./rotate'):
+  print("Image:", file)
+  img = cv2.imread(f"rotate/{file}")
 
   detect_student_name(img)
 
-  cv2.imwrite(f"anonymize/{i}.png", img)
+  cv2.imwrite(f"anonymize/{file}", img)
