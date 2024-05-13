@@ -137,7 +137,7 @@ def detect_student_name(image):
         rectangles.append((w * h, (x, y, w, h)))
 
   rectangles.sort(key=lambda x: x[0], reverse=True)
-  print(rectangles)
+
   # find the pair of largest rectangles that fit the ratio
   similar_rectangles = None
   largest_area_difference = float('inf')
