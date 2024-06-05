@@ -6,7 +6,6 @@ import math
 from random import randint
 from pathlib import Path
 
-
 def detect_black_squares(image):
   """
   Detect all black squares in the image
@@ -89,7 +88,7 @@ def find_bottom_left_square(squares, image):
   """
   Find left bottom square
   """
-  height, _, _ = img.shape
+  height, _, _ = image.shape
   nearest_square = None
   min_distance = float('inf')
   for square in squares:

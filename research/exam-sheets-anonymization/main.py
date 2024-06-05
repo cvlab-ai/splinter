@@ -1,27 +1,24 @@
-from pdf2image import convert_from_path
 from PIL import Image
 from os import listdir
 from os.path import splitext
-import cv2
-import numpy as np
-import matplotlib.pyplot as plt
-import math
-from random import randint
-from pathlib import Path
 import sys
-import tqdm
+
+from tqdm import tqdm
+
+from utils import *
 
 
 Path("extract").mkdir(parents=True, exist_ok=True)
 Path("rotate").mkdir(parents=True, exist_ok=True)
 Path("anonymize").mkdir(parents=True, exist_ok=True)
 
-target_directory = sys.argv[1] if sys.argv[1] else '.'
+target_directory = sys.argv[1] if len(sys.argv) > 1 else '.'
+
 image_exts = ['.png', '.jpg']
 pdf_exts = ['.pdf']
 target_ext = '.png'
 
-for file in listdir(target_directory):
+for file in tqdm(listdir(target_directory)):
   filename, ext = splitext(file)
   try:
     if ext in image_exts:
@@ -34,8 +31,10 @@ for file in listdir(target_directory):
   except OSError:
     print('Cannot convert %s' % file)
 
+print("Files extracted")
+
 # rotation
-for file in listdir('./extract'):
+for file in tqdm(listdir('./extract')):
   print("Image:", file)
   img = cv2.imread(f"extract/{file}") # load image
 
@@ -74,8 +73,11 @@ for file in listdir('./extract'):
 
   cv2.imwrite(f"rotate/{file}", img)
 
+
+print("Files rotated")
+
 # anonymization
-for file in listdir('./rotate'):
+for file in tqdm(listdir('./rotate')):
   print("Image:", file)
   img = cv2.imread(f"rotate/{file}")
 
