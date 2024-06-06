@@ -27,10 +27,14 @@ def detect_black_squares(image):
       if ratio >= 0.95 and ratio <= 1.05: # +/- 5%
         black_square_coords.append((w * h, contour))
   black_square_coords.sort(key=lambda x: x[0], reverse=True)
-  reference_area = black_square_coords[0][0]
 
-  filtered_squares = [square for square in black_square_coords if abs(square[0] - reference_area) <= 0.05 * reference_area] # +/- 5%
-  return filtered_squares
+  for i in range(len(black_square_coords) - 1):
+    reference_area = black_square_coords[i][0]
+
+    filtered_squares = [square for square in black_square_coords if abs(square[0] - reference_area) <= 0.05 * reference_area] # +/- 5%
+    if len(filtered_squares) == 6:
+      return filtered_squares
+  raise Exception("Couldn't find squares")
 
 
 def detect_rotation_angle(contour):
