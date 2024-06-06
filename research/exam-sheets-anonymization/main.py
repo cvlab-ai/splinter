@@ -20,7 +20,7 @@ target_ext = '.png'
 
 print(f"Starting... (target directory: {target_directory})")
 
-for file in tqdm(listdir(target_directory)):
+for file in tqdm(sorted(listdir(target_directory))):
   print("Image: ", file)
   filename, ext = splitext(file)
   try:
@@ -37,7 +37,7 @@ for file in tqdm(listdir(target_directory)):
 print("Files extracted")
 
 # rotation
-for file in tqdm(listdir('./extract')):
+for file in tqdm(sorted(listdir('./extract'))):
   print("Image:", file)
   img = cv2.imread(f"extract/{file}") # load image
   try:
@@ -45,11 +45,22 @@ for file in tqdm(listdir('./extract')):
 
     # calculate angle for each square
     angles = []
+
     for _, contour in contours:
       _angle = detect_rotation_angle(contour)
       angles.append(_angle)
 
+    if any(i < 5 for i in angles) and any(i > 85 for i in angles):
+      for i, angle in enumerate(angles):
+        if angle < 5:
+          angles[i] += 90.0
+
+
     angle = np.average(angles) # calculating the final offset as an average
+    
+    if any(abs(angles[i] - angles[i + 1]) > 10.0 for i in range(len(angles) - 1)):
+      angle = 0.0
+
     print("Angle:", angle, angles)
     img = rotate_image(img, angle) # rotate image
   
@@ -78,12 +89,14 @@ for file in tqdm(listdir('./extract')):
 
     cv2.imwrite(f"rotate/{file}", img)
   except Exception as e:
-    print(f"Skipping {file} file due to following error: {e}")
+    print(f"Skipping {file} file due to following error: {e}. Saving original file...")
+    img = cv2.imread(f"extract/{file}")
+    cv2.imwrite(f"anonymize/{file}", img)
 
 print("Files rotated")
 
 # anonymization
-for file in tqdm(listdir('./rotate')):
+for file in tqdm(sorted(listdir('./rotate'))):
   print("Image:", file)
   img = cv2.imread(f"rotate/{file}")
 

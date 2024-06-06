@@ -14,24 +14,37 @@ def detect_black_squares(image):
   and filtering those that are similar to it.
   """
   gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-  _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
 
-  edged = cv2.Canny(binary, 30, 200)
+  countours = []
 
-  contours, _ = cv2.findContours(edged, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+  # adaptive threshold
+  thresh = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV,51,9)
+  
+  # Fill rectangular contours
+  cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+  cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+  for c in cnts:
+      cv2.drawContours(thresh, [c], -1, (255,255,255), -1)
+
+  # Morph open
+  kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (9,9))
+  opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=4)
+
+  contours, _ = cv2.findContours(opening, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
   black_square_coords = []
   for contour in contours:
       x, y, w, h = cv2.boundingRect(contour)
       ratio = float(w/h)
-      if ratio >= 0.95 and ratio <= 1.05: # +/- 5%
+      approx = cv2.approxPolyDP(contour, 0.01 * cv2.arcLength(contour, True), True) 
+      if ratio >= 0.95 and ratio <= 1.05 and len(approx) == 4: # +/- 5%
         black_square_coords.append((w * h, contour))
   black_square_coords.sort(key=lambda x: x[0], reverse=True)
 
-  for i in range(len(black_square_coords) - 1):
+  for i in range(len(black_square_coords)):
     reference_area = black_square_coords[i][0]
 
-    filtered_squares = [square for square in black_square_coords if abs(square[0] - reference_area) <= 0.05 * reference_area] # +/- 5%
+    filtered_squares = [square for square in black_square_coords if abs(square[0] - reference_area) <= 0.3 * reference_area] # +/- 30%
     if len(filtered_squares) == 6:
       return filtered_squares
   raise Exception("Couldn't find squares")
@@ -45,6 +58,7 @@ def detect_rotation_angle(contour):
   """
   rect = cv2.minAreaRect(contour)
   angle = rect[2]
+  
   return angle if angle < 90.0 else angle - 90.0
 
 
