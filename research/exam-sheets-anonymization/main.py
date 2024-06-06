@@ -2,6 +2,7 @@ from PIL import Image
 from os import listdir
 from os.path import splitext
 import sys
+import shutil
 
 from tqdm import tqdm
 
@@ -103,3 +104,8 @@ for file in tqdm(sorted(listdir('./rotate'))):
   detect_student_name(img)
 
   cv2.imwrite(f"anonymize/{file}", img)
+
+print("Cleaning...")
+
+shutil.rmtree("./extract")
+shutil.rmtree("./rotate")
