@@ -34,3 +34,7 @@ pip install -r ../../requirements.txt
 ```
 python main.py [FOLDER_WITH_FILES]
 ```
+
+# Output
+
+Anonymized files are located in the `anonymize` directory.
