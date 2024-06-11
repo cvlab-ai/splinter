@@ -29,7 +29,7 @@ for file in tqdm(sorted(listdir(target_directory))):
       im = Image.open(f"{target_directory}/{filename}{ext}")
       im.save(f'extract/{filename}{target_ext}')
     if ext in pdf_exts:
-      pages = convert_from_path(f"{target_directory}/{filename}{ext}")
+      pages = convert_from_path(f"{target_directory}/{filename}{ext}", dpi=300)
       for i, page in enumerate(pages):
         page.save(f'extract/{filename}_page_{i}{target_ext}')
   except OSError:
