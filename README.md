@@ -47,6 +47,9 @@ The script will:
 
 **NOTE: Remember to save generated passwords!**
 
+## Training
+MobileNetV3Small under research/mark_generator/00_training.ipynb
+
 ## Known Issues
 
 - **Issue: `exec /docker-entrypoint.sh: no such file or directory` after running the Docker containers**
@@ -61,3 +64,4 @@ The script will:
     3. Mark `inference_engine` as `Sources root`
     
     This action informs PyCharm that the `inference_engine` module should be recognized as a source directory, resolving unresolved references and enabling proper module imports within your project.
+

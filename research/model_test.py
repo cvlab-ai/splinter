@@ -24,14 +24,19 @@ def generate_row():
     template = 'image--002.jpg'
     generator = MarkedAnswerCardGenerator(f'research/data/exams/{template}')
 
-    img = generator.generate()
+    img_generator = generator.row_generator()
+    img = next(img_generator)
+    if img is None:
+        print("Error: The image could not be loaded correctly.")
+        return
 
     row_width = 290
     row_height = 60
     row_x = 600
     row_y = 1480
 
-    img = cv2.rotate(img, cv2.cv2.ROTATE_90_COUNTERCLOCKWISE)
+
+    img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
     row = img[row_y: row_y + row_height, row_x: row_x + row_width]
 
     plt.imshow(row)

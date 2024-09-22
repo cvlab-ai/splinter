@@ -101,4 +101,4 @@ class TrainingDataGenerator:
 
 
 if __name__ == '__main__':
-    TrainingDataGenerator(box_offset=3).generate(100000)
+    TrainingDataGenerator(box_offset=3, output_dir="./data/test_dataset").generate(100000)

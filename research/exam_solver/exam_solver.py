@@ -4,11 +4,14 @@ import cv2
 import numpy as np
 
 from .help import read_image, detect_contours, detect_lines, group_by_size, calculate_rectangle, detect_boxes_middles
-
+import os
 
 class ExamSolver:
     def __init__(self, image_path: str):
         self._image_path = image_path
+        if not os.path.exists(image_path):
+            raise FileNotFoundError(f"File {image_path} not found")
+
         self.image = read_image(image_path)
         self.answer_card = None
         self.box_positions = None
