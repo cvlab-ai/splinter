@@ -5,10 +5,12 @@ from pathlib import Path
 from collections import defaultdict
 
 import cv2
+import math
 import numpy as np
 import os
 
 import tqdm
+
 
 from research.data_augmentator import DataAugmentator
 from research.mark_generator import MarkGenerator, Mark
@@ -19,7 +21,8 @@ class TrainingDataGenerator:
     INDEX_BOXES_PATH = os.path.join(os.path.dirname(__file__), 'data/input/index_boxes.jpg')
 
     def __init__(self, shape: tp.Tuple = (90, 90), box_offset: int = 4, output_dir: str = 'data/output'):
-        self._border = 5
+        self._border_x = 11
+        self._border_y = 22
         self._shape = shape
         self._box_offset = box_offset
         self._output_dir = output_dir
@@ -77,11 +80,18 @@ class TrainingDataGenerator:
         index_image = self._extract_boxes(self.INDEX_BOXES_PATH, 6, 10)
         return answer_boxes + index_image
 
+    def increment_array_elements(self, arr):
+        for i in range(len(arr)):
+            arr[i] += 9 * i
+        return arr
+
     def _extract_boxes(self, path: str, x: int, y: int):
         boxes = []
         img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-        x_parts = np.linspace(0., img.shape[1] - 2 * self._border, x + 1) + self._border
-        y_parts = np.linspace(0., img.shape[0] - 2 * self._border, y + 1) + self._border
+        x_parts = np.linspace(0., img.shape[1] - 2 * self._border_x - ((math.ceil(img.shape[1] / 90)) - 1) * 9, x + 1) + self._border_x - 3
+        y_parts = np.linspace(0., img.shape[0] - 2 * self._border_y - ((math.ceil(img.shape[0] / 90)) - 1) * 9, y + 1) + self._border_y - 3
+        y_parts = self.increment_array_elements(y_parts)
+        x_parts = self.increment_array_elements(x_parts)
         for y0, y1 in zip(y_parts[:-1], y_parts[1:]):
             for x0, x1 in zip(x_parts[:-1], x_parts[1:]):
                 box = img[int(y0) - self._box_offset: int(y1) + self._box_offset,
