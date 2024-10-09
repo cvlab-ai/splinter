@@ -14,7 +14,7 @@ docker-compose up -d --build
 
 ## Access to web UI
 
-After starting the system, the web application is available under: http://localhost:8000/
+After starting the system, the web application is available under: http://localhost:8888/splinter
 
 test user:
 
@@ -46,3 +46,18 @@ The script will:
   content of .env file to each service depending on it.
 
 **NOTE: Remember to save generated passwords!**
+
+## Known Issues
+
+- **Issue: `exec /docker-entrypoint.sh: no such file or directory` after running the Docker containers**
+
+    For detailed troubleshooting steps and solution, refer to this [Stack Overflow post](https://stackoverflow.com/questions/38905135/why-wont-my-docker-entrypoint-sh-execute).
+
+- **Unresolved References in IDE:**
+    
+    If you encounter unresolved references in your IDE (like PyCharm), follow these steps to resolve the issue:
+    1. Open PyCharm and navigate to `File -> Settings -> Project:Splinter -> Project Structure`.
+    2. Locate the `inference_engine` module within your project structure.
+    3. Mark `inference_engine` as `Sources root`
+    
+    This action informs PyCharm that the `inference_engine` module should be recognized as a source directory, resolving unresolved references and enabling proper module imports within your project.
