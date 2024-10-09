@@ -90,9 +90,9 @@ for file in tqdm(sorted(listdir('./extract'))):
 
     cv2.imwrite(f"rotate/{file}", img)
   except Exception as e:
-    print(f"Skipping {file} file due to following error: {e}. Saving original file...")
-    img = cv2.imread(f"extract/{file}")
-    cv2.imwrite(f"anonymize/{file}", img)
+    print(f"Skipping {file} file due to following error: {e}.")
+    # img = cv2.imread(f"extract/{file}")
+    # cv2.imwrite(f"anonymize/{file}", img)
 
 print("Files rotated")
 

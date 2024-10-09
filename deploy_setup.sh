@@ -31,9 +31,9 @@ echo "##########################################################################
 echo "#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!SAVE THIS INFO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#"
 echo "#                                                                             #"
 echo "# Passwords generated for services:                                           #"
-echo "# EX_STORE_SPLINTER_PASS=\"${EX_STORE_SPLINTER_PASS}\"                                       #"
-echo "# EX_STORE_WEBDAV_PASS=\"${EX_STORE_WEBDAV_PASS}\"                                         #"
-echo "# POSTGRES_PASSWORD=\"${POSTGRES_PASSWORD}\"                                            #"
+echo "# EX_STORE_SPLINTER_PASS=\"${EX_STORE_SPLINTER_PASS}\"                        #"
+echo "# EX_STORE_WEBDAV_PASS=\"${EX_STORE_WEBDAV_PASS}\"                            #"
+echo "# POSTGRES_PASSWORD=\"${POSTGRES_PASSWORD}\"                                  #"
 echo "#                                                                             #"
 echo "###############################################################################"
 echo
