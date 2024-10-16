@@ -33,7 +33,7 @@ print(f"target directory: {target_directory}")
 print(f"filename pattern: {filename_pattern}")
 print(f"log file pattern: {logfile_pattern}")
 
-for file in tqdm(glob.iglob(f"{source_directory}/**/*", recursive=True), desc="Creating structure"):
+for file in tqdm(list(glob.iglob(f"{source_directory}/**/*", recursive=True)), desc="Creating structure"):
   filename, ext = splitext(file)
   filename = filename.removeprefix(source_directory)
 
@@ -41,7 +41,7 @@ for file in tqdm(glob.iglob(f"{source_directory}/**/*", recursive=True), desc="C
   for dir in [EXTRACT_DIR, ROTATE_DIR, target_directory]:
     Path(f"{dir}/{output_dir}").mkdir(parents=True, exist_ok=True)
 
-for file in tqdm(glob.iglob(f"{source_directory}/**/*", recursive=True), desc="Preprocessing"):
+for file in tqdm(list(glob.iglob(f"{source_directory}/**/*", recursive=True)), desc="Preprocessing"):
   if isdir(file):
     continue
   file = file.removeprefix(source_directory).lstrip("\\/").replace("\\", "/")
@@ -70,7 +70,7 @@ for file in tqdm(glob.iglob(f"{source_directory}/**/*", recursive=True), desc="P
 print("Files extracted")
 
 # rotation
-for file in tqdm(glob.iglob(f"{EXTRACT_DIR}/**/*", recursive=True), desc="Rotating"):
+for file in tqdm(list(glob.iglob(f"{EXTRACT_DIR}/**/*", recursive=True)), desc="Rotating"):
   if isdir(file):
     continue
   file = file.removeprefix(EXTRACT_DIR).lstrip("\\/")
@@ -129,7 +129,7 @@ for file in tqdm(glob.iglob(f"{EXTRACT_DIR}/**/*", recursive=True), desc="Rotati
     cv2.imwrite(f"{target_directory}/{file}", img)
 
 # anonymization
-for file in tqdm(glob.iglob(f"{ROTATE_DIR}/**/*", recursive=True)):
+for file in tqdm(list(glob.iglob(f"{ROTATE_DIR}/**/*", recursive=True))):
   if isdir(file):
     continue
   file = file.removeprefix(ROTATE_DIR).lstrip("\\/")
