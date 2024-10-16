@@ -1,46 +1,81 @@
 from PIL import Image
-from os import listdir
-from os.path import splitext
+import glob
+from os.path import splitext, dirname, isdir
 import sys
 import shutil
+import re
 
 from tqdm import tqdm
 
 from utils import *
 
+EXTRACT_DIR = "./extract"
+ROTATE_DIR = "./rotate"
 
-Path("extract").mkdir(parents=True, exist_ok=True)
-Path("rotate").mkdir(parents=True, exist_ok=True)
-Path("anonymize").mkdir(parents=True, exist_ok=True)
 
-target_directory = sys.argv[1] if len(sys.argv) > 1 else '.'
+source_directory = sys.argv[1] if len(sys.argv) > 1 else '.'
+target_directory = sys.argv[2] if len(sys.argv) > 2 else './output'
+filename_pattern = sys.argv[3] if len(sys.argv) > 3 else ""
+logfile_pattern = sys.argv[4] if len(sys.argv) > 4 else "(txt|log)"
+
+Path(EXTRACT_DIR).mkdir(parents=True, exist_ok=True)
+Path(ROTATE_DIR).mkdir(parents=True, exist_ok=True)
+Path(target_directory).mkdir(parents=True, exist_ok=True)
 
 image_exts = ['.png', '.jpg']
 pdf_exts = ['.pdf']
 target_ext = '.png'
 
-print(f"Starting... (target directory: {target_directory})")
+source_directory = source_directory.rstrip("\\/")
+print("Starting...\nConfiguration:")
+print(f"source directory: {source_directory}")
+print(f"target directory: {target_directory}")
+print(f"filename pattern: {filename_pattern}")
+print(f"log file pattern: {logfile_pattern}")
 
-for file in tqdm(sorted(listdir(target_directory))):
-  print("Image: ", file)
+for file in tqdm(glob.iglob(f"{source_directory}/**/*", recursive=True), desc="Creating structure"):
   filename, ext = splitext(file)
+  filename = filename.removeprefix(source_directory)
+
+  output_dir = f"{dirname(filename)}".rstrip("\\/")
+  for dir in [EXTRACT_DIR, ROTATE_DIR, target_directory]:
+    Path(f"{dir}/{output_dir}").mkdir(parents=True, exist_ok=True)
+
+for file in tqdm(glob.iglob(f"{source_directory}/**/*", recursive=True), desc="Preprocessing"):
+  if isdir(file):
+    continue
+  file = file.removeprefix(source_directory).lstrip("\\/").replace("\\", "/")
+
+  filename, ext = splitext(file)
+
+  if re.search(logfile_pattern, f"{filename}{ext}"):
+    shutil.copy(f"{source_directory}/{filename}{ext}", f"{target_directory}/{filename}{ext}")
+
+  if not re.search(filename_pattern, f"{filename}{ext}"):
+    continue
+
   try:
+
     if ext in image_exts:
-      im = Image.open(f"{target_directory}/{filename}{ext}")
-      im.save(f'extract/{filename}{target_ext}')
+      im = Image.open(f"{source_directory}/{filename}{ext}")
+      im.save(f'{EXTRACT_DIR}/{filename}{target_ext}')
     if ext in pdf_exts:
-      pages = convert_from_path(f"{target_directory}/{filename}{ext}", dpi=300)
+      pages = convert_from_path(f"{source_directory}/{filename}{ext}", dpi=300)
       for i, page in enumerate(pages):
-        page.save(f'extract/{filename}_page_{i}{target_ext}')
-  except OSError:
+        page.save(f'{EXTRACT_DIR}/{filename}_page_{i}{target_ext}')
+  except OSError as e:
+    print(e)
     print('Cannot convert %s' % file)
 
 print("Files extracted")
 
 # rotation
-for file in tqdm(sorted(listdir('./extract'))):
-  print("Image:", file)
-  img = cv2.imread(f"extract/{file}") # load image
+for file in tqdm(glob.iglob(f"{EXTRACT_DIR}/**/*", recursive=True), desc="Rotating"):
+  if isdir(file):
+    continue
+  file = file.removeprefix(EXTRACT_DIR).lstrip("\\/")
+
+  img = cv2.imread(f"{EXTRACT_DIR}/{file}") # load image
   try:
     contours = detect_black_squares(img) # detect squares
 
@@ -62,7 +97,6 @@ for file in tqdm(sorted(listdir('./extract'))):
     if any(abs(angles[i] - angles[i + 1]) > 10.0 for i in range(len(angles) - 1)):
       angle = 0.0
 
-    print("Angle:", angle, angles)
     img = rotate_image(img, angle) # rotate image
   
     contours = detect_black_squares(img) # detect squares again (after rotation)
@@ -88,24 +122,25 @@ for file in tqdm(sorted(listdir('./extract'))):
     if horizontal == 2 and vertical == 3:
       img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
-    cv2.imwrite(f"rotate/{file}", img)
+    cv2.imwrite(f"{ROTATE_DIR}/{file}", img)
   except Exception as e:
     print(f"Skipping {file} file due to following error: {e}. Saving original file...")
-    img = cv2.imread(f"extract/{file}")
-    cv2.imwrite(f"anonymize/{file}", img)
-
-print("Files rotated")
+    img = cv2.imread(f"{EXTRACT_DIR}/{file}")
+    cv2.imwrite(f"{target_directory}/{file}", img)
 
 # anonymization
-for file in tqdm(sorted(listdir('./rotate'))):
-  print("Image:", file)
-  img = cv2.imread(f"rotate/{file}")
+for file in tqdm(glob.iglob(f"{ROTATE_DIR}/**/*", recursive=True)):
+  if isdir(file):
+    continue
+  file = file.removeprefix(ROTATE_DIR).lstrip("\\/")
+
+  img = cv2.imread(f"{ROTATE_DIR}/{file}")
 
   detect_student_name(img)
 
-  cv2.imwrite(f"anonymize/{file}", img)
+  cv2.imwrite(f"{target_directory}/{file}", img)
 
 print("Cleaning...")
 
-shutil.rmtree("./extract")
-shutil.rmtree("./rotate")
+shutil.rmtree(EXTRACT_DIR)
+shutil.rmtree(ROTATE_DIR)
