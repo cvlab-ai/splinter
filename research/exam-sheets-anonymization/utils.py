@@ -170,7 +170,7 @@ def detect_student_name(image):
   # take the square that is lower than the other one
   rectangle = similar_rectangles[0] if similar_rectangles[0][1] > similar_rectangles[1][1] else similar_rectangles[1]
   assert rectangle is not None
-  print(rectangle)
+
   # put the mask on the rectangle
   x, y, w, h = rectangle
   image = cv2.rectangle(

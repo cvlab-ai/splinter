@@ -32,9 +32,15 @@ pip install -r ../../requirements.txt
 # Usage
 
 ```
-python main.py [FOLDER_WITH_FILES]
+python main.py [SOURCE_DIRECTORY] [TARGET_DIRECTORY] [FILE_FILENAME_PATTERN] [LOG_FILENAME_PATTERN]
 ```
+
+Default values:
+- SOURCE_DIRECTORY: .
+- TARGET_DIRECTORY: ./output
+- FILE_FILENAME_PATTERN: `(empty)`
+- LOG_FILENAME_PATTERN: (txt|log)
 
 # Output
 
-Anonymized files are located in the `anonymize` directory.
+Anonymized files are located in the `TARGET_DIRECTORY` directory.
