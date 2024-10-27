@@ -127,6 +127,7 @@ def _check_pdf(exam_id, file_name, pdf_type: PDFType, force=False):
 
 def _check_image(image: Image) -> tp.Tuple[ResultsDTO, np.ndarray]:
     fields_images, debug_image = Preprocessing(np.asarray(image)).process()
+
     ocr_model = OCRModel(Config.paths.ocr_model_path)
     box_model = BoxModel(Config.paths.box_model_path)
     index, predictions = box_model.inference(fields_images[FieldName.student_id][0][0].img, argmax=True)

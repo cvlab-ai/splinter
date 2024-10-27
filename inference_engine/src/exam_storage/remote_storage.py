@@ -114,6 +114,7 @@ def get_pdfs_names(exam_id: str, pdf_type: PDFType) -> tp.List[str]:
 
 def _send_request(method: str, path: str, data: tp.Any = None) -> requests.Response:
     url = f"{Config.exam_storage.full_url}/{path}"
+    logging.info(f"Sending request to: {url}")
     response = requests.request(
         method,
         url,
@@ -132,8 +133,9 @@ def get_dir(dirpath: str):
     try:
         response = _send_request("GET", f"{dirpath}/")
     except requests.ConnectionError as e:
-        if e.args[1] == 404:
-            return None
+        logging.info(f"Couldn't find directory: {dirpath}")
+        # if e.args[1] == 404:
+        #     return None
         raise
     return response.json()
 
