@@ -11,7 +11,7 @@ from src.config.config import Config
 from src.exam_storage.pdf_type import PDFType
 from typing import Optional
 import logging
-from  src.exam_storage import versioning
+from src.exam_storage import versioning
 
 
 def get_file(file_path: str) -> Optional[requests.Response]:
@@ -46,8 +46,8 @@ def push_student_dir(exam_id: int, student_dir: Path):
 
 
 def get_exam_image(
-    exam_path: str,
-    exam_name: str,
+        exam_path: str,
+        exam_name: str,
 ) -> np.ndarray:
     path = _create_full_path(exam_path, exam_name)
     response = _send_request("GET", path)
@@ -90,11 +90,15 @@ def get_student_dir(exam_id, index=None):
         return f"{exam_id}/{Config.exam_storage.default_output_dirname}"
 
 
-def unpack_pdf(file_path: str):
+def unpack_pdf(file_path: str, dpi: int = 300, fmt: str = "JPEG"):
     response = get_file(file_path)
     if response is None:
+        logging.warning(f"File at {file_path} not found")
         return None
-    return pdf2image.convert_from_bytes(response.content)
+
+    images = pdf2image.convert_from_bytes(response.content, dpi=dpi, fmt=fmt)
+    logging.info(f"Converted {len(images)} page(s) of PDF at {file_path} to images")
+    return images
 
 
 def get_pdfs_names(exam_id: str, pdf_type: PDFType) -> tp.List[str]:
@@ -108,7 +112,7 @@ def get_pdfs_names(exam_id: str, pdf_type: PDFType) -> tp.List[str]:
         file_data["name"]
         for file_data in dir
         if file_data["type"] == "file"
-        and file_data["name"].endswith(Config.exam_storage.img_extension)
+           and file_data["name"].endswith(Config.exam_storage.img_extension)
     ]
 
 
@@ -132,9 +136,11 @@ def get_dir(dirpath: str):
     try:
         response = _send_request("GET", f"{dirpath}/")
     except requests.ConnectionError as e:
+        logging.info(f"Couldn't find directory: {dirpath}")
         if e.args[1] == 404:
             return None
         raise
+
     return response.json()
 
 
@@ -183,8 +189,9 @@ def get_answer_keys(exam_id: int):
         groups.append(group)
 
     for group in groups:
-        latest_version = versioning.get_latest_remote_version(f"{get_answer_key_dir(exam_id)}",sufix=f"_{group}")
-        answer_key = get_file(f"{get_answer_key_dir(exam_id)}/{Config.exam_storage.result_basename}_{group}{versioning.v2s(latest_version)}.json")
+        latest_version = versioning.get_latest_remote_version(f"{get_answer_key_dir(exam_id)}", sufix=f"_{group}")
+        answer_key = get_file(
+            f"{get_answer_key_dir(exam_id)}/{Config.exam_storage.result_basename}_{group}{versioning.v2s(latest_version)}.json")
         if answer_key is not None:
             answer_keys[group] = answer_key.json()
     return answer_keys
