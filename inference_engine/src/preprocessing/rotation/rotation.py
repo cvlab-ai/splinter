@@ -1,223 +1,178 @@
-from collections import defaultdict
 
 import cv2
 import numpy as np
-import math
 
 from src.utils.exceptions import ExamNotDetected
-from src.utils import show_image
 
 
 def rotate_exam(image: np.ndarray):
-    image = image.copy()
-    if len(image.shape) == 3:
-        image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+    try:
+        for _ in range(3):
+            reference_points = detect_reference_points(image)
 
-    squares = _get_contours(image)
-    numered_squares = _set_numeric_values_squares(squares)
-    quarter = _calculate_quarter(numered_squares)
-    middle_pos = _find_middle_of_page(numered_squares)
-    new_angle = _find_angle_of_page(numered_squares)
-    new_angle = _fix_angle(new_angle, quarter)
-    return _rotate_image(image, new_angle, middle_pos, True)
+            image, angle = __rotate_to_right_angle(image, reference_points)
+
+            if angle < 1e-5:
+                break
+
+        image = __rotate_to_vertical(image)
+
+        return image
+    except Exception as e:
+        raise ExamNotDetected(e)
+
+def detect_reference_points(image):
+    """
+    Detect all reference points in the image
+    Detection is based on detecting all squares,
+    then selecting the largest one (max area)
+    and filtering those that are similar to it.
+    """
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    # adaptive threshold
+    thresh = cv2.adaptiveThreshold(gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV,51,9)
+    
+    # Fill rectangular contours
+    cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+    for c in cnts:
+        cv2.drawContours(thresh, [c], -1, (255,255,255), -1)
+
+    # Morph open
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (9,9))
+    opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=4)
+
+    contours, _ = cv2.findContours(opening, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    black_square_coords = []
+    for contour in contours:
+        _, _, w, h = cv2.boundingRect(contour)
+        ratio = float(w/h)
+        approx = cv2.approxPolyDP(contour, 0.01 * cv2.arcLength(contour, True), True) 
+        if ratio >= 0.95 and ratio <= 1.05 and len(approx) == 4: # +/- 5%
+            black_square_coords.append((w * h, contour))
+
+    black_square_coords.sort(key=lambda x: x[0], reverse=True)
+
+    for i in range(len(black_square_coords)):
+        reference_area = black_square_coords[i][0]
+
+        filtered_squares = [square for square in black_square_coords if abs(square[0] - reference_area) <= 0.3 * reference_area] # +/- 30%
+        if len(filtered_squares) == 6:
+            return filtered_squares
+    raise Exception("Couldn't find squares")
 
 
-def _get_contours(new_image, min_contour_area: int = 3000):
-    mask = cv2.inRange(new_image, 0, 150)
+def __rotate_to_right_angle(image, reference_points):
+    angles = []
 
-    # apply morphology
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (15, 15))
-    clean = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+    for _, contour in reference_points:
+        _angle = __detect_rotation_angle(contour)
+        angles.append(_angle)
 
-    # get external contours
-    contours = cv2.findContours(clean, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    contours = contours[0] if len(contours) == 2 else contours[1]
+    if any(i < 5 for i in angles) and any(i > 85 for i in angles):
+        for i, angle in enumerate(angles):
+            if angle < 5:
+                angles[i] += 90.0
+
+
+    angle = np.average(angles) # calculating the final offset as an average
+    
+    if any(abs(angles[i] - angles[i + 1]) > 10.0 for i in range(len(angles) - 1)):
+      angle = 0.0
+
+    return __rotate_image(image, angle), angle
+
+
+def __detect_rotation_angle(contour):
+    """
+    Ratation detection
+    Checking by what angle the image should be rotated
+    so that the square is parallel to the edge
+    """
+    rect = cv2.minAreaRect(contour)
+    angle = rect[2]
+    
+    return angle if angle < 90.0 else angle - 90.0
+
+
+def __rotate_image(image, angle):
+    """
+    Rotate the image by a given angle
+    """
+    size_reverse = np.array(image.shape[1::-1]) # swap x with y
+    M = cv2.getRotationMatrix2D(tuple(size_reverse / 2.), angle, 1.)
+    MM = np.absolute(M[:,:2])
+    size_new = MM @ size_reverse
+    M[:,-1] += (size_new - size_reverse) / 2.
+    return cv2.warpAffine(image, M, tuple(size_new.astype(int)), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
+
+
+def __rotate_to_vertical(image):
+    """
+    Turn the image vertically
+    """
+    contours = detect_reference_points(image)
 
     squares = []
-    for c in contours:
-        # get rotated rectangle from contour
-        rot_rect = cv2.minAreaRect(c)
-        (x, y), (w, h), alpha = rot_rect
-        if abs(w - h) < min((w, h)) / 5:
-            squares.append(rot_rect)
-    squares = sorted(squares, key=lambda x: x[1][0] * x[1][1], reverse=True)[:5]
+    for _, contour in contours:
+      squares.append(cv2.boundingRect(contour))
 
-    if len(squares) != 5 or any([s[1][0] * s[1][1] < min_contour_area for s in squares]):
-        raise ExamNotDetected(f"Didn't detect five black squares - {len(squares)}")
-    return squares
+    bottom_left_square = __find_bottom_left_square(squares, image)
+    horizontal = __check_horizontal_line(squares, bottom_left_square)
+    vertical = __check_vertical_line(squares, bottom_left_square)
 
+    # detect position based on pattern and rotate image
+    if horizontal == 2 and vertical == 2:
+        return cv2.rotate(image, cv2.ROTATE_180)
+    if horizontal == 3 and vertical == 2:
+        return cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
+    if horizontal == 2 and vertical == 3:
+        return cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    
+    return image
 
-def _set_numeric_values_squares(contours, threshold=20):
-    def is_similar(first_delta, second_delta):
-        return abs(first_delta[0] - second_delta[0]) <= max(threshold, min(first_delta[0], second_delta[0]) / 10) and \
-               abs(first_delta[1] - second_delta[1]) <= max(threshold, min(first_delta[1], second_delta[1]) / 10)
-
-    def calculate_delta(first_pos, second_pos):
-        return abs(first_pos[0] - second_pos[0]), abs(first_pos[1] - second_pos[1])
-
-    # Top       left: 4,
-    # Middle    left: 3
-    # Bottom    left: 0,    middle 1,   right: 2
-    # Page width = distance between 0 and 2
-    # Page height = distance between 0 and 4
-
-    # Find three squares lines
-    # (should be two, first vertical on left side, second horizontal on bottom)
-    points = []
-    for first_idx in range(len(contours)):
-        first_point = contours[first_idx]
-        for second_idx in range(first_idx + 1, len(contours)):
-            second_point = contours[second_idx]
-            for third_idx in range(second_idx + 1, len(contours)):
-                third_point = contours[third_idx]
-                fs_delta = calculate_delta(first_point[0], second_point[0])
-                ft_delta = calculate_delta(first_point[0], third_point[0])
-                st_delta = calculate_delta(second_point[0], third_point[0])
-                if is_similar(fs_delta, st_delta):
-                    points.append([first_point, second_point, third_point])
-                elif is_similar(fs_delta, ft_delta):
-                    points.append([second_point, first_point, third_point])
-                elif is_similar(st_delta, ft_delta):
-                    points.append([first_point, third_point, second_point])
-
-    if len(points) != 2:
-        raise ExamNotDetected(f"Didn't detect two lines of squares - {len(points)}")
-
-    # Reorder points based on commonly shared sqare (0 index square)
-    first_line = points[0]
-    second_line = points[1]
-
-    if first_line[0] == second_line[0]:
-        pass
-    elif first_line[2] == second_line[2]:
-        first_line = first_line[::-1]
-        second_line = second_line[::-1]
-    elif first_line[0] == second_line[2]:
-        second_line = second_line[::-1]
-    elif first_line[2] == second_line[0]:
-        first_line = first_line[::-1]
-
-    # Calculate length of lines based on length of lines
-    fl_x, fl_y = calculate_delta(first_line[0][0], first_line[2][0])
-    sl_x, sl_y = calculate_delta(second_line[0][0], second_line[2][0])
-
-    fl_dist = (fl_x ** 2 + fl_y ** 2) ** (1 / 2)
-    sl_dist = (sl_x ** 2 + sl_y ** 2) ** (1 / 2)
-
-    # Assign lines to proper values
-    if fl_dist < sl_dist:
-        horizontal_line = first_line
-        vertical_line = second_line
-    else:
-        horizontal_line = second_line
-        vertical_line = first_line
-
-    # Assign indexes to proper squares
-    numered_points = dict(enumerate([*horizontal_line, *vertical_line[1:]]))
-    return numered_points
+def __find_bottom_left_square(squares, image):
+    """
+    Find left bottom square
+    """
+    height, _, _ = image.shape
+    nearest_square = None
+    min_distance = float('inf')
+    for square in squares:
+        x, y, _, _ = square
+        distance = ((0 - x) ** 2 + (height - y) ** 2) ** 0.5
+        if distance < min_distance:
+            min_distance = distance
+            nearest_square = square
+    return nearest_square
 
 
-def _calculate_quarter(numered_squares):
-    # We base on calculating relative distance between 0 indexed point and 1
-    # Feel free to print the page and rotate it to figure out quarters
-    zs_x, zs_y = numered_squares[0][0]
-    fs_x, fs_y = numered_squares[1][0]
-    zs_x, zs_y = zs_x // 10, zs_y // 10
-    fs_x, fs_y = fs_x // 10, fs_y // 10
-    if zs_x >= fs_x:
-        if zs_y >= fs_y:
-            return 2
-        else:
-            return 3
-    else:
-        if zs_y >= fs_y:
-            return 1
-        else:
-            return 4
+def __check_horizontal_line(squares, bottom_left_square):
+    """
+    Check the number of squares in a horizontal line to a given square
+    """
+    count = 0
+    if bottom_left_square:
+        _, y, _, h = bottom_left_square
+        m = y + (h / 2)
+        for square in squares:
+            s_m = square[1] + (square[3] / 2)
+            if m - 2 * h <= s_m <= m + 2 * h:
+                count += 1
+    return count
 
-
-def _find_middle_of_page(numered_points):
-    zero_pos = np.array(numered_points[0][0])
-    first_pos = np.array(numered_points[1][0])
-    third_pos = np.array(numered_points[3][0])
-    zero_to_one_distance = first_pos - zero_pos
-    zero_to_three_distance = third_pos - zero_pos
-    middle_from_one = first_pos + zero_to_three_distance
-    middle_from_three = third_pos + zero_to_one_distance
-    return (middle_from_one + middle_from_three) / 2
-
-
-def _find_angle_of_page(numered_squares):
-    # Here we calculate distance between point 0 and point 1 (taking it as hypotenuse)
-    # to divide it by x difference between point 0 and 1.
-    # We use it further to calculate alpha radius.
-    zero_square = np.array(numered_squares[0][0])
-    first_square = np.array(numered_squares[1][0])
-    opposite_to_angle = zero_square[0] - first_square[0]
-    hypotenuse = sum((zero_square - first_square) ** 2) ** (1 / 2)
-    return math.asin(opposite_to_angle / hypotenuse) * 180 / math.pi
-
-
-def _fix_angle(angle, quarter):
-    def first_quarter(angle):
-        if angle == 0:
-            return angle
-        if angle > 0:
-            if angle < 45:
-                angle += 90
-            else:
-                angle *= -1
-        elif angle < 0:
-            angle += 90
-            if angle > 0:
-                angle *= -1
-        return angle
-
-    def second_quarter(angle):
-        return - angle - 90
-
-    def third_quarter(angle):
-        return angle - 270
-
-    def forth_quarter(angle):
-        return angle - 270
-
-    quarter_fun = {
-        1: first_quarter,
-        2: second_quarter,
-        3: third_quarter,
-        4: forth_quarter
-    }
-    return quarter_fun[quarter](angle)
-
-
-def _rotate_image(image, rotation_angle, center_points=None, revert=False):
-    h, w = image.shape[:2]
-    if center_points is None:
-        cx, cy = (w // 2, h // 2)
-    else:
-        cx, cy = center_points
-
-    # get rotation matrix
-    M = cv2.getRotationMatrix2D((cx, cy), rotation_angle, 1.0)
-
-    # get cos and sin value from the rotation matrix
-    cos, sin = abs(M[0, 0]), abs(M[0, 1])
-
-    # calculate new width and height after rotation
-    if revert:
-        A = np.array([[sin, cos], [cos, sin]])
-        B = np.array([h, w])
-        X = np.linalg.inv(A).dot(B)
-        newW, newH = X.astype('int')
-    else:
-        newW = int((h * sin) + (w * cos))
-        newH = int((h * cos) + (w * sin))
-
-    # calculate new rotation center
-    M[0, 2] += (newW / 2) - cx
-    M[1, 2] += (newH / 2) - cy
-
-    # use modified rotation center and rotation matrix in the warpAffine method
-    return cv2.warpAffine(image, M, (newW, newH), borderMode=cv2.BORDER_CONSTANT,
-                          borderValue=(255, 255, 255))
+def __check_vertical_line(squares, bottom_left_square):
+    """
+    Check the number of squares in a vertical line to a given square
+    """
+    count = 0
+    if bottom_left_square:
+        x, _, w, _ = bottom_left_square
+        m = x + (w / 2)
+        for square in squares:
+            s_m = square[0] + (square[2] / 2)
+            if m - 2 * w <= s_m <= m + 2 * w:
+                count += 1
+    return count
