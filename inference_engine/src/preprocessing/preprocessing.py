@@ -30,7 +30,9 @@ class Preprocessing:
         self._exam_copy = rotate_exam(self._exam_copy)
         self._exam_copy = crop_exam(self._exam_copy)
         self._exam_copy = cv2.resize(self._exam_copy, (2480, 3508))
-
+        self.show_image(self._exam_copy, title="Preprocessed image")
+        timestamp = str(randint(0, 1000000))
+        self.save_image(self._exam_copy, fr"C:\Users\Krystian\mgr\pb\others\test\test_{timestamp}.jpg")
         try:
             fields = FieldExtractor(Field(self._exam_copy)).process() # TODO Przeorbić field Extractor (na podstawie px)
             _map = Preprocessing.FIELD_EXTRACTOR_MAPPING
@@ -46,6 +48,10 @@ class Preprocessing:
     def show_image(image: np.ndarray, title=""):
         pil_image = Image.fromarray(image)
         pil_image.show(title=title)
+
+    @staticmethod
+    def save_image(image: np.ndarray, path: str):
+        cv2.imwrite(path, image)
 
     @staticmethod
     def group_by_field(field_images: tp.List[tp.Tuple[FieldName, np.ndarray]]) -> tp.Dict[FieldName, tp.List[Field]]:
