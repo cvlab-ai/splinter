@@ -1,51 +1,61 @@
-import typing as tp
-import itertools
+import json
+import logging
+import os
 
+import cv2
 import numpy as np
 
-from src.preprocessing import FieldName, Field
+from src.preprocessing import FieldName, Field, Extractor
 from .extractor import Extractor
 
-
 class FieldExtractor(Extractor):
-    def process(self, *args, **kwargs):
-        self.to_portrait()
-        self.to_grayscale()
-        saved_extractor = Extractor(Field(self._operated_img))
 
-        self.to_binary(180)
-        rectangles = self.detect_rectangles()
-        rectangles = self._remove_rectangles_by_size(rectangles)
-        sorted_rectangles = sorted(rectangles, key=lambda x: (int(x[1] / 10), x[0]))
+    LABEL_JSON_PATH = "./data/label.json"
 
-        box_images = saved_extractor.extract(sorted_rectangles)
-        assigned_box_images = self._assign_field_names(box_images, sorted_rectangles)
-        return assigned_box_images
+    def __init__(self, field: Field):
+        super().__init__(field)
+        self.label_json_path = self.LABEL_JSON_PATH
+        self.field_coordinates = self._load_and_map_json()
 
-    def detect_rectangles(self):
-        contours = self.detect_contours()
-        grouped_contours = self.group_by_size(contours)
-        grouped_contours = self._remove_contours_by_size(grouped_contours)
-        grouped_contours = self._unpack_groups(grouped_contours, min_area_to_unpack=30000)
-        return [self.calculate_rectangle(contour, inside=False) for contour in grouped_contours]
+    def process(self) -> dict[FieldName, list[Field]]:
+        """Extract all fields from the image using the field coordinates."""
+        fields = {}
+        for field_name, coordinates_list in self.field_coordinates.items():
+            field_images = []
+            for coordinates in coordinates_list:
+                field_image = self._crop_image(self._operated_img, coordinates)
+                field_images.append(Field(field_image, coordinates, field_name))
+            fields[field_name] = field_images
 
-    @staticmethod
-    def _assign_field_names(box_images: tp.List[np.ndarray], rect: tp.List[tp.Tuple[int, int, int, int]]):
-        fieldnames = FieldName.multiplied_answer_columns()
-        if len(box_images) < len(fieldnames):
-            raise ValueError(f"Not enough fieldnames detected: {len(box_images)} < {len(fieldnames)}")
-        return [(fieldname, Field(image, r)) for fieldname, image, r in zip(fieldnames, box_images, rect)]
+        logging.info("Fields extracted from image.")
+        return fields
 
-    @staticmethod
-    def _unpack_groups(groups: tp.Dict[float, tp.List], min_area_to_unpack: float = 5000):
-        def _unpack(_group):
-            return [[elem] for elem in _group]
-        return list(itertools.chain(*[_unpack(g) if a > min_area_to_unpack else [g] for a, g in groups.items()]))
+    def _load_and_map_json(self) -> dict[FieldName, list[tuple[int, int, int, int]]]:
+        """Load the JSON file and map field names to coordinates."""
+        if not os.path.exists(self.label_json_path):
+            logging.error(f"Label JSON file not found at {self.label_json_path}")
+            raise FileNotFoundError(f"Label JSON file not found at {self.label_json_path}")
+        with open(self.label_json_path, 'r') as file:
+            json_data = json.load(file)
 
-    @staticmethod
-    def _remove_rectangles_by_size(rectangles, min_area: float = 1000, max_area: float = 1000000):
-        return [r for r in rectangles if min_area < r[2] * r[3] < max_area]
+        field_coordinates = {}
+        for field, coordinates_list in json_data.get("fields", {}).items():
+            try:
+                field_enum = FieldName[field.lower()]
+                field_coordinates[field_enum] = [
+                    (coord["x"], coord["y"], coord["width"], coord["height"]) for coord in coordinates_list
+                ]
+            except KeyError:
+                logging.warning(f"Field '{field}' not recognized in FieldName enum.")
 
-    @staticmethod
-    def _remove_contours_by_size(grouped_contours, min_area: float = 5000, max_area: float = 1000000):
-        return {area: contours for area, contours in grouped_contours.items() if min_area < area < max_area}
+        logging.info(f"Field coordinates mapped from JSON.")
+        return field_coordinates
+
+    def _crop_image(self, image: np.ndarray, coordinates: tuple[int, int, int, int]) -> np.ndarray:
+        """Crop the image using the provided coordinates."""
+        x, y, w, h = coordinates
+        cropped_image = image[y:y + h, x:x + w]
+        return cropped_image
+
+
+

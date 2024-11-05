@@ -43,11 +43,11 @@ services:
       - ./exam_storage/volumes/www/data/splinter:/www/data/splinter/internal/splinter-data
       - ./exam_storage/volumes/www/data/uploads:/www/data/splinter/external/splinter/uploads
 
-  splinter-inference-engine:
-    build: inference_engine/
-    restart: always
-    ports:
-      - "8000:8000"
-    environment:
-      EX_STORE_SPLINTER_PASS: 1234
-      EX_STORE_SPLINTER_USER: splinter
+#  splinter-inference-engine:
+#    build: inference_engine/
+#    restart: always
+#    ports:
+#      - "8000:8000"
+#    environment:
+#      EX_STORE_SPLINTER_PASS: 1234
+#      EX_STORE_SPLINTER_USER: splinter

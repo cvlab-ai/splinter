@@ -7,15 +7,6 @@ import numpy as np
 from src.config import Config
 
 
-class Field:
-    def __init__(self, img: np.ndarray, rect: tp.Tuple[int, int, int, int] = (0, 0, 0, 0)):
-        self.img = img
-        self.rect = rect
-
-    def __repr__(self):
-        return f"{self.rect} -> {self.img}"
-
-
 class FieldName(Enum):
     exam_title = 1
     student_name = 2
@@ -34,3 +25,14 @@ class FieldName(Enum):
         answers_idx = fields.index(FieldName.answers)
         fields[answers_idx:answers_idx + 1] = [FieldName.answers] * Config.exam.number_of_columns
         return fields
+
+
+class Field:
+    def __init__(self, img: np.ndarray, rect: tp.Tuple[int, int, int, int] = (0, 0, 0, 0),
+                 field_name: FieldName = None):
+        self.img = img
+        self.rect = rect
+        self.field_name = field_name
+
+    def __repr__(self):
+        return f"{self.rect} -> {self.img}"

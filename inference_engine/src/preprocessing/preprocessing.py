@@ -7,7 +7,7 @@ import numpy as np
 import cv2
 
 from src.utils.exceptions import PreprocessingError
-from .extractors import TextExtractor, IndexExtractor, BoxExtractor, FieldExtractor, GroupExtractor
+from .extractors_old import TextExtractor, IndexExtractor, BoxExtractor, FieldExtractor, GroupExtractor
 from .fields import FieldName, Field
 from .rotation import rotate_exam
 from .crop import crop_exam
@@ -30,9 +30,6 @@ class Preprocessing:
         self._exam_copy = rotate_exam(self._exam_copy)
         self._exam_copy = crop_exam(self._exam_copy)
         self._exam_copy = cv2.resize(self._exam_copy, (2480, 3508))
-        self.show_image(self._exam_copy, title="Preprocessed image")
-        timestamp = str(randint(0, 1000000))
-        self.save_image(self._exam_copy, fr"C:\Users\Krystian\mgr\pb\others\test\test_{timestamp}.jpg")
         try:
             fields = FieldExtractor(Field(self._exam_copy)).process() # TODO Przeorbić field Extractor (na podstawie px)
             _map = Preprocessing.FIELD_EXTRACTOR_MAPPING
