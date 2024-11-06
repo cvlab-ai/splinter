@@ -13,10 +13,14 @@ def crop_exam(image: np.ndarray):
         for _, contour in reference_points:
             squares.append(cv2.boundingRect(contour))
 
-        nearest, farest = __find_extreme_squares(squares)
+        middle_points = [(x + w // 2, y + h // 2) for x, y, w, h in squares]
 
-        # crop image
-        image = image[nearest[1]:farest[1] + farest[3], nearest[0]:farest[0] + farest[2]]
+        min_x = min(point[0] for point in middle_points)
+        max_x = max(point[0] for point in middle_points)
+        min_y = min(point[1] for point in middle_points)
+        max_y = max(point[1] for point in middle_points)
+
+        image = image[min_y:max_y, min_x:max_x]
 
         return image
     except Exception as e:

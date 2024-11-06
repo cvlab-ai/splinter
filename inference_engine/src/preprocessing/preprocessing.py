@@ -11,6 +11,7 @@ from .extractors import TextExtractor, IndexExtractor, BoxExtractor, FieldExtrac
 from .fields import FieldName, Field
 from .rotation import rotate_exam
 from .crop import crop_exam
+from .constrast import constrast_exam
 from random import randint
 
 class Preprocessing:
@@ -29,6 +30,9 @@ class Preprocessing:
     def process(self) -> tp.Tuple[tp.Dict[FieldName, tp.List[Field]], np.ndarray]:
         self.show_image(self._exam_copy)
 
+        self._exam_copy = cv2.resize(self._exam_copy, (2 * 2480, 2 * 3508))
+
+        self._exam_copy = constrast_exam(self._exam_copy)
         self._exam_copy = rotate_exam(self._exam_copy)
         self._exam_copy = crop_exam(self._exam_copy)
 
