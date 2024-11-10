@@ -3,13 +3,13 @@ from .extractor import Extractor
 from .image_grid_divider import ImageGridDivider
 
 
-class BoxExtractor(Extractor):
+class GroupExtractor(Extractor):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.image_grid_divider = ImageGridDivider(
-            rows=4,
-            cols=10,
+            rows=1,
+            cols=4,
             target_size=(90, 90),
             group_by='y'
         )

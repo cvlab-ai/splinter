@@ -1,8 +1,8 @@
 import typing as tp
-
 from enum import Enum
 
 import numpy as np
+from PIL import Image
 
 from src.config import Config
 
@@ -33,6 +33,9 @@ class Field:
         self.img = img
         self.rect = rect
         self.field_name = field_name
+
+    def show(self):
+        Image.fromarray(self.img).show()
 
     def __repr__(self):
         return f"{self.rect} -> {self.img}"

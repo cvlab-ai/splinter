@@ -2,14 +2,13 @@ import json
 import logging
 import os
 
-import cv2
 import numpy as np
 
-from src.preprocessing import FieldName, Field, Extractor
+from src.preprocessing import FieldName, Field
 from .extractor import Extractor
 
-class FieldExtractor(Extractor):
 
+class FieldExtractor(Extractor):
     LABEL_JSON_PATH = "./data/label.json"
 
     def __init__(self, field: Field):
@@ -18,7 +17,6 @@ class FieldExtractor(Extractor):
         self.field_coordinates = self._load_and_map_json()
 
     def process(self) -> dict[FieldName, list[Field]]:
-        """Extract all fields from the image using the field coordinates."""
         fields = {}
         for field_name, coordinates_list in self.field_coordinates.items():
             field_images = []
@@ -31,7 +29,6 @@ class FieldExtractor(Extractor):
         return fields
 
     def _load_and_map_json(self) -> dict[FieldName, list[tuple[int, int, int, int]]]:
-        """Load the JSON file and map field names to coordinates."""
         if not os.path.exists(self.label_json_path):
             logging.error(f"Label JSON file not found at {self.label_json_path}")
             raise FileNotFoundError(f"Label JSON file not found at {self.label_json_path}")
@@ -51,11 +48,8 @@ class FieldExtractor(Extractor):
         logging.info(f"Field coordinates mapped from JSON.")
         return field_coordinates
 
-    def _crop_image(self, image: np.ndarray, coordinates: tuple[int, int, int, int]) -> np.ndarray:
-        """Crop the image using the provided coordinates."""
+    @staticmethod
+    def _crop_image(image: np.ndarray, coordinates: tuple[int, int, int, int]) -> np.ndarray:
         x, y, w, h = coordinates
         cropped_image = image[y:y + h, x:x + w]
         return cropped_image
-
-
-

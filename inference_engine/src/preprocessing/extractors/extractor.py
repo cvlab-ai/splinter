@@ -1,4 +1,5 @@
 import numpy as np
+from PIL import Image
 
 from src.preprocessing import Field
 
@@ -9,3 +10,7 @@ class Extractor:
         self._rect = field.rect
         self._operated_img: np.ndarray = field.img.copy()
         self._original_img: np.ndarray = field.img
+
+    def show(self, img):
+        img = Image.fromarray(img)
+        img.show()
