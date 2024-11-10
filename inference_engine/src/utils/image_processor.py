@@ -53,3 +53,17 @@ class ImageProcessor:
         """
         cleaned = cv2.morphologyEx(image, cv2.MORPH_OPEN, np.ones(kernel_size, np.uint8))
         return cv2.fastNlMeansDenoising(cleaned, h=30)
+
+    @staticmethod
+    def crop_image(image: np.ndarray, coordinates: tuple[int, int, int, int]) -> np.ndarray:
+        """Crops an image to the specified coordinates.
+
+        Args:
+            image (np.ndarray): The input image.
+            coordinates (tuple[int, int, int, int]): The coordinates (x, y, width, height) to crop the image.
+
+        Returns: np.ndarray: The cropped image.
+        """
+        x, y, w, h = coordinates
+        cropped_image = image[y:y + h, x:x + w]
+        return cropped_image

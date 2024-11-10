@@ -1,8 +1,7 @@
 import numpy as np
 
-from .model import Model
 from src.config import Config
-from src.utils import show_image
+from .model import Model
 
 
 class BoxModel(Model):

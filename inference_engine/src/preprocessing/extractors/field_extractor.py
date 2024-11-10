@@ -1,51 +1,55 @@
-import typing as tp
-import itertools
+import json
+import logging
+import os
 
-import numpy as np
-
+from src.config import Config
 from src.preprocessing import FieldName, Field
+from src.utils import ImageProcessor
 from .extractor import Extractor
 
 
 class FieldExtractor(Extractor):
-    def process(self, *args, **kwargs):
-        self.to_portrait()
-        self.to_grayscale()
-        saved_extractor = Extractor(Field(self._operated_img))
 
-        self.to_binary(180)
-        rectangles = self.detect_rectangles()
-        rectangles = self._remove_rectangles_by_size(rectangles)
-        sorted_rectangles = sorted(rectangles, key=lambda x: (int(x[1] / 10), x[0]))
+    def __init__(self, field: Field):
+        super().__init__(field)
+        self.field_coordinates_path = Config.paths.field_coordinates_path
+        self.coordinates_map = self._load_coordinates_map()
 
-        box_images = saved_extractor.extract(sorted_rectangles)
-        assigned_box_images = self._assign_field_names(box_images, sorted_rectangles)
-        return assigned_box_images
+    def process(self) -> dict[FieldName, list[Field]]:
+        """Extracts defined regions for each field from the image.
 
-    def detect_rectangles(self):
-        contours = self.detect_contours()
-        grouped_contours = self.group_by_size(contours)
-        grouped_contours = self._remove_contours_by_size(grouped_contours)
-        grouped_contours = self._unpack_groups(grouped_contours, min_area_to_unpack=30000)
-        return [self.calculate_rectangle(contour, inside=False) for contour in grouped_contours]
+        Returns:
+            dict[FieldName, list[Field]]: A mapping of each field name to a list of Field objects,
+            each representing a specific region in the image where that field is located.
+        """
+        field_regions = {}
+        for field_name, coordinates_list in self.coordinates_map.items():
+            field_images = []
+            for coordinates in coordinates_list:
+                field_image = ImageProcessor.crop_image(self._operated_img, coordinates)
+                field_images.append(Field(field_image, coordinates, field_name))
+            field_regions[field_name] = field_images
 
-    @staticmethod
-    def _assign_field_names(box_images: tp.List[np.ndarray], rect: tp.List[tp.Tuple[int, int, int, int]]):
-        fieldnames = FieldName.multiplied_answer_columns()
-        if len(box_images) < len(fieldnames):
-            raise ValueError(f"Not enough fieldnames detected: {len(box_images)} < {len(fieldnames)}")
-        return [(fieldname, Field(image, r)) for fieldname, image, r in zip(fieldnames, box_images, rect)]
+        logging.info("Fields extracted from image.")
+        return field_regions
 
-    @staticmethod
-    def _unpack_groups(groups: tp.Dict[float, tp.List], min_area_to_unpack: float = 5000):
-        def _unpack(_group):
-            return [[elem] for elem in _group]
-        return list(itertools.chain(*[_unpack(g) if a > min_area_to_unpack else [g] for a, g in groups.items()]))
+    def _load_coordinates_map(self) -> dict[FieldName, list[tuple[int, int, int, int]]]:
+        if not os.path.exists(self.field_coordinates_path):
+            logging.error(f"Label JSON file not found at {self.field_coordinates_path}")
+            raise FileNotFoundError(f"Label JSON file not found at {self.field_coordinates_path}")
 
-    @staticmethod
-    def _remove_rectangles_by_size(rectangles, min_area: float = 1000, max_area: float = 1000000):
-        return [r for r in rectangles if min_area < r[2] * r[3] < max_area]
+        with open(self.field_coordinates_path, 'r') as file:
+            json_data = json.load(file)
 
-    @staticmethod
-    def _remove_contours_by_size(grouped_contours, min_area: float = 5000, max_area: float = 1000000):
-        return {area: contours for area, contours in grouped_contours.items() if min_area < area < max_area}
+        field_coordinates = {}
+        for field, coordinates_list in json_data.get("fields", {}).items():
+            try:
+                field_enum = FieldName[field.upper()]
+                field_coordinates[field_enum] = [
+                    (coord["x"], coord["y"], coord["width"], coord["height"]) for coord in coordinates_list
+                ]
+            except KeyError:
+                logging.warning(f"Field '{field}' not recognized in FieldName enum.")
+
+        logging.info(f"Field coordinates mapped from JSON.")
+        return field_coordinates
