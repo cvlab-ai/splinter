@@ -1,0 +1,84 @@
+{
+  "fields": {
+    "student_id_text": [
+      {
+        "x": 1577,
+        "y": 935,
+        "width": 650,
+        "height": 140
+      }
+    ],
+    "student_id_grid": [
+      {
+        "x": 1577,
+        "y": 1115,
+        "width": 650,
+        "height": 1000
+      }
+    ],
+    "exam_key": [
+      {
+        "x": 790,
+        "y": 870,
+        "width": 440,
+        "height": 100
+      }
+    ],
+    "date": [
+      {
+        "x": 1575,
+        "y": 565,
+        "width": 695,
+        "height": 164
+      }
+    ],
+    "exam_title": [
+      {
+        "x": 508,
+        "y": 133,
+        "width": 1763,
+        "height": 164
+      }
+    ],
+    "student_name": [
+      {
+        "x": 508,
+        "y": 353,
+        "width": 1763,
+        "height": 164
+      }
+    ],
+    "answers": [
+      {
+        "x": 305,
+        "y": 1150,
+        "width": 440,
+        "height": 1010
+      },
+      {
+        "x": 305,
+        "y": 2185,
+        "width": 440,
+        "height": 1010
+      },
+      {
+        "x": 998,
+        "y": 1150,
+        "width": 440,
+        "height": 1010
+      },
+      {
+        "x": 998,
+        "y": 2185,
+        "width": 440,
+        "height": 1010
+      },
+      {
+        "x": 1690,
+        "y": 2190,
+        "width": 440,
+        "height": 1010
+      }
+    ]
+  }
+}
