@@ -1,5 +1,5 @@
 import typing as tp
-from enum import Enum
+from enum import Enum, auto
 
 import numpy as np
 from PIL import Image
@@ -8,22 +8,23 @@ from src.config import Config
 
 
 class FieldName(Enum):
-    exam_title = 1
-    student_name = 2
-    date = 3
-    exam_key = 4
-    student_id = 5
-    answers = 6
+    EXAM_TITLE = auto()
+    STUDENT_NAME = auto()
+    DATE = auto()
+    EXAM_KEY = auto()
+    STUDENT_ID_GRID = auto()
+    STUDENT_ID_TEXT = auto()
+    ANSWERS = auto()
 
     @staticmethod
     def ocr_fields():
-        return [FieldName.exam_title, FieldName.student_name, FieldName.date]
+        return [FieldName.EXAM_TITLE, FieldName.STUDENT_NAME, FieldName.DATE]
 
     @staticmethod
     def multiplied_answer_columns():
         fields = list(FieldName)
-        answers_idx = fields.index(FieldName.answers)
-        fields[answers_idx:answers_idx + 1] = [FieldName.answers] * Config.exam.number_of_columns
+        answers_idx = fields.index(FieldName.ANSWERS)
+        fields[answers_idx:answers_idx + 1] = [FieldName.ANSWERS] * Config.exam.number_of_columns
         return fields
 
 

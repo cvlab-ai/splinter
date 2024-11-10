@@ -1,16 +1,16 @@
-import numpy as np
 import cv2
-from PIL import Image
+import numpy as np
+
 
 class ImageGridDivider:
     """Divides an image into a grid and resizes each section to a target size."""
 
     def __init__(
-        self,
-        rows: int,
-        cols: int,
-        target_size: tuple[int, int],
-        group_by: str = 'y'
+            self,
+            rows: int,
+            cols: int,
+            target_size: tuple[int, int],
+            group_by: str = 'y'
     ):
         """Initializes the ImageGridDivider with grid specifications.
 
@@ -24,10 +24,6 @@ class ImageGridDivider:
         self.cols = cols
         self.target_size = target_size
         self.group_by = group_by
-
-    def show_image(self, image: np.ndarray, title=""):
-        pil_image = Image.fromarray(image)
-        pil_image.show(title=title)
 
     def divide(self, image: np.ndarray) -> np.ndarray:
         """Divides an image into a grid and resizes each section to the target size.

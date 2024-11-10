@@ -1,5 +1,21 @@
 {
   "fields": {
+    "student_id_text": [
+      {
+        "x": 1577,
+        "y": 935,
+        "width": 650,
+        "height": 140
+      }
+    ],
+    "student_id_grid": [
+      {
+        "x": 1577,
+        "y": 1115,
+        "width": 650,
+        "height": 1000
+      }
+    ],
     "exam_key": [
       {
         "x": 790,

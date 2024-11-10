@@ -1,17 +1,17 @@
 from src.preprocessing import Field
-from src.utils import ImageGridDivider
+from src.utils import ImageGridDivider, ImageProcessor
 from .extractor import Extractor
 
 
-class GroupExtractor(Extractor):
+class StudentIdGridExtractor(Extractor):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.image_grid_divider = ImageGridDivider(
-            rows=1,
-            cols=4,
+            rows=10,
+            cols=6,
+            group_by='x',
             target_size=(90, 90),
-            group_by='y'
         )
 
     def process(self):
