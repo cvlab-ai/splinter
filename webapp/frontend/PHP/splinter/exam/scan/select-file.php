@@ -38,7 +38,7 @@ if (isset($_POST["submit-btn"])) {
             ?>
             <label for="result" class="form-label">Wybierz skan z wzorcowymi poprawnymi odpowiedziemi:</label>
             <p class='fw-light text-muted'>Możesz wybrać kilka plików jednocześnie.</p>
-            <input class="form-control" accept="application/pdf" type="file" id="result" name="result[]"
+            <input class="form-control" accept="application/pdf, image/*" type="file" id="result" name="result[]"
                    multiple><br><br>
             <?php
             $files = Curl::showWebDavFiles();
@@ -55,7 +55,7 @@ if (isset($_POST["submit-btn"])) {
             <hr>
             <label for="files" class="form-label">Wybierz plik ze skanami egzaminów:</label>
             <p class='fw-light text-muted'>Możesz wybrać kilka plików jednocześnie.</p>
-            <input class="form-control" accept="application/pdf" type="file" id="files" name="files[]" multiple><br><br>
+            <input class="form-control" accept="application/pdf, image/*" type="file" id="files" name="files[]" multiple><br><br>
             <?php
             $files = Curl::showWebDavFiles();
             if (count($files) > 0) {
