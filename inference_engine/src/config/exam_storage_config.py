@@ -8,7 +8,9 @@ class ExamStorageConfig(BaseModel):
     exams_dir: str = "/splinter"
     answer_keys_dir: str = "answers_keys"
     answer_key_filename: str = "answer_key"
-    img_extension: str = "pdf"
+    pdf_extension: str = "pdf"
+    allowed_image_extensions: tuple[str] = (".png", ".jpg", ".jpeg", ".tif", ".tiff")
+    allowed_extensions: tuple[str] = (pdf_extension, *allowed_image_extensions)
     default_input_dirname: str = "pdfs"
     default_output_dirname: str = "students"
     exam_storage_user: str = os.environ.get("EX_STORE_SPLINTER_USER")
@@ -16,10 +18,6 @@ class ExamStorageConfig(BaseModel):
     metadata_filename: str = "metadata.json"
     result_basename: str = "answers"
     debug_image_sufix: str = "_debug"
-
-    @property
-    def full_answer_image_filename(self):
-        return f"{self.answer_key_filename}.{self.img_extension}"
 
     @property
     def full_url(self):

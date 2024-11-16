@@ -1,4 +1,5 @@
 import logging
+import os
 import tempfile
 import typing as tp
 from pathlib import Path
@@ -36,7 +37,7 @@ class Controller:
     def check_pdf(request: CheckPdfDTO):
         _generate_exam_keys(request.exam_id)
         logging.info(f"Checking answer pdf: {request.file_name}")
-        _check_pdf(
+        _check_file(
             request.exam_id, request.file_name, PDFType.answer_sheets, request.force
         )
 
@@ -48,9 +49,10 @@ class Controller:
         files = remote_storage.get_pdfs_names(request.exam_id, PDFType.answer_sheets)
         if files is None:
             return
+
         for file_name in files:
             logging.info(f"Checking answer pdf: {file_name}")
-            _check_pdf(request.exam_id, file_name, PDFType.answer_sheets, request.force)
+            _check_file(request.exam_id, file_name, PDFType.answer_sheets, request.force)
 
     @staticmethod
     @update_scores
@@ -63,9 +65,10 @@ def _generate_exam_keys(exam_id, force=False):
     files = remote_storage.get_pdfs_names(exam_id, PDFType.answer_keys)
     if files is None:
         return
+
     for file_name in files:
         logging.info(f"Checking answer key pdf: {file_name}")
-        _check_pdf(exam_id, file_name, PDFType.answer_keys, force)
+        _check_file(exam_id, file_name, PDFType.answer_keys, force)
 
 
 def _update_exam_scores(exam_id: int):
@@ -85,17 +88,31 @@ def _update_exam_scores(exam_id: int):
         remote_storage.push_dir(tmp_dir, f"{exam_id}")
 
 
-def _check_pdf(exam_id, file_name, pdf_type: PDFType, force=False):
+def _check_file(exam_id, file_name, pdf_type: PDFType, force=False):
     if not force and metadata.check_pdf_processed(exam_id, file_name, pdf_type):
         logging.info(f"PDF {file_name} already checked, skipping.")
         return
+
     with tempfile.TemporaryDirectory() as tmp, Path(tmp) as tmp_dir:
-        images = remote_storage.unpack_pdf(
-            f"{remote_storage.get_input_path(exam_id, pdf_type)}/{file_name}"
-        )
-        if images is None:
-            logging.info(f"PDF {file_name} doesn't contains any images.")
+        file_path = os.path.join(remote_storage.get_input_path(exam_id, pdf_type), file_name)
+        images = []
+        if file_name.lower().endswith(Config.exam_storage.allowed_image_extensions):
+            try:
+                image = remote_storage.get_image(file_path)
+                images.append(image)
+            except Exception as e:
+                logging.error(f"Failed to open image file {file_name}: {e}")
+                return
+
+        elif file_name.lower().endswith(Config.exam_storage.pdf_extension):
+            images = remote_storage.unpack_pdf(file_path)
+            if not images:
+                logging.error(f"PDF {file_name} doesn't contains any images.")
+                return
+        else:
+            logging.warning(f"Unsupported file type for file {file_name}. Skipping.")
             return
+
         for i, image in enumerate(images):
             try:
                 results, debug_img = _check_image(image)
@@ -105,6 +122,7 @@ def _check_pdf(exam_id, file_name, pdf_type: PDFType, force=False):
                 output_dir.mkdir(exist_ok=True)
                 image.save(f"{output_dir}/unknown_{i}.jpg", "JPEG")
                 continue
+
             output_dir = tmp_dir
             sufix = ""
             if pdf_type == PDFType.answer_sheets:

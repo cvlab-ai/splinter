@@ -1,17 +1,17 @@
 import io
 import json
+import logging
 import typing as tp
 from pathlib import Path
+from typing import Optional
 
-import numpy as np
 import pdf2image
 import requests
-from PIL.Image import Image
+from PIL import Image
+
 from src.config.config import Config
-from src.exam_storage.pdf_type import PDFType
-from typing import Optional
-import logging
 from src.exam_storage import versioning
+from src.exam_storage.pdf_type import PDFType
 
 
 def get_file(file_path: str) -> Optional[requests.Response]:
@@ -43,16 +43,6 @@ def push_student_dir(exam_id: int, student_dir: Path):
             f"{exam_id}/{Config.exam_storage.default_output_dirname}/{student_dir.name}/{filepath.name}",
             data=open(filepath, "rb"),
         )
-
-
-def get_exam_image(
-        exam_path: str,
-        exam_name: str,
-) -> np.ndarray:
-    path = _create_full_path(exam_path, exam_name)
-    response = _send_request("GET", path)
-    pil_image = Image.open(io.BytesIO(response.content))
-    return np.asarray(pil_image)
 
 
 def set_exam_answer_json(exam_path: str, exam_name: str, json_value: tp.Dict):
@@ -90,6 +80,20 @@ def get_student_dir(exam_id, index=None):
         return f"{exam_id}/{Config.exam_storage.default_output_dirname}"
 
 
+def get_image(file_path: str) -> tp.Optional[Image.Image]:
+    response = get_file(file_path)
+    if response is None:
+        logging.warning(f"File at {file_path} not found")
+        return None
+
+    try:
+        return Image.open(io.BytesIO(response.content))
+
+    except Exception as e:
+        logging.error(f"Couldn't open image at {file_path}: {e}")
+        return None
+
+
 def unpack_pdf(file_path: str, dpi: int = 300, fmt: str = "JPEG"):
     response = get_file(file_path)
     if response is None:
@@ -112,7 +116,7 @@ def get_pdfs_names(exam_id: str, pdf_type: PDFType) -> tp.List[str]:
         file_data["name"]
         for file_data in dir
         if file_data["type"] == "file"
-           and file_data["name"].endswith(Config.exam_storage.img_extension)
+           and file_data["name"].endswith(Config.exam_storage.allowed_extensions)
     ]
 
 
