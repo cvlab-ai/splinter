@@ -50,7 +50,7 @@ def detect_reference_points(image):
         _, _, w, h = cv2.boundingRect(contour)
         ratio = float(w/h)
         approx = cv2.approxPolyDP(contour, 0.01 * cv2.arcLength(contour, True), True) 
-        if ratio >= 0.95 and ratio <= 1.05 and len(approx) == 4: # +/- 5%
+        if ratio >= 0.9 and ratio <= 1.1 and len(approx) == 4: # +/- 5%
             black_square_coords.append((w * h, contour))
 
     black_square_coords.sort(key=lambda x: x[0], reverse=True)
