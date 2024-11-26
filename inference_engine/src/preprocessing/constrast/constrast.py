@@ -13,6 +13,11 @@ def constrast_exam(image: np.ndarray):
         clahe_image = clahe.apply(gray_image)
 
         clahe_image = cv2.cvtColor(clahe_image, cv2.COLOR_GRAY2BGR)
+
+        _, thresholded_image = cv2.threshold(clahe_image, 200, 255, cv2.THRESH_BINARY_INV)
+        clahe_image = thresholded_image
+        clahe_image = cv2.bitwise_not(clahe_image)
+
         return clahe_image
     except Exception as e:
         raise ExamNotDetected(e)
