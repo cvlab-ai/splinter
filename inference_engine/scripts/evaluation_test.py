@@ -137,7 +137,6 @@ def get_json_file_path(dir_path, results_dir):
     json_file_path = Path(results_dir) / json_file_name
     return json_file_path
 
-
 def generate_visualizations(results):
     overall_accuracies = []
     field_accuracies = {
@@ -182,30 +181,42 @@ def generate_visualizations(results):
     })
 
     overall_df.to_csv('./data/overall_results.csv', index=False)
-    overall_df.to_excel('./data/overall_results.xlsx', index=False)
-    print("Overall results saved to 'overall_results.csv' and 'overall_results.xlsx'")
+    print("Overall results saved to 'overall_results.csv'")
 
     field_accuracy_df = pd.DataFrame(field_accuracies)
     field_accuracy_mean = field_accuracy_df.mean() * 100  # Convert to percentage
 
     plt.figure(figsize=(10, 6))
     bins = [i / 10 for i in range(0, 11)]
-    sns.histplot(overall_df['Overall Accuracy'], bins=bins, kde=False, stat='count', discrete=False)
+    hist = sns.histplot(overall_df['Overall Accuracy'], bins=bins, kde=False, stat='count', discrete=False)
     plt.title('Distribution of Overall Accuracies')
     plt.xlabel('Overall Accuracy')
     plt.ylabel('Number of Entries')
     plt.xticks(bins)
-    plt.savefig('overall_accuracy_distribution.png')
+
+    for p in hist.patches:
+        count = int(p.get_height())
+        if count > 0:
+            plt.text(p.get_x() + p.get_width() / 2, p.get_height(), str(count),
+                     ha='center', va='bottom', fontsize=10)
+
+    plt.savefig('./data/overall_accuracy_distribution.png')
     plt.close()
 
     plt.figure(figsize=(8, 6))
-    sns.barplot(x=field_accuracy_mean.index, y=field_accuracy_mean.values)
+    bar_plot = sns.barplot(x=field_accuracy_mean.index, y=field_accuracy_mean.values)
     plt.title('Field Accuracies')
     plt.xlabel('Field')
     plt.ylabel('Accuracy (%)')
     plt.ylim(0, 100)
+
+    for p in bar_plot.patches:
+        count = f"{p.get_height():.1f}%"
+        plt.text(p.get_x() + p.get_width() / 2, p.get_height(), count,
+                 ha='center', va='bottom', fontsize=10)
+
     plt.tight_layout()
-    plt.savefig('field_accuracies.png')
+    plt.savefig('./data/field_accuracies.png')
     plt.close()
 
     exam_titles_list = list(exam_title_accuracies.keys())
@@ -225,17 +236,23 @@ def generate_visualizations(results):
     print("Exam title accuracies saved to 'exam_title_accuracies.csv'")
 
     plt.figure(figsize=(12, 6))
-    sns.barplot(x='Exam Title', y='Accuracy (%)', data=exam_accuracy_df)
+    bar_plot = sns.barplot(x='Exam Title', y='Accuracy (%)', data=exam_accuracy_df)
     plt.title('Accuracy per Exam Title')
     plt.xlabel('Exam Title')
     plt.ylabel('Accuracy (%)')
     plt.xticks(rotation=45, ha='right')
     plt.ylim(0, 100)
-    plt.tight_layout()
-    plt.savefig('exam_title_accuracies.png')
-    plt.close()
 
+    for p in bar_plot.patches:
+        count = f"{p.get_height():.1f}%"
+        plt.text(p.get_x() + p.get_width() / 2, p.get_height(), count,
+                 ha='center', va='bottom', fontsize=10)
+
+    plt.tight_layout()
+    plt.savefig('./data/exam_title_accuracies.png')
+    plt.close()
     print("Visualizations saved as 'overall_accuracy_distribution.png', 'field_accuracies.png', and 'exam_title_accuracies.png'")
+
 
 
 def save_incorrect_entries(results):
@@ -260,7 +277,6 @@ def save_incorrect_entries(results):
 
     incorrect_entries_df = pd.DataFrame(incorrect_entries)
     incorrect_entries_df.to_csv('./data/incorrect_entries.csv', index=False)
-    incorrect_entries_df.to_excel('./data/incorrect_entries.xlsx', index=False)
     print("Incorrect entries saved to 'incorrect_entries.csv' and 'incorrect_entries.xlsx'")
 
 
