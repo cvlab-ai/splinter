@@ -40,12 +40,12 @@ for contour in contours:
             padded_image = cv2.copyMakeBorder(gray_image, h, h, w, w, cv2.BORDER_CONSTANT, value=[255, 255, 255])
             center_y += h
             center_x += w
-            w = int(w * 2 / 3)
-            h = int(h * 2 / 3)
+            w = int(w)
+            h = int(h)
             area = padded_image[center_y-h:center_y+h, center_x-w:center_x+w]
         else:
-            w = int(w * 2 / 3)
-            h = int(h * 2 / 3)
+            w = int(w)
+            h = int(h)
             area = gray_image[center_y-h:center_y+h, center_x-w:center_x+w]
         try:
             cv2.imwrite(f'data/output/box_{center_x}_{center_y}.jpg', area)

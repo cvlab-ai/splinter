@@ -186,7 +186,7 @@ def add_random_mark(image):
         # Odpowiedzi dookola
         cx = x
         cy = y
-        for x, y in [(cx - 79, cy - 79), (cx, cy - 79), (cx + 79, cy - 79), (cx - 79, cy), (cx + 79, cy), (0, 158), (79, 158), (158, 158)]:
+        for x, y in [(cx - 158, cy - 158), (cx, cy - 158), (cx + 158, cy - 158), (cx - 158, cy), (cx + 158, cy), (0, 158), (158, 158), (158, 158)]:
             if random.randint(1, 9) != 1:
                 continue
 
