@@ -22,5 +22,5 @@ exam:
   number_of_columns: 5
 
 paths:
-  box_model_path: data/model/saved_model.xml
+  box_model_path: data/model/answer-checking-model.pt
   ocr_model_path: data/model/handwritten-english-recognition-0001.xml

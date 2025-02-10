@@ -1,9 +1,11 @@
 import numpy as np
+from deprecated import deprecated
 
 from src.config import Config
 from .model import Model
 
 
+@deprecated(reason="This class is deprecated. Use BoxModelYolo instead.")
 class BoxModel(Model):
     def inference(self, _input: np.array, argmax: bool = False, *args, **kwargs):
         if argmax:

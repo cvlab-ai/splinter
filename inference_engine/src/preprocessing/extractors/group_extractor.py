@@ -1,6 +1,7 @@
 from src.preprocessing import Field
 from src.utils import ImageGridDivider
 from .extractor import Extractor
+from ...config import Config
 
 
 class GroupExtractor(Extractor):
@@ -10,7 +11,7 @@ class GroupExtractor(Extractor):
         self.image_grid_divider = ImageGridDivider(
             rows=1,
             cols=4,
-            target_size=(90, 90),
+            target_size=Config.inference.target_box_shape,
             group_by='y'
         )
 

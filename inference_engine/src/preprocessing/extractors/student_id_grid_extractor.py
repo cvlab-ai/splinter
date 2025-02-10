@@ -1,6 +1,7 @@
 from src.preprocessing import Field
 from src.utils import ImageGridDivider
 from .extractor import Extractor
+from src.config import Config
 
 
 class StudentIdGridExtractor(Extractor):
@@ -11,7 +12,7 @@ class StudentIdGridExtractor(Extractor):
             rows=10,
             cols=6,
             group_by='x',
-            target_size=(90, 90),
+            target_size=Config.inference.target_box_shape,
         )
 
     def process(self):

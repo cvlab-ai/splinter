@@ -14,7 +14,7 @@ from src.dto import CheckExamDTO, CheckPdfDTO, GenerateExamKeysDTO
 from src.dto.results_dto import ResultsDTO
 from src.exam_storage import local_storage, metadata, remote_storage, versioning
 from src.exam_storage.pdf_type import PDFType
-from src.model import BoxModel, OCRModel
+from src.model import OCRModel, BoxModelYolo
 from src.preprocessing import FieldName, Preprocessing, Field
 from src.utils.exceptions import ExamInvalid
 
@@ -148,7 +148,7 @@ def _check_image(image: Image) -> tp.Tuple[ResultsDTO, np.ndarray]:
     fields_images, debug_image = Preprocessing(np.asarray(image)).process()
 
     ocr_model = OCRModel(Config.paths.ocr_model_path)
-    box_model = BoxModel(Config.paths.box_model_path)
+    box_model = BoxModelYolo(Config.paths.box_model_path)
     student_id_grid_img = fields_images[FieldName.STUDENT_ID_GRID][0].img
     index = _extract_student_id_grid(student_id_grid_img, box_model)
     answers_img = np.array([f.img for f in fields_images[FieldName.ANSWERS]])
@@ -165,7 +165,6 @@ def _check_image(image: Image) -> tp.Tuple[ResultsDTO, np.ndarray]:
     }
     output = ResultsDTO.parse_obj(results)
     logging.info("Inference results:\n" + str(output))
-
     if not Config.inference.debug_image:
         return output, None
 
@@ -178,7 +177,7 @@ def _check_image(image: Image) -> tp.Tuple[ResultsDTO, np.ndarray]:
     return output, debug_image
 
 
-def _extract_student_id_grid(image: np.ndarray, model: BoxModel) -> str:
+def _extract_student_id_grid(image: np.ndarray, model: BoxModelYolo) -> str:
     """Extracts student ID from the grid box with custom mapping."""
     index, predictions = model.inference(image, argmax=True)
     index_str = "".join([
