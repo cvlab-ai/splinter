@@ -1,9 +1,17 @@
+from src.preprocessing import Field
+from src.utils import ImageProcessor
 from .extractor import Extractor
-from .field_extractor import Field
 
 
 class TextExtractor(Extractor):
-    def process(self, *args, **kwargs):
-        self.remove_borders(7)
-        self.detect_and_remove_lines()
-        return super(TextExtractor, self).process()
+    """Extracts text-based fields by converting the image to black and white and removing noise."""
+
+    def process(self) -> Field:
+        """Processes the image by converting it to black and white and removing noise.
+
+        Returns: A Field object containing the processed image with text.
+        """
+        gray = ImageProcessor.to_grayscale(self._operated_img)
+        binary = ImageProcessor.to_binary(gray, adaptive=True)
+        cleaned = ImageProcessor.remove_noise(binary)
+        return Field(cleaned, self._rect)

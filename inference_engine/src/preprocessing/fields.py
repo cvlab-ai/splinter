@@ -1,36 +1,29 @@
 import typing as tp
-
-from enum import Enum
+from enum import Enum, auto
 
 import numpy as np
 
-from src.config import Config
+
+class FieldName(Enum):
+    EXAM_TITLE = auto()
+    STUDENT_NAME = auto()
+    DATE = auto()
+    EXAM_KEY = auto()
+    STUDENT_ID_GRID = auto()
+    STUDENT_ID_TEXT = auto()
+    ANSWERS = auto()
 
 
 class Field:
-    def __init__(self, img: np.ndarray, rect: tp.Tuple[int, int, int, int] = (0, 0, 0, 0)):
+    def __init__(
+            self,
+            img: np.ndarray,
+            rect: tp.Tuple[int, int, int, int] = (0, 0, 0, 0),
+            field_name: FieldName = None
+    ):
         self.img = img
         self.rect = rect
+        self.field_name = field_name
 
     def __repr__(self):
         return f"{self.rect} -> {self.img}"
-
-
-class FieldName(Enum):
-    exam_title = 1
-    student_name = 2
-    date = 3
-    exam_key = 4
-    student_id = 5
-    answers = 6
-
-    @staticmethod
-    def ocr_fields():
-        return [FieldName.exam_title, FieldName.student_name, FieldName.date]
-
-    @staticmethod
-    def multiplied_answer_columns():
-        fields = list(FieldName)
-        answers_idx = fields.index(FieldName.answers)
-        fields[answers_idx:answers_idx + 1] = [FieldName.answers] * Config.exam.number_of_columns
-        return fields

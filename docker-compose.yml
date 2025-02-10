@@ -46,6 +46,8 @@ services:
   splinter-inference-engine:
     build: inference_engine/
     restart: always
+    ports:
+      - "8000:8000" # For application development only
     environment:
       EX_STORE_SPLINTER_PASS: 1234
       EX_STORE_SPLINTER_USER: splinter

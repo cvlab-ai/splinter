@@ -1,5 +1,5 @@
 exam_storage:
-  url: http://splinter-exam-storage
+#  url: http://splinter-exam-storage
   port: 81
   exams_dir: "/splinter-data"
   answer_keys_dir: "answers_keys"
@@ -7,8 +7,8 @@ exam_storage:
   img_extension: pdf
   default_input_dirname: pdfs
   default_output_dirname: students
-  # exam_storage_user : splinter
-  # exam_storage_password : 1234
+  exam_storage_user : splinter
+  exam_storage_password : 1234
   metadata_filename: "metadata.json"
 
 inference:
@@ -22,5 +22,5 @@ exam:
   number_of_columns: 5
 
 paths:
-  box_model_path: data/model/saved_model.xml
+  box_model_path: data/model/answer-checking-model.pt
   ocr_model_path: data/model/handwritten-english-recognition-0001.xml

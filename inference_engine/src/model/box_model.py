@@ -1,10 +1,11 @@
 import numpy as np
+from deprecated import deprecated
 
-from .model import Model
 from src.config import Config
-from src.utils import show_image
+from .model import Model
 
 
+@deprecated(reason="This class is deprecated. Use BoxModelYolo instead.")
 class BoxModel(Model):
     def inference(self, _input: np.array, argmax: bool = False, *args, **kwargs):
         if argmax:

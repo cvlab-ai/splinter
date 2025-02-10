@@ -1,21 +1,22 @@
-import typing as tp
 import logging
+import os
 import tempfile
+import typing as tp
 from pathlib import Path
 
-import numpy as np
 import cv2
-from PIL.Image import Image
+import numpy as np
+from PIL import Image
 
+from src import score
 from src.config import Config
 from src.dto import CheckExamDTO, CheckPdfDTO, GenerateExamKeysDTO
 from src.dto.results_dto import ResultsDTO
 from src.exam_storage import local_storage, metadata, remote_storage, versioning
 from src.exam_storage.pdf_type import PDFType
-from src.model import BoxModel, OCRModel
+from src.model import OCRModel, BoxModelYolo
 from src.preprocessing import FieldName, Preprocessing, Field
-from src.utils.exceptions import IndexNotDetected, ExamInvalid
-from src import score
+from src.utils.exceptions import ExamInvalid
 
 
 # Wrapper function for controller methods that affects exam scores
@@ -26,6 +27,7 @@ def update_scores(func):
             if hasattr(arg, "exam_id"):
                 _update_exam_scores(arg.exam_id)
                 break
+
     return wrapper
 
 
@@ -35,7 +37,7 @@ class Controller:
     def check_pdf(request: CheckPdfDTO):
         _generate_exam_keys(request.exam_id)
         logging.info(f"Checking answer pdf: {request.file_name}")
-        _check_pdf(
+        _check_file(
             request.exam_id, request.file_name, PDFType.answer_sheets, request.force
         )
 
@@ -47,9 +49,10 @@ class Controller:
         files = remote_storage.get_pdfs_names(request.exam_id, PDFType.answer_sheets)
         if files is None:
             return
+
         for file_name in files:
             logging.info(f"Checking answer pdf: {file_name}")
-            _check_pdf(request.exam_id, file_name, PDFType.answer_sheets, request.force)
+            _check_file(request.exam_id, file_name, PDFType.answer_sheets, request.force)
 
     @staticmethod
     @update_scores
@@ -62,9 +65,10 @@ def _generate_exam_keys(exam_id, force=False):
     files = remote_storage.get_pdfs_names(exam_id, PDFType.answer_keys)
     if files is None:
         return
+
     for file_name in files:
         logging.info(f"Checking answer key pdf: {file_name}")
-        _check_pdf(exam_id, file_name, PDFType.answer_keys, force)
+        _check_file(exam_id, file_name, PDFType.answer_keys, force)
 
 
 def _update_exam_scores(exam_id: int):
@@ -78,23 +82,37 @@ def _update_exam_scores(exam_id: int):
         logging.info("No student answers to calculate score")
         return
     with tempfile.TemporaryDirectory() as tmp, Path(tmp) as tmp_dir:
-        with open(tmp_dir/"scores.csv", "w") as result_file:
+        with open(tmp_dir / "scores.csv", "w") as result_file:
             score_csv = score.ScoreCSV(result_file)
             score_csv.write_scores(students_result, answers_keys)
-        remote_storage.push_dir(tmp_dir,f"{exam_id}")
+        remote_storage.push_dir(tmp_dir, f"{exam_id}")
 
 
-def _check_pdf(exam_id, file_name, pdf_type: PDFType, force=False):
+def _check_file(exam_id, file_name, pdf_type: PDFType, force=False):
     if not force and metadata.check_pdf_processed(exam_id, file_name, pdf_type):
         logging.info(f"PDF {file_name} already checked, skipping.")
         return
+
     with tempfile.TemporaryDirectory() as tmp, Path(tmp) as tmp_dir:
-        images = remote_storage.unpack_pdf(
-            f"{remote_storage.get_input_path(exam_id, pdf_type)}/{file_name}"
-        )
-        if images is None:
-            logging.info(f"PDF {file_name} doesn't contains any images.")
+        file_path = os.path.join(remote_storage.get_input_path(exam_id, pdf_type), file_name)
+        images = []
+        if file_name.lower().endswith(Config.exam_storage.allowed_image_extensions):
+            try:
+                image = remote_storage.get_image(file_path)
+                images.append(image)
+            except Exception as e:
+                logging.error(f"Failed to open image file {file_name}: {e}")
+                return
+
+        elif file_name.lower().endswith(Config.exam_storage.pdf_extension):
+            images = remote_storage.unpack_pdf(file_path)
+            if not images:
+                logging.error(f"PDF {file_name} doesn't contains any images.")
+                return
+        else:
+            logging.warning(f"Unsupported file type for file {file_name}. Skipping.")
             return
+
         for i, image in enumerate(images):
             try:
                 results, debug_img = _check_image(image)
@@ -104,6 +122,7 @@ def _check_pdf(exam_id, file_name, pdf_type: PDFType, force=False):
                 output_dir.mkdir(exist_ok=True)
                 image.save(f"{output_dir}/unknown_{i}.jpg", "JPEG")
                 continue
+
             output_dir = tmp_dir
             sufix = ""
             if pdf_type == PDFType.answer_sheets:
@@ -127,25 +146,25 @@ def _check_pdf(exam_id, file_name, pdf_type: PDFType, force=False):
 
 def _check_image(image: Image) -> tp.Tuple[ResultsDTO, np.ndarray]:
     fields_images, debug_image = Preprocessing(np.asarray(image)).process()
+
     ocr_model = OCRModel(Config.paths.ocr_model_path)
-    box_model = BoxModel(Config.paths.box_model_path)
-    index, predictions = box_model.inference(fields_images[FieldName.student_id][0][0].img, argmax=True)
-    index = ''.join([str(i) if p > Config.inference.answer_threshold else 'X' for i, p in zip(index, predictions)])
-    answers_img = np.array([f.img for f in fields_images[FieldName.answers]])
+    box_model = BoxModelYolo(Config.paths.box_model_path)
+    student_id_grid_img = fields_images[FieldName.STUDENT_ID_GRID][0].img
+    index = _extract_student_id_grid(student_id_grid_img, box_model)
+    answers_img = np.array([f.img for f in fields_images[FieldName.ANSWERS]])
     answers_img = answers_img.reshape(-1, *answers_img.shape[2:])
 
     results = {
-        FieldName.exam_title.name: ocr_model.inference(fields_images[FieldName.exam_title][0].img),
-        FieldName.student_name.name: ocr_model.inference(fields_images[FieldName.student_name][0].img),
-        FieldName.date.name: ocr_model.inference(fields_images[FieldName.date][0].img),
-        f"{FieldName.student_id.name}_text": ocr_model.inference(fields_images[FieldName.student_id][0][1].img, only_digits=True),
-        f"{FieldName.student_id.name}_boxes": index,
-        FieldName.exam_key.name: box_model.inference(fields_images[FieldName.exam_key][0].img),
-        FieldName.answers.name: box_model.inference(answers_img)
+        FieldName.EXAM_TITLE.name.lower(): ocr_model.inference(fields_images[FieldName.EXAM_TITLE][0].img),
+        FieldName.STUDENT_NAME.name.lower(): ocr_model.inference(fields_images[FieldName.STUDENT_NAME][0].img),
+        FieldName.DATE.name.lower(): ocr_model.inference(fields_images[FieldName.DATE][0].img),
+        f"student_id_text": ocr_model.inference(fields_images[FieldName.STUDENT_ID_TEXT][0].img, only_digits=True),
+        f"student_id_boxes": index,
+        FieldName.EXAM_KEY.name.lower(): box_model.inference(fields_images[FieldName.EXAM_KEY][0].img),
+        FieldName.ANSWERS.name.lower(): box_model.inference(answers_img)
     }
     output = ResultsDTO.parse_obj(results)
     logging.info("Inference results:\n" + str(output))
-
     if not Config.inference.debug_image:
         return output, None
 
@@ -156,6 +175,16 @@ def _check_image(image: Image) -> tp.Tuple[ResultsDTO, np.ndarray]:
         return output, None
 
     return output, debug_image
+
+
+def _extract_student_id_grid(image: np.ndarray, model: BoxModelYolo) -> str:
+    """Extracts student ID from the grid box with custom mapping."""
+    index, predictions = model.inference(image, argmax=True)
+    index_str = "".join([
+        str((i + 1) % 10) if p > Config.inference.answer_threshold else 'X'
+        for i, p in zip(index, predictions)
+    ])
+    return index_str
 
 
 def highlight_marks(debug_image: np.ndarray, fields: tp.Dict[FieldName, tp.List[Field]], results: ResultsDTO):
@@ -176,10 +205,10 @@ def highlight_marks(debug_image: np.ndarray, fields: tp.Dict[FieldName, tp.List[
                 highlight_mark(x, rect[1], width, rect[3], rgb=rgb)
 
     def highlight_answer_columns(rgb: tp.Tuple[int, int, int] = white):
-        number_of_rows = len(results.answers) // len(fields[FieldName.answers])
+        number_of_rows = len(results.answers) // len(fields[FieldName.ANSWERS])
         for i, row in enumerate(results.answers.values()):
             column_index = i // number_of_rows
-            field = fields[FieldName.answers][column_index]
+            field = fields[FieldName.ANSWERS][column_index]
             # Row height is a height of column divided by number of rows
             height = field.rect[3] // field.img.shape[0]
             y = field.rect[1] + i % number_of_rows * height
@@ -196,20 +225,20 @@ def highlight_marks(debug_image: np.ndarray, fields: tp.Dict[FieldName, tp.List[
 
     # Text fields
     text_color = (235, 255, 235)
-    highlight_mark(*fields[FieldName.exam_title][0].rect, rgb=text_color)
-    highlight_mark(*fields[FieldName.student_name][0].rect, rgb=text_color)
-    highlight_mark(*fields[FieldName.date][0].rect, rgb=text_color)
-    highlight_mark(*fields[FieldName.student_id][0][1].rect, rgb=text_color)
+    highlight_mark(*fields[FieldName.EXAM_TITLE][0].rect, rgb=text_color)
+    highlight_mark(*fields[FieldName.STUDENT_NAME][0].rect, rgb=text_color)
+    highlight_mark(*fields[FieldName.DATE][0].rect, rgb=text_color)
+    highlight_mark(*fields[FieldName.STUDENT_ID_TEXT][0].rect, rgb=text_color)
 
     # Box fields
     box_color = (255, 235, 235)
-    highlight_mark(*fields[FieldName.exam_key][0].rect, rgb=box_color)
-    highlight_mark(*fields[FieldName.student_id][0][0].rect, rgb=box_color)
-    [highlight_mark(*f.rect, rgb=box_color) for f in fields[FieldName.answers]]
+    highlight_mark(*fields[FieldName.EXAM_KEY][0].rect, rgb=box_color)
+    highlight_mark(*fields[FieldName.STUDENT_ID_GRID][0].rect, rgb=box_color)
+    [highlight_mark(*f.rect, rgb=box_color) for f in fields[FieldName.ANSWERS]]
 
     # Marks
     mark_color = (120, 255, 120)
-    highlight_row(results.exam_key, fields[FieldName.exam_key][0].rect, rgb=mark_color)
+    highlight_row(results.exam_key, fields[FieldName.EXAM_KEY][0].rect, rgb=mark_color)
     highlight_answer_columns(rgb=mark_color)
-    highlight_index_columns(fields[FieldName.student_id][0][0].rect, results.student_id_boxes, rgb=mark_color)
+    highlight_index_columns(fields[FieldName.STUDENT_ID_GRID][0].rect, results.student_id_boxes, rgb=mark_color)
     return debug_image

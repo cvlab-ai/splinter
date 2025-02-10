@@ -1,9 +1,25 @@
-from .extractor import Extractor
+from src.config import Config
 from src.preprocessing import Field
+from src.utils import ImageGridDivider
+from .extractor import Extractor
 
 
 class BoxExtractor(Extractor):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.image_grid_divider = ImageGridDivider(
+            rows=10,
+            cols=4,
+            target_size=Config.inference.target_box_shape,
+            group_by='y'
+        )
+
     def process(self):
-        self.remove_borders(3)
-        images = self.split_image_into_squares(4, 10, group_by='y')
-        return Field(images, self._rect)
+        """Processes the image by dividing it into a grid and returning a Field
+        object containing the divided image and the rectangle.
+
+        Returns:
+            Field: A Field object containing the divided image and the rectangle.
+        """
+        divided_image = self.image_grid_divider.divide(self._operated_img)
+        return Field(divided_image, self._rect)

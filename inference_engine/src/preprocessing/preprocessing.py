@@ -1,44 +1,59 @@
 import logging
 import typing as tp
 from collections import defaultdict
+from PIL import Image
 
-import numpy as np
 import cv2
+import numpy as np
 
 from src.utils.exceptions import PreprocessingError
-from .extractors import TextExtractor, IndexExtractor, BoxExtractor, FieldExtractor, GroupExtractor
+from .extractors import (
+    FieldExtractor,
+    TextExtractor,
+    GroupExtractor,
+    StudentIdGridExtractor,
+    StudentIdTextExtractor,
+    BoxExtractor,
+)
 from .fields import FieldName, Field
 from .rotation import rotate_exam
-
+from .crop import crop_exam
+from .constrast import constrast_exam
+from random import randint
 
 class Preprocessing:
     FIELD_EXTRACTOR_MAPPING = {
-        FieldName.exam_title: TextExtractor,
-        FieldName.student_name: TextExtractor,
-        FieldName.date: TextExtractor,
-        FieldName.exam_key: GroupExtractor,
-        FieldName.student_id: IndexExtractor,
-        FieldName.answers: BoxExtractor
+        FieldName.EXAM_TITLE: TextExtractor,
+        FieldName.STUDENT_NAME: TextExtractor,
+        FieldName.DATE: TextExtractor,
+        FieldName.EXAM_KEY: GroupExtractor,
+        FieldName.STUDENT_ID_GRID: StudentIdGridExtractor,
+        FieldName.STUDENT_ID_TEXT: StudentIdTextExtractor,
+        FieldName.ANSWERS: BoxExtractor
     }
 
     def __init__(self, img: np.ndarray):
         self._exam_copy = img.copy()
 
     def process(self) -> tp.Tuple[tp.Dict[FieldName, tp.List[Field]], np.ndarray]:
-        self._exam_copy = rotate_exam(self._exam_copy)
-        try:
-            fields = FieldExtractor(Field(self._exam_copy)).process()
-            _map = Preprocessing.FIELD_EXTRACTOR_MAPPING
-            result = [(name, _map[name](field).process()) for name, field in fields if name in _map]
-            result = self.group_by_field(result)
-        except (IndexError, ValueError, cv2.error) as e:
-            logging.exception(e)
-            raise PreprocessingError(e)
-        return result, self._exam_copy
 
-    @staticmethod
-    def group_by_field(field_images: tp.List[tp.Tuple[FieldName, np.ndarray]]) -> tp.Dict[FieldName, tp.List[Field]]:
-        grouped = defaultdict(list)
-        for fieldname, field in field_images:
-            grouped[fieldname].append(field)
-        return dict(grouped)
+        try:
+            self._exam_copy = cv2.resize(self._exam_copy, (2 * 2480, 2 * 3508))
+            self._exam_copy = constrast_exam(self._exam_copy)
+            self._exam_copy = rotate_exam(self._exam_copy)
+            self._exam_copy = crop_exam(self._exam_copy)
+            self._exam_copy = cv2.resize(self._exam_copy, (2480, 3508))
+
+            field_regions = FieldExtractor(Field(self._exam_copy)).process()
+
+            result = {
+                name: [self.FIELD_EXTRACTOR_MAPPING[name](field).process() for field in fields]
+                for name, fields in field_regions.items()
+                if name in self.FIELD_EXTRACTOR_MAPPING
+            }
+
+        except (IndexError, ValueError, cv2.error) as e:
+            logging.exception(f"An error occurred during preprocessing: {e}")
+            raise PreprocessingError(e)
+
+        return result, self._exam_copy
