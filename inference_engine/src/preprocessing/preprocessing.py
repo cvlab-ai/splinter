@@ -1,12 +1,12 @@
 import logging
 import typing as tp
-from collections import defaultdict
-from PIL import Image
 
 import cv2
 import numpy as np
 
 from src.utils.exceptions import PreprocessingError
+from .constrast import constrast_exam
+from .crop import crop_exam
 from .extractors import (
     FieldExtractor,
     TextExtractor,
@@ -17,9 +17,7 @@ from .extractors import (
 )
 from .fields import FieldName, Field
 from .rotation import rotate_exam
-from .crop import crop_exam
-from .constrast import constrast_exam
-from random import randint
+
 
 class Preprocessing:
     FIELD_EXTRACTOR_MAPPING = {
