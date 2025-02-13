@@ -7,14 +7,12 @@ output_base_folder  = "output_windows_american_en"
 input_folder_lines = "output_windows_american_en" # Path to the folder containing the individual lines
 output_folder_lines  = "output_windows_american_en_after"
 
-if not os.path.exists(output_base_folder):
-    os.makedirs(output_base_folder)
+os.makedirs(output_base_folder, exist_ok=True)
 def create_output_folder_structure(input_folder, output_folder):
     for root, dirs, files in os.walk(input_folder):
         for dir in dirs:
             path_structure = os.path.join(output_folder, os.path.relpath(os.path.join(root, dir), input_folder))
-            if not os.path.exists(path_structure):
-                os.makedirs(path_structure)
+            os.makedirs(path_structure, exist_ok=True)
 
 def ensure_line_folders(output_base_folder, page_num, num_lines):
     for line_num in range(1, num_lines + 1):
